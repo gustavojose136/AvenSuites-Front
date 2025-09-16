@@ -25,6 +25,7 @@ const Signin = () => {
   const loginUser = (e: any) => {
     e.preventDefault();
 
+    console.log("🚀 Login iniciado com dados:", loginData);
     setLoading(true);
     signIn("credentials", { ...loginData, redirect: false })
       .then((callback) => {
