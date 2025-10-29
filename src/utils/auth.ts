@@ -8,6 +8,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import { prisma } from "./prismaDB";
 import type { Adapter } from "next-auth/adapters";
+import axios from "axios";
+import https from "https";
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -29,67 +31,132 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        console.log(credentials);
-        // check to see if email and password is there
+        console.log("\n");
+        console.log("🔐 ================================================");
+        console.log("🔐 ATENÇÃO: AUTENTICAÇÃO VIA API EXTERNA");
+        console.log("🔐 NextAuth está apenas criando a sessão!");
+        console.log("🔐 A validação é feita na SUA API em C#");
+        console.log("🔐 ================================================");
+        
+        // Validação dos campos obrigatórios
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Please enter an email or password");
+          throw new Error("Por favor, insira seu e-mail e senha");
         }
 
         try {
-          console.log("🔍 Iniciando autenticação...");
-          console.log("📧 Email:", credentials.email);
-          console.log("🌐 API URL:", process.env.NEXT_PUBLIC_API_URL);
+          // Remove barra final da API URL se existir
+          const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7000/api').replace(/\/$/, '');
+          const loginEndpoint = '/Auth/login';
+          const fullUrl = `${apiUrl}${loginEndpoint}`;
           
-          const apiUrl = 'https://localhost:7000/api/';
-          const loginUrl = `${apiUrl}Auth/login`;
-          console.log("🔗 URL completa:", loginUrl);
+          console.log("\n📡 FAZENDO CHAMADA PARA SUA API EXTERNA:");
+          console.log("   📧 Email:", credentials.email);
+          console.log("   🌐 API URL:", apiUrl);
+          console.log("   🔗 Endpoint Completo:", fullUrl);
+          console.log("   ⚙️  Método: POST");
+          console.log("   📦 Body:", JSON.stringify({ email: credentials.email, password: "***" }));
+          console.log("\n⏳ Aguardando resposta da API...");
           
-          // Usar axios que funciona melhor com SSL
-          const axios = require('axios');
-          
-          console.log("🚀 Fazendo requisição para:", loginUrl);
-          
-          const response = await axios.post(loginUrl, {
+          // Cria um agente HTTPS que ignora certificados SSL em desenvolvimento
+          const httpsAgent = new https.Agent({
+            rejectUnauthorized: false
+          });
+
+          // Faz a requisição usando Axios (funciona melhor com HTTPS)
+          const response = await axios.post(fullUrl, {
             email: credentials.email,
             password: credentials.password,
           }, {
             headers: {
               'Content-Type': 'application/json',
             },
-            httpsAgent: new (require('https').Agent)({
-              rejectUnauthorized: false
-            })
+            httpsAgent: httpsAgent, // Ignora SSL em desenvolvimento
+            timeout: 10000, // Timeout de 10 segundos
           });
 
-          console.log("📡 Response status:", response.status);
-          console.log("📡 Response data:", response.data);
+          console.log("\n✅ ================================================");
+          console.log("✅ RESPOSTA RECEBIDA DA SUA API!");
+          console.log("✅ ================================================");
+          console.log("📡 Status HTTP:", response.status);
+          console.log("📦 Dados recebidos da API:");
+          console.log(JSON.stringify(response.data, null, 2));
+          console.log("✅ ================================================\n");
           
           const userData = response.data;
           
-          // Retorna o usuário no formato esperado pelo NextAuth
-          return {
-            id: userData.user.id,
-            email: userData.user.email,
-            name: userData.user.name,
-            image: userData.user.image || null,
-            accessToken: userData.token, // Token da sua API
-            refreshToken: null, // Sua API não retorna refresh token
-            roles: userData.user.roles, // Roles do usuário
-            expiresAt: userData.expiresAt, // Data de expiração
-          };
-        } catch (error: any) {
-          console.error("Erro na autenticação:", error);
+          // Estrutura da resposta esperada da API:
+          // {
+          //   token: "JWT_TOKEN",
+          //   user: {
+          //     id: "user_id",
+          //     email: "user@email.com",
+          //     name: "User Name",
+          //     roles: ["ADMIN", "USER"],
+          //     image?: "url"
+          //   },
+          //   expiresAt?: "2024-12-31T23:59:59Z"
+          // }
           
+          // Retorna o usuário no formato esperado pelo NextAuth
+          const user = {
+            id: userData.user?.id || userData.id || "unknown",
+            email: userData.user?.email || userData.email || credentials.email,
+            name: userData.user?.name || userData.name || credentials.email.split('@')[0],
+            image: userData.user?.image || userData.image || null,
+            accessToken: userData.token || userData.accessToken,
+            refreshToken: userData.refreshToken || null,
+            roles: userData.user?.roles || userData.roles || [],
+            expiresAt: userData.expiresAt || null,
+          };
+
+          console.log("💾 Salvando na sessão do NextAuth:");
+          console.log(JSON.stringify(user, null, 2));
+          console.log("\n🎉 AUTENTICAÇÃO CONCLUÍDA VIA SUA API!\n");
+          
+          return user;
+          
+        } catch (error: any) {
+          console.error("❌ ============================================");
+          console.error("❌ ERRO NA AUTENTICAÇÃO");
+          console.error("❌ ============================================");
+          
+          // Erros do Axios
           if (error.response) {
-            // Erro da API
-            const errorMessage = error.response.data?.message || "Invalid email or password";
+            // A API respondeu com um status de erro
+            console.error("📡 Status:", error.response.status);
+            console.error("📡 Dados:", error.response.data);
+            console.error("📡 Headers:", error.response.headers);
+            
+            const errorMessage = error.response.data?.message 
+              || error.response.data?.error 
+              || error.response.data?.title
+              || "E-mail ou senha inválidos";
+            
             throw new Error(errorMessage);
+            
           } else if (error.request) {
-            // Erro de rede
-            throw new Error("Erro de conexão com o servidor");
+            // A requisição foi feita mas não houve resposta
+            console.error("📡 Request feito mas sem resposta");
+            console.error("📡 Request:", error.request);
+            throw new Error("Erro de conexão com o servidor. Verifique se a API está rodando em: " + (process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7000/api'));
+            
+          } else if (error.code === 'ECONNREFUSED') {
+            console.error("📡 Conexão recusada");
+            throw new Error("Não foi possível conectar ao servidor. Verifique se a API está ativa.");
+            
+          } else if (error.code === 'ENOTFOUND') {
+            console.error("📡 Host não encontrado");
+            throw new Error("Servidor não encontrado. Verifique a URL da API.");
+            
+          } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+            console.error("📡 Timeout");
+            throw new Error("Tempo de conexão esgotado. A API demorou muito para responder.");
+            
           } else {
             // Outro erro
-            throw new Error(error.message || "Erro desconhecido");
+            console.error("📡 Erro desconhecido:", error.message);
+            console.error("📡 Stack:", error.stack);
+            throw new Error(error.message || "Erro ao fazer login. Tente novamente.");
           }
         }
       },
