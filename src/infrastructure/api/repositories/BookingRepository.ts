@@ -37,7 +37,7 @@ export class BookingRepository implements IBookingRepository {
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
     const query = params.toString() ? `?${params}` : '';
-    return this.httpClient.get<Booking[]>(`${this.baseUrl}/hotel/${hotelId}${query}`);
+    return this.httpClient.get<Booking[]>(`${this.baseUrl}/hotels/${hotelId}${query}`);
   }
 
   async getByGuest(guestId: string): Promise<Booking[]> {

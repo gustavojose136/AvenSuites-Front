@@ -334,6 +334,95 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Guest Portal Section */}
+      <section className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16 dark:from-dark-2 dark:via-dark dark:to-dark-2 lg:py-24">
+        <div className="container">
+          <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-dark-2">
+            <div className="grid gap-0 md:grid-cols-2">
+              {/* Left Side - Info */}
+              <div className="flex flex-col justify-center p-8 lg:p-12">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-blue-600">
+                  <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <h2 className="mb-4 text-3xl font-bold text-dark dark:text-white">
+                  Portal do Hóspede
+                </h2>
+                <p className="mb-6 text-base text-body-color dark:text-dark-6">
+                  Já é nosso hóspede? Acesse sua conta para acompanhar suas reservas, ver histórico e gerenciar suas estadias.
+                </p>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <svg className="mt-1 h-5 w-5 flex-shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-body-color dark:text-dark-6">
+                      Visualize todas as suas reservas
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <svg className="mt-1 h-5 w-5 flex-shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-body-color dark:text-dark-6">
+                      Acompanhe o status em tempo real
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <svg className="mt-1 h-5 w-5 flex-shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-body-color dark:text-dark-6">
+                      Gerencie seus dados pessoais
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - CTA */}
+              <div className="flex flex-col items-center justify-center bg-gradient-to-br from-primary to-blue-600 p-8 lg:p-12">
+                <div className="text-center">
+                  <div className="mb-6">
+                    <svg className="mx-auto h-20 w-20 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                  </div>
+                  <h3 className="mb-3 text-2xl font-bold text-white">
+                    Acesse sua Conta
+                  </h3>
+                  <p className="mb-6 text-sm text-white/90">
+                    Faça login para gerenciar suas reservas
+                  </p>
+                  <Link
+                    href="/guest/login"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-base font-semibold text-primary transition-all duration-300 hover:bg-white/90 hover:shadow-lg"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    Entrar no Portal
+                  </Link>
+                  
+                  <div className="mt-4 text-center">
+                    <p className="text-sm text-white/80">
+                      Ainda não tem conta?{' '}
+                      <Link
+                        href="/guest/search"
+                        className="font-semibold text-white underline hover:no-underline"
+                      >
+                        Faça sua reserva
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="bg-gradient-to-r from-primary to-blue-600 py-16 lg:py-24">
         <div className="container">

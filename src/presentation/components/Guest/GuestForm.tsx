@@ -37,7 +37,8 @@ export const GuestForm: React.FC<GuestFormProps> = ({
       ...initialData,
       hotelId,
       documentType: initialData?.documentType || 'CPF',
-      nationality: initialData?.nationality || 'BR',
+      countryCode: initialData?.countryCode || 'BR',
+      marketingConsent: initialData?.marketingConsent || false,
     },
   });
 
@@ -106,13 +107,13 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             </p>
           </div>
 
-          {/* Nacionalidade */}
+          {/* País */}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-              Nacionalidade
+              País
             </label>
             <select
-              {...register('nationality')}
+              {...register('countryCode')}
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-dark outline-none transition focus:border-primary disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-dark-3 dark:text-white dark:focus:border-primary dark:disabled:bg-dark-3"
               disabled={isLoading}
             >
@@ -125,8 +126,8 @@ export const GuestForm: React.FC<GuestFormProps> = ({
               <option value="PT">Portugal</option>
               <option value="ES">Espanha</option>
             </select>
-            {errors.nationality && (
-              <p className="mt-1 text-sm text-red-500">{errors.nationality.message}</p>
+            {errors.countryCode && (
+              <p className="mt-1 text-sm text-red-500">{errors.countryCode.message}</p>
             )}
           </div>
         </div>
@@ -244,6 +245,19 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             />
           </div>
 
+          <div>
+            <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+              Complemento
+            </label>
+            <input
+              {...register('addressLine2')}
+              type="text"
+              placeholder="Apto, Bloco, Sala (opcional)"
+              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 text-dark outline-none transition focus:border-primary disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-dark-3 dark:text-white dark:focus:border-primary dark:disabled:bg-dark-3"
+              disabled={isLoading}
+            />
+          </div>
+
           <div className="grid gap-4 md:grid-cols-3">
             <div>
               <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
@@ -284,6 +298,30 @@ export const GuestForm: React.FC<GuestFormProps> = ({
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Consentimentos */}
+      <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
+        <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+          Consentimentos
+        </h3>
+        
+        <div className="flex items-start gap-3">
+          <input
+            {...register('marketingConsent')}
+            type="checkbox"
+            id="marketingConsent"
+            className="mt-1 h-5 w-5 rounded border-stroke text-primary focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3"
+            disabled={isLoading}
+          />
+          <label htmlFor="marketingConsent" className="cursor-pointer text-sm text-dark dark:text-white">
+            <span className="font-medium">Aceito receber comunicações de marketing</span>
+            <p className="mt-1 text-xs text-body-color dark:text-dark-6">
+              Concordo em receber e-mails promocionais, ofertas especiais e novidades sobre o hotel.
+              Você pode cancelar a qualquer momento.
+            </p>
+          </label>
         </div>
       </div>
 

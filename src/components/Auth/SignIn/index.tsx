@@ -51,31 +51,51 @@ const Signin = () => {
     return () => clearInterval(interval)
   }, [hotelImages.length])
 
-  const loginUser = (e: any) => {
+  const loginUser = async (e: any) => {
     e.preventDefault()
 
     console.log("🚀 Login iniciado com dados:", loginData)
     setLoading(true)
-    signIn("credentials", { ...loginData, redirect: false })
-      .then((callback) => {
-        if (callback?.error) {
-          toast.error(callback?.error)
-          console.log(callback?.error)
-          setLoading(false)
-          return
-        }
-
-        if (callback?.ok && !callback?.error) {
-          toast.success("Login realizado com sucesso!")
-          setLoading(false)
-          router.push("/dashboard")
-        }
-      })
-      .catch((err) => {
+    
+    try {
+      // Limpa tokens antigos
+      localStorage.removeItem('guestToken')
+      localStorage.removeItem('guestUser')
+      
+      // Faz login via NextAuth
+      const callback = await signIn("credentials", { ...loginData, redirect: false })
+      
+      if (callback?.error) {
+        toast.error(callback?.error)
+        console.log(callback?.error)
         setLoading(false)
-        console.log(err.message)
-        toast.error(err.message)
-      })
+        return
+      }
+
+      if (callback?.ok && !callback?.error) {
+        // Busca a sessão e salva o token no localStorage
+        const { getSession } = await import('next-auth/react')
+        const session = await getSession()
+        
+        if (session?.accessToken) {
+          console.log('✅ Salvando token Admin no localStorage')
+          localStorage.setItem('guestToken', session.accessToken as string)
+          localStorage.setItem('guestUser', JSON.stringify({
+            id: session.user?.id,
+            name: session.user?.name,
+            email: session.user?.email,
+          }))
+        }
+        
+        toast.success("Login realizado com sucesso!")
+        setLoading(false)
+        router.push("/dashboard")
+      }
+    } catch (err: any) {
+      setLoading(false)
+      console.log(err.message)
+      toast.error(err.message)
+    }
   }
 
   return (

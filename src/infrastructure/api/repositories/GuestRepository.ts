@@ -25,7 +25,7 @@ export class GuestRepository implements IGuestRepository {
   }
 
   async getByHotel(hotelId: string): Promise<Guest[]> {
-    return this.httpClient.get<Guest[]>(`${this.baseUrl}/hotel/${hotelId}`);
+    return this.httpClient.get<Guest[]>(`${this.baseUrl}/hotels/${hotelId}`);
   }
 
   async create(data: GuestCreateRequest): Promise<Guest> {

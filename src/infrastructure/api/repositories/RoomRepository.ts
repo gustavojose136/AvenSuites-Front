@@ -32,7 +32,7 @@ export class RoomRepository implements IRoomRepository {
 
   async getByHotel(hotelId: string, status?: string): Promise<Room[]> {
     const params = status ? `?status=${status}` : '';
-    return this.httpClient.get<Room[]>(`${this.baseUrl}/hotel/${hotelId}${params}`);
+    return this.httpClient.get<Room[]>(`${this.baseUrl}/hotels/${hotelId}${params}`);
   }
 
   async checkAvailability(request: RoomAvailabilityRequest): Promise<RoomAvailabilityResponse[]> {

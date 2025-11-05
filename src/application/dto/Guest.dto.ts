@@ -9,6 +9,15 @@ export interface Guest {
   fullName: string;
   email?: string;
   phoneE164?: string;
+  documentType?: string;
+  documentPlain?: string;
+  birthDate?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  countryCode: string;
   marketingConsent: boolean;
   createdAt: string;
   updatedAt: string;
@@ -19,6 +28,15 @@ export interface GuestCreateRequest {
   fullName: string;
   email?: string;
   phoneE164?: string;
+  documentType?: string;
+  documentPlain?: string;
+  birthDate?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  countryCode?: string;
   marketingConsent?: boolean;
 }
 
