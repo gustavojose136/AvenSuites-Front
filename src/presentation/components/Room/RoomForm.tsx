@@ -33,6 +33,7 @@ export const RoomForm: React.FC<RoomFormProps> = ({
   } = useForm<RoomFormData>({
     resolver: zodResolver(roomCreateSchema),
     defaultValues: {
+      status: 'Available',
       ...initialData,
       hotelId,
     },
@@ -40,8 +41,19 @@ export const RoomForm: React.FC<RoomFormProps> = ({
 
   const isLoading = loading || isSubmitting;
 
+  const handleFormSubmit = async (data: RoomFormData) => {
+    const apiRequest: RoomCreateRequest = {
+      hotelId: data.hotelId,
+      roomTypeId: data.roomTypeId || '',
+      roomNumber: data.roomNumber,
+      floor: data.floor?.toString() || undefined,
+      status: data.status || undefined,
+    };
+    await onSubmit(apiRequest);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Informações do Quarto

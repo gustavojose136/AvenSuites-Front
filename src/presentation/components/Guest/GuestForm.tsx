@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { guestCreateSchema, type GuestFormData } from '@/shared/validators/guestSchema';
 import { GuestCreateRequest } from '@/application/dto/Guest.dto';
+import { mapFormDataToApiRequest } from '@/shared/utils/guestMapper';
 
 interface GuestFormProps {
   hotelId: string;
@@ -34,19 +35,24 @@ export const GuestForm: React.FC<GuestFormProps> = ({
   } = useForm<GuestFormData>({
     resolver: zodResolver(guestCreateSchema),
     defaultValues: {
-      ...initialData,
       hotelId,
-      documentType: initialData?.documentType || 'CPF',
+      documentType: (initialData?.documentType || 'CPF') as 'CPF' | 'Passport' | 'RG' | 'CNH',
       countryCode: initialData?.countryCode || 'BR',
-      marketingConsent: initialData?.marketingConsent || false,
+      marketingConsent: initialData?.marketingConsent ?? false,
+      ...initialData,
     },
   });
 
   const documentType = watch('documentType');
   const isLoading = loading || isSubmitting;
 
+  const handleFormSubmit = async (formData: GuestFormData) => {
+    const apiRequest = mapFormDataToApiRequest(formData);
+    await onSubmit(apiRequest);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       {/* Dados Pessoais */}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">

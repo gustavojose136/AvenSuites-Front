@@ -52,14 +52,16 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Available':
+      case 'ACTIVE':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'Occupied':
+      case 'OCCUPIED':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'Maintenance':
+      case 'MAINTENANCE':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
-      case 'OutOfOrder':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
+      case 'INACTIVE':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'CLEANING':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
     }
@@ -69,10 +71,6 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
     <>
       <Breadcrumb 
         pageName={`Quarto ${selectedRoom.roomNumber}`}
-        pages={[
-          { name: 'Quartos', href: '/rooms' },
-          { name: `Quarto ${selectedRoom.roomNumber}`, href: `/rooms/${params.id}` },
-        ]}
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
@@ -105,49 +103,26 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
             </h2>
             
             <div className="grid gap-4 md:grid-cols-2">
-              {selectedRoom.floor !== null && selectedRoom.floor !== undefined && (
+              {selectedRoom.floor && (
                 <div>
                   <p className="text-sm text-body-color dark:text-dark-6">Andar</p>
                   <p className="text-lg font-medium text-dark dark:text-white">{selectedRoom.floor}º andar</p>
                 </div>
               )}
 
-              {selectedRoom.maxOccupancy && (
+              {selectedRoom.roomType && (
                 <div>
-                  <p className="text-sm text-body-color dark:text-dark-6">Capacidade</p>
+                  <p className="text-sm text-body-color dark:text-dark-6">Tipo de Quarto</p>
                   <p className="text-lg font-medium text-dark dark:text-white">
-                    {selectedRoom.maxOccupancy} pessoa(s)
-                  </p>
-                </div>
-              )}
-
-              {selectedRoom.bedType && (
-                <div>
-                  <p className="text-sm text-body-color dark:text-dark-6">Tipo de Cama</p>
-                  <p className="text-lg font-medium text-dark dark:text-white">{selectedRoom.bedType}</p>
-                </div>
-              )}
-
-              {selectedRoom.basePrice && (
-                <div>
-                  <p className="text-sm text-body-color dark:text-dark-6">Preço Base</p>
-                  <p className="text-lg font-medium text-primary">
-                    R$ {selectedRoom.basePrice.toFixed(2)}/noite
+                    {selectedRoom.roomType.name || selectedRoom.roomType.code}
                   </p>
                 </div>
               )}
             </div>
-
-            {selectedRoom.notes && (
-              <div className="mt-4 pt-4 border-t border-stroke dark:border-dark-3">
-                <p className="text-sm text-body-color dark:text-dark-6 mb-2">Observações</p>
-                <p className="text-dark dark:text-white">{selectedRoom.notes}</p>
-              </div>
-            )}
           </div>
 
           {/* Ações Rápidas */}
-          {selectedRoom.status === 'Available' && (
+          {selectedRoom.status === 'ACTIVE' && (
             <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
               <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
                 Ações Rápidas

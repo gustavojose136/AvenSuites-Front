@@ -30,13 +30,26 @@ export const HotelForm: React.FC<HotelFormProps> = ({
     formState: { errors, isSubmitting } 
   } = useForm<HotelFormData>({
     resolver: zodResolver(hotelCreateSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      timezone: 'America/Sao_Paulo',
+      countryCode: 'BR',
+      ...initialData,
+    },
   });
 
   const isLoading = loading || isSubmitting;
 
+  const handleFormSubmit = async (data: HotelFormData) => {
+    const apiRequest: HotelCreateRequest = {
+      ...data,
+      tradeName: data.tradeName || undefined,
+      addressLine2: data.addressLine2 || undefined,
+    };
+    await onSubmit(apiRequest);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       {/* Informações Básicas */}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">

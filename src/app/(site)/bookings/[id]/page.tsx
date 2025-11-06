@@ -53,15 +53,15 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Confirmed':
+      case 'CONFIRMED':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'Pending':
+      case 'PENDING':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
-      case 'Cancelled':
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
-      case 'CheckedIn':
+      case 'CHECKED_IN':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'CheckedOut':
+      case 'CHECKED_OUT':
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
@@ -103,11 +103,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   return (
     <>
       <Breadcrumb 
-        pageName={`Reserva #${selectedBooking.bookingCode}`}
-        pages={[
-          { name: 'Reservas', href: '/bookings' },
-          { name: `#${selectedBooking.bookingCode}`, href: `/bookings/${params.id}` },
-        ]}
+        pageName={`Reserva #${selectedBooking.code}`}
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
@@ -116,7 +112,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           <div className="flex items-start justify-between">
             <div>
               <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
-                Reserva #{selectedBooking.bookingCode}
+                Reserva #{selectedBooking.code}
               </h1>
               <span className={`inline-block rounded px-3 py-1 text-sm font-medium ${getStatusColor(selectedBooking.status)}`}>
                 {selectedBooking.status}
@@ -124,7 +120,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             </div>
 
             <div className="flex gap-2">
-              {selectedBooking.status === 'Pending' && (
+              {selectedBooking.status === 'PENDING' && (
                 <>
                   <button
                     onClick={handleConfirm}
@@ -141,7 +137,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 </>
               )}
               
-              {selectedBooking.status === 'Confirmed' && (
+              {selectedBooking.status === 'CONFIRMED' && (
                 <button
                   onClick={handleCancel}
                   className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
@@ -173,11 +169,11 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 </p>
               </div>
 
-              {selectedBooking.guestCount && (
+              {(selectedBooking.adults || selectedBooking.children) && (
                 <div>
                   <p className="text-sm text-body-color dark:text-dark-6">Número de Hóspedes</p>
                   <p className="text-lg font-medium text-dark dark:text-white">
-                    {selectedBooking.guestCount} pessoa(s)
+                    {selectedBooking.adults || 0} adulto(s) {selectedBooking.children ? `e ${selectedBooking.children} criança(s)` : ''}
                   </p>
                 </div>
               )}
@@ -192,10 +188,10 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            {selectedBooking.specialRequests && (
+            {selectedBooking.notes && (
               <div className="mt-4 pt-4 border-t border-stroke dark:border-dark-3">
-                <p className="text-sm text-body-color dark:text-dark-6 mb-2">Solicitações Especiais</p>
-                <p className="text-dark dark:text-white">{selectedBooking.specialRequests}</p>
+                <p className="text-sm text-body-color dark:text-dark-6 mb-2">Observações</p>
+                <p className="text-dark dark:text-white">{selectedBooking.notes}</p>
               </div>
             )}
           </div>
@@ -214,20 +210,20 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 </span>
               </div>
               
-              {selectedBooking.confirmedAt && (
+              {selectedBooking.status === 'CONFIRMED' && (
                 <div className="flex justify-between items-center">
-                  <span className="text-body-color dark:text-dark-6">Data de Confirmação</span>
-                  <span className="font-medium text-dark dark:text-white">
-                    {new Date(selectedBooking.confirmedAt).toLocaleString('pt-BR')}
+                  <span className="text-body-color dark:text-dark-6">Status</span>
+                  <span className="font-medium text-green-600">
+                    Confirmada
                   </span>
                 </div>
               )}
 
-              {selectedBooking.cancelledAt && (
+              {selectedBooking.status === 'CANCELLED' && (
                 <div className="flex justify-between items-center">
-                  <span className="text-body-color dark:text-dark-6">Data de Cancelamento</span>
+                  <span className="text-body-color dark:text-dark-6">Status</span>
                   <span className="font-medium text-red-600">
-                    {new Date(selectedBooking.cancelledAt).toLocaleString('pt-BR')}
+                    Cancelada
                   </span>
                 </div>
               )}

@@ -10,8 +10,7 @@ import { container } from '@/shared/di/Container';
 import { GuestForm } from '@/presentation/components/Guest/GuestForm';
 import { showToast } from '@/shared/utils/toast';
 import Breadcrumb from '@/components/Common/Breadcrumb';
-import { mapFormDataToApiRequest } from '@/shared/utils/guestMapper';
-import { GuestFormData } from '@/shared/validators/guestSchema';
+import { GuestCreateRequest } from '@/application/dto/Guest.dto';
 import { Suspense } from 'react';
 
 function NewGuestContent() {
@@ -23,18 +22,15 @@ function NewGuestContent() {
   const hotelId = searchParams.get('hotelId') || '';
   const returnTo = searchParams.get('returnTo') || '/guests';
 
-  const handleSubmit = async (formData: GuestFormData) => {
+  const handleSubmit = async (data: GuestCreateRequest) => {
     if (!hotelId) {
       showToast.error('Hotel não especificado. Por favor, volte e tente novamente.');
       return;
     }
 
     try {
-      // Adiciona o hotelId aos dados do formulário
-      const formDataWithHotel = { ...formData, hotelId };
-      
-      // Transforma dados do formulário para o formato da API
-      const apiRequest = mapFormDataToApiRequest(formDataWithHotel);
+      // Garante que o hotelId está presente
+      const apiRequest = { ...data, hotelId };
       
       console.log('📤 Enviando dados para API:', apiRequest);
       
@@ -59,10 +55,6 @@ function NewGuestContent() {
     <>
       <Breadcrumb 
         pageName="Novo Hóspede"
-        pages={[
-          { name: 'Hóspedes', href: '/guests' },
-          { name: 'Novo Hóspede', href: '/guests/new' },
-        ]}
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">

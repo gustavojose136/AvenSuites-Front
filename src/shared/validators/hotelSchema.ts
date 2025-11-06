@@ -41,8 +41,7 @@ export const hotelCreateSchema = z.object({
     .regex(phoneE164Regex, 'Telefone inválido. Use formato: +5511999999999'),
   
   timezone: z
-    .string()
-    .default('America/Sao_Paulo'),
+    .string(),
   
   addressLine1: z
     .string()
@@ -73,7 +72,6 @@ export const hotelCreateSchema = z.object({
   countryCode: z
     .string()
     .length(2, 'Código do país deve ter 2 letras')
-    .default('BR')
     .toUpperCase(),
 });
 

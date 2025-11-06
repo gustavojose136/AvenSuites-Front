@@ -54,7 +54,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h4 className="text-lg font-semibold text-dark dark:text-white">
-            Reserva #{booking.bookingCode}
+            Reserva #{booking.code}
           </h4>
           <p className="text-sm text-body-color dark:text-dark-6">
             ID: {booking.id.substring(0, 8)}...
@@ -86,11 +86,11 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             </span>
           </div>
         )}
-        {booking.guestCount && (
+        {(booking.adults || booking.children) && (
           <div className="flex justify-between text-sm">
             <span className="text-body-color dark:text-dark-6">Hóspedes:</span>
             <span className="font-medium text-dark dark:text-white">
-              {booking.guestCount} pessoa(s)
+              {booking.adults || 0} adulto(s) {booking.children ? `e ${booking.children} criança(s)` : ''}
             </span>
           </div>
         )}

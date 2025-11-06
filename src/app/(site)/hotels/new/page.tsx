@@ -32,10 +32,6 @@ export default function NewHotelPage() {
     <>
       <Breadcrumb 
         pageName="Novo Hotel"
-        pages={[
-          { name: 'Hotéis', href: '/hotels' },
-          { name: 'Novo Hotel', href: '/hotels/new' },
-        ]}
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">

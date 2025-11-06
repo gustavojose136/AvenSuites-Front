@@ -97,16 +97,6 @@ export const RoomList: React.FC<RoomListProps> = ({ hotelId }) => {
                     <span className="font-medium">Andar:</span> {room.floor}
                   </p>
                 )}
-                {room.maxOccupancy && (
-                  <p className="text-body-color dark:text-dark-6">
-                    <span className="font-medium">Capacidade:</span> {room.maxOccupancy} pessoa(s)
-                  </p>
-                )}
-                {room.bedType && (
-                  <p className="text-body-color dark:text-dark-6">
-                    <span className="font-medium">Tipo de Cama:</span> {room.bedType}
-                  </p>
-                )}
               </div>
 
               <div className="flex gap-2">

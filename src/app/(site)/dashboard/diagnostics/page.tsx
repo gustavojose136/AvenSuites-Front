@@ -102,7 +102,7 @@ export default function DiagnosticsPage() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-primary">2.</span>
-                <span>Clique em <strong>"Executar Diagnóstico"</strong> para testar todos os endpoints comuns</span>
+                <span>Clique em <strong>&quot;Executar Diagnóstico&quot;</strong> para testar todos os endpoints comuns</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-primary">3.</span>
