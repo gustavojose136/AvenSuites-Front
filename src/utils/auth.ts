@@ -4,19 +4,36 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import { prisma } from "./prismaDB";
 import type { Adapter } from "next-auth/adapters";
 import axios from "axios";
 import https from "https";
+
+// Importa Prisma apenas se DATABASE_URL estiver configurado
+// Como estamos usando JWT strategy, não precisamos do adapter se não houver banco
+let adapter: Adapter | undefined = undefined;
+
+// Só tenta usar Prisma se DATABASE_URL estiver configurado
+if (process.env.DATABASE_URL) {
+  try {
+    // Importação dinâmica para evitar erros durante o build se Prisma não estiver disponível
+    const prismaModule = require("./prismaDB");
+    const adapterModule = require("@auth/prisma-adapter");
+    if (prismaModule?.prisma && adapterModule?.PrismaAdapter) {
+      adapter = adapterModule.PrismaAdapter(prismaModule.prisma) as Adapter;
+    }
+  } catch (error) {
+    // Se não conseguir importar Prisma, continua sem adapter
+    // Isso é normal se não estiver usando banco de dados local
+    console.warn("Prisma não disponível, usando autenticação JWT sem banco de dados");
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
-  adapter: PrismaAdapter(prisma) as Adapter,
-  secret: process.env.SECRET,
+  adapter: adapter,
+  secret: process.env.NEXTAUTH_SECRET || process.env.SECRET,
   session: {
     strategy: "jwt",
   },

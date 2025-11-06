@@ -2,6 +2,10 @@ import { prisma } from "@/utils/prismaDB";
 import { NextResponse } from "next/server";
 
 export const POST = async (request: Request) => {
+  if (!prisma) {
+    return new NextResponse("Database not configured", { status: 503 });
+  }
+
   const body = await request.json();
   const { token } = body;
 

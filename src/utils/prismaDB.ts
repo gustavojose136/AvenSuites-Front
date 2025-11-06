@@ -1,17 +1,29 @@
-import { PrismaClient } from "@prisma/client";
+// Este arquivo só deve ser usado se DATABASE_URL estiver configurado
+// Durante o build na Vercel sem DATABASE_URL, este arquivo não deve ser executado
 
-// PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit.
-//
-// Learn more:
-// https://pris.ly/d/help/next-js-best-practices
+let PrismaClient: any;
+let prismaInstance: any;
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+// Só importa PrismaClient se DATABASE_URL estiver configurado
+if (process.env.DATABASE_URL) {
+  try {
+    PrismaClient = require("@prisma/client").PrismaClient;
+    
+    const globalForPrisma = global as unknown as { prisma: any };
+    
+    prismaInstance =
+      globalForPrisma.prisma ||
+      new PrismaClient({
+        log: process.env.NODE_ENV === "development" ? ["query"] : [],
+      });
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: ["query"],
-  });
+    if (process.env.NODE_ENV !== "production") {
+      globalForPrisma.prisma = prismaInstance;
+    }
+  } catch (error) {
+    // Se não conseguir importar Prisma, continua sem ele
+    console.warn("Prisma não disponível");
+  }
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = prismaInstance;
