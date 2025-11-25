@@ -8,15 +8,18 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useDashboard } from '@/hooks/useDashboard';
-import { useState, useMemo } from 'react';
+import { useDashboard, useInvoices } from '@/hooks/useDashboard';
+import { useState, useMemo, useEffect } from 'react';
 import { getHotelIdFromToken } from '@/shared/utils/jwtHelper';
+import toast from 'react-hot-toast';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { stats, loading, error, refetch } = useDashboard();
+  const { stats, weekBookings, loading, error, refetch, refetchWeekBookings } = useDashboard();
+  const { createInvoice } = useInvoices();
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'year'>('today');
+  const [generatingInvoice, setGeneratingInvoice] = useState<string | null>(null);
   
 
   // Extrai hotelId do token JWT
@@ -26,6 +29,32 @@ export default function DashboardPage() {
     }
     return null;
   }, [session]);
+
+  // Função para gerar nota fiscal
+  const handleGenerateInvoice = async (bookingId: string) => {
+    if (!confirm('Deseja gerar uma nota fiscal para esta reserva?')) {
+      return;
+    }
+
+    setGeneratingInvoice(bookingId);
+    try {
+      await createInvoice(bookingId);
+      toast.success('Nota fiscal gerada com sucesso!');
+      router.push('/invoices');
+    } catch (err) {
+      // Erro já é tratado no hook
+    } finally {
+      setGeneratingInvoice(null);
+    }
+  };
+
+  // Buscar reservas da semana quando o hotelId estiver disponível
+  useEffect(() => {
+    if (hotelId && status === 'authenticated') {
+      refetchWeekBookings(hotelId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hotelId, status]);
 
   if (status === 'loading' || loading) {
     return (
@@ -85,6 +114,46 @@ export default function DashboardPage() {
     bookings: 8.3,
     occupancy: 5.2,
     guests: 15.7,
+  };
+
+  // Função para obter cor do status
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'CONFIRMED':
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'CHECKED_IN':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400';
+      case 'CHECKED_OUT':
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400';
+      default:
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+    }
+  };
+
+  // Função para formatar status
+  const formatStatus = (status: string) => {
+    const statusMap: Record<string, string> = {
+      'CONFIRMED': 'Confirmada',
+      'CHECKED_IN': 'Check-in Realizado',
+      'CHECKED_OUT': 'Check-out Realizado',
+      'PENDING': 'Pendente',
+      'CANCELLED': 'Cancelada',
+      'NO_SHOW': 'Não Compareceu',
+    };
+    return statusMap[status] || status;
+  };
+
+  // Função para calcular número de noites
+  const calculateNights = (checkIn: string, checkOut: string) => {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const diffTime = Math.abs(checkOutDate.getTime() - checkInDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   return (
@@ -239,6 +308,214 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Reservas da Semana */}
+        <div className="mb-8">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-dark dark:text-white">Reservas da Semana</h2>
+              <p className="mt-1 text-sm text-body-color dark:text-dark-6">
+                {(() => {
+                  const today = new Date();
+                  const startOfWeek = new Date(today);
+                  startOfWeek.setDate(today.getDate() - today.getDay());
+                  const endOfWeek = new Date(startOfWeek);
+                  endOfWeek.setDate(startOfWeek.getDate() + 6);
+                  return `${startOfWeek.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })} - ${endOfWeek.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+                })()}
+              </p>
+            </div>
+            <Link
+              href="/bookings"
+              className="flex items-center gap-2 rounded-lg border-2 border-primary bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white dark:border-primary dark:bg-dark-2 dark:text-primary dark:hover:bg-primary"
+            >
+              Ver Todas
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+
+          {weekBookings.length === 0 ? (
+            <div className="rounded-xl bg-white p-12 text-center shadow-lg dark:bg-dark-2">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-dark-3">
+                <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-dark dark:text-white">Nenhuma reserva esta semana</h3>
+              <p className="text-body-color dark:text-dark-6">Não há reservas agendadas para esta semana.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {weekBookings.map((booking) => {
+                const nights = calculateNights(booking.checkInDate, booking.checkOutDate);
+                const checkInDate = new Date(booking.checkInDate);
+                const checkOutDate = new Date(booking.checkOutDate);
+                const isToday = new Date().toISOString().split('T')[0] === booking.checkInDate.split('T')[0];
+                const isCheckInToday = isToday && booking.status === 'CONFIRMED';
+                const isCheckOutToday = new Date().toISOString().split('T')[0] === booking.checkOutDate.split('T')[0];
+
+                return (
+                  <div
+                    key={booking.id}
+                    className={`group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] dark:bg-dark-2 ${
+                      isCheckInToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+                    }`}
+                  >
+                    {/* Badge de Check-in Hoje */}
+                    {isCheckInToday && (
+                      <div className="absolute right-0 top-0 rounded-bl-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-3 py-1 text-xs font-bold text-white">
+                        Check-in Hoje!
+                      </div>
+                    )}
+
+                    {/* Header com Código e Status */}
+                    <div className="mb-4 flex items-start justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-dark dark:text-white">
+                          {booking.code}
+                        </h3>
+                        <p className="mt-1 text-xs text-body-color dark:text-dark-6">
+                          {booking.mainGuest?.fullName || 'Hóspede não informado'}
+                        </p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(booking.status)}`}>
+                        {formatStatus(booking.status)}
+                      </span>
+                    </div>
+
+                    {/* Informações da Reserva */}
+                    <div className="space-y-3">
+                      {/* Datas */}
+                      <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-dark-3">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-dark dark:text-white">
+                              {checkInDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                            </span>
+                            <svg className="h-4 w-4 text-body-color dark:text-dark-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                            <span className="text-sm font-medium text-dark dark:text-white">
+                              {checkOutDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-body-color dark:text-dark-6">
+                            {nights} {nights === 1 ? 'noite' : 'noites'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Hóspedes e Quartos */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/10">
+                          <div className="flex items-center gap-2">
+                            <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <div>
+                              <p className="text-xs text-body-color dark:text-dark-6">Hóspedes</p>
+                              <p className="text-sm font-semibold text-dark dark:text-white">
+                                {booking.adults + booking.children}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/10">
+                          <div className="flex items-center gap-2">
+                            <svg className="h-4 w-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            <div>
+                              <p className="text-xs text-body-color dark:text-dark-6">Quartos</p>
+                              <p className="text-sm font-semibold text-dark dark:text-white">
+                                {booking.bookingRooms?.length || 1}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Valor Total */}
+                      <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 p-3 dark:from-green-900/10 dark:to-emerald-900/10">
+                        <span className="text-sm font-medium text-body-color dark:text-dark-6">Total</span>
+                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                          R$ {booking.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+
+                      {/* Quartos */}
+                      {booking.bookingRooms && booking.bookingRooms.length > 0 && (
+                        <div className="rounded-lg border border-gray-200 p-3 dark:border-dark-3">
+                          <p className="mb-2 text-xs font-semibold text-body-color dark:text-dark-6">Quartos:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {booking.bookingRooms.map((room, idx) => (
+                              <span
+                                key={idx}
+                                className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:bg-primary/20"
+                              >
+                                {room.roomNumber}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Ações */}
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        <Link
+                          href={`/bookings/${booking.id}`}
+                          className="flex-1 rounded-lg bg-primary px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-primary/90"
+                        >
+                          Ver Detalhes
+                        </Link>
+                        {booking.status === 'CONFIRMED' && (
+                          <button
+                            onClick={() => router.push(`/bookings/${booking.id}/checkin`)}
+                            className="rounded-lg border-2 border-green-500 bg-white px-4 py-2 text-sm font-semibold text-green-600 transition hover:bg-green-50 dark:border-green-500 dark:bg-dark-2 dark:text-green-400 dark:hover:bg-green-900/20"
+                          >
+                            Check-in
+                          </button>
+                        )}
+                        {booking.status !== 'CANCELLED' && (
+                          <button
+                            onClick={() => handleGenerateInvoice(booking.id)}
+                            disabled={generatingInvoice === booking.id}
+                            className="flex items-center gap-2 rounded-lg border-2 border-indigo-500 bg-white px-4 py-2 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50 dark:border-indigo-500 dark:bg-dark-2 dark:text-indigo-400 dark:hover:bg-indigo-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Gerar Nota Fiscal"
+                          >
+                            {generatingInvoice === booking.id ? (
+                              <>
+                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Gerando...
+                              </>
+                            ) : (
+                              <>
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                NF
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Operações do Dia */}

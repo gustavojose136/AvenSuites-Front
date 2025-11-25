@@ -2,8 +2,14 @@ import "@/styles/index.css";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { Toaster } from 'react-hot-toast';
+import { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "AvenSuites - Sistema de Gestão Hoteleira Completo",
+  description: "Plataforma moderna e completa para gestão de hotéis, reservas, quartos e hóspedes. Simplifique sua operação hoteleira com o AvenSuites.",
+};
 
 export default function RootLayout({
   children,

@@ -328,10 +328,6 @@ export default function GuestPortalPage() {
                 <p className="mb-1 text-sm text-white/80">Telefone</p>
                 <p className="text-lg font-bold">{profile.phone}</p>
               </div>
-              <div>
-                <p className="mb-1 text-sm text-white/80">Hotel Cadastrado</p>
-                <p className="text-lg font-bold">{profile.hotelName}</p>
-              </div>
             </div>
           </div>
         )}

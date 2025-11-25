@@ -434,6 +434,115 @@ class DashboardService {
   }
 
   /**
+   * Cria uma nova nota fiscal para uma reserva
+   */
+  async createInvoice(bookingId: string): Promise<Invoice> {
+    try {
+      console.log(`📄 ============================================`);
+      console.log(`📄 CRIANDO NOTA FISCAL`);
+      console.log(`📄 ============================================`);
+      console.log(`📄 Booking ID: ${bookingId}`);
+      
+      // Buscar dados da reserva
+      console.log(`📄 Buscando dados da reserva...`);
+      const bookings = await this.getBookings();
+      const booking = bookings.find(b => b.id === bookingId);
+      
+      if (!booking) {
+        console.error('❌ Reserva não encontrada');
+        throw new Error('Reserva não encontrada');
+      }
+
+      console.log(`✅ Reserva encontrada: ${booking.code}`);
+      console.log(`📄 Total: R$ ${booking.totalAmount}`);
+
+      // Verificar se já existe invoice para esta reserva
+      console.log(`📄 Verificando se já existe nota fiscal...`);
+      const existingInvoices = await this.getInvoices();
+      const existingInvoice = existingInvoices.find(inv => inv.bookingId === bookingId);
+      if (existingInvoice) {
+        console.warn('⚠️ Já existe uma nota fiscal para esta reserva');
+        throw new Error('Já existe uma nota fiscal para esta reserva');
+      }
+
+      // Calcular taxAmount (10% de imposto - exemplo)
+      const taxAmount = booking.totalAmount * 0.1;
+      const totalAmount = booking.totalAmount + taxAmount;
+
+      // Criar invoice via API
+      const invoiceData = {
+        bookingId: booking.id,
+        guestId: booking.mainGuestId,
+        hotelId: booking.hotelId,
+        amount: booking.totalAmount,
+        taxAmount: taxAmount,
+        totalAmount: totalAmount,
+        dueDate: booking.checkInDate,
+        description: `Hospedagem - Reserva ${booking.code}`,
+        items: booking.bookingRooms?.map(room => ({
+          description: `Quarto ${room.roomNumber}${room.roomTypeName ? ` - ${room.roomTypeName}` : ''}`,
+          quantity: 1,
+          unitPrice: room.priceTotal,
+          totalPrice: room.priceTotal,
+        })) || [],
+      };
+
+      console.log(`📄 Dados da nota fiscal:`, JSON.stringify(invoiceData, null, 2));
+      console.log(`📄 Enviando requisição para /Invoice...`);
+
+      const invoice = await httpClient.post<Invoice>('/Invoice', invoiceData);
+      
+      console.log(`✅ Nota fiscal criada com sucesso!`);
+      console.log(`📄 Invoice ID: ${invoice.id || 'N/A'}`);
+      console.log(`📄 Invoice Number: ${invoice.number || 'N/A'}`);
+      console.log(`📄 ============================================`);
+      
+      // Se a resposta não tiver todos os campos, completar com dados da reserva
+      const completeInvoice: Invoice = {
+        id: invoice.id || `INV-${booking.id.substring(0, 8)}`,
+        number: invoice.number || `NF-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`,
+        guestId: invoice.guestId || booking.mainGuestId,
+        guestName: invoice.guestName || booking.mainGuest?.fullName || 'N/A',
+        hotelId: invoice.hotelId || booking.hotelId,
+        hotelName: invoice.hotelName || 'N/A',
+        bookingId: invoice.bookingId || booking.id,
+        amount: invoice.amount || booking.totalAmount,
+        status: invoice.status || 'pending',
+        issueDate: invoice.issueDate || new Date().toISOString(),
+        dueDate: invoice.dueDate || booking.checkInDate,
+        paymentDate: invoice.paymentDate,
+        description: invoice.description || `Hospedagem - Reserva ${booking.code}`,
+      };
+      
+      return completeInvoice;
+    } catch (error: any) {
+      console.error('❌ ============================================');
+      console.error('❌ ERRO AO CRIAR NOTA FISCAL');
+      console.error('❌ ============================================');
+      console.error('❌ Erro completo:', error);
+      console.error('❌ Response:', error.response?.data);
+      console.error('❌ Status:', error.response?.status);
+      console.error('❌ ============================================');
+      
+      let errorMessage = 'Erro ao criar nota fiscal';
+      
+      if (error.response?.data) {
+        if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.errors) {
+          errorMessage = Object.values(error.response.data.errors).flat().join(', ');
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
    * Realiza check-in de uma reserva
    */
   async checkIn(bookingId: string): Promise<Booking> {
