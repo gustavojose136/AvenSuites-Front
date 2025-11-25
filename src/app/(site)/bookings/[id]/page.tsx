@@ -104,10 +104,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
     <>
       <Breadcrumb 
         pageName={`Reserva #${selectedBooking.code || selectedBooking.id.substring(0, 8)}`}
-        pages={[
-          { name: 'Reservas', href: '/bookings' },
-          { name: `#${selectedBooking.code || selectedBooking.id.substring(0, 8)}`, href: `/bookings/${params.id}` },
-        ]}
+        pageDescription="Detalhes da reserva"
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
