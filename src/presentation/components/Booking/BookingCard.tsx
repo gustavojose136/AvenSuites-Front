@@ -54,7 +54,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h4 className="text-lg font-semibold text-dark dark:text-white">
-            Reserva #{booking.bookingCode}
+            Reserva #{booking.code || booking.id.substring(0, 8)}
           </h4>
           <p className="text-sm text-body-color dark:text-dark-6">
             ID: {booking.id.substring(0, 8)}...

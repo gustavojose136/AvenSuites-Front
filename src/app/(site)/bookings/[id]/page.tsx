@@ -103,10 +103,10 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
   return (
     <>
       <Breadcrumb 
-        pageName={`Reserva #${selectedBooking.bookingCode}`}
+        pageName={`Reserva #${selectedBooking.code || selectedBooking.id.substring(0, 8)}`}
         pages={[
           { name: 'Reservas', href: '/bookings' },
-          { name: `#${selectedBooking.bookingCode}`, href: `/bookings/${params.id}` },
+          { name: `#${selectedBooking.code || selectedBooking.id.substring(0, 8)}`, href: `/bookings/${params.id}` },
         ]}
       />
       
@@ -116,7 +116,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           <div className="flex items-start justify-between">
             <div>
               <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
-                Reserva #{selectedBooking.bookingCode}
+                Reserva #{selectedBooking.code || selectedBooking.id.substring(0, 8)}
               </h1>
               <span className={`inline-block rounded px-3 py-1 text-sm font-medium ${getStatusColor(selectedBooking.status)}`}>
                 {selectedBooking.status}
