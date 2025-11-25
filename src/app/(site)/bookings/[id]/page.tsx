@@ -53,19 +53,33 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Confirmed':
+      case 'CONFIRMED':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'Pending':
+      case 'PENDING':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
-      case 'Cancelled':
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
-      case 'CheckedIn':
+      case 'CHECKED_IN':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'CheckedOut':
+      case 'CHECKED_OUT':
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'NO_SHOW':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
     }
+  };
+
+  const getStatusText = (status: string) => {
+    const statusMap: Record<string, string> = {
+      'CONFIRMED': 'Confirmada',
+      'PENDING': 'Pendente',
+      'CANCELLED': 'Cancelada',
+      'CHECKED_IN': 'Check-in Realizado',
+      'CHECKED_OUT': 'Check-out Realizado',
+      'NO_SHOW': 'Não Compareceu',
+    };
+    return statusMap[status] || status;
   };
 
   if (loading) {
@@ -116,12 +130,12 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 Reserva #{selectedBooking.code || selectedBooking.id.substring(0, 8)}
               </h1>
               <span className={`inline-block rounded px-3 py-1 text-sm font-medium ${getStatusColor(selectedBooking.status)}`}>
-                {selectedBooking.status}
+                {getStatusText(selectedBooking.status)}
               </span>
             </div>
 
             <div className="flex gap-2">
-              {selectedBooking.status === 'Pending' && (
+              {selectedBooking.status === 'PENDING' && (
                 <>
                   <button
                     onClick={handleConfirm}
@@ -138,7 +152,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 </>
               )}
               
-              {selectedBooking.status === 'Confirmed' && (
+              {selectedBooking.status === 'CONFIRMED' && (
                 <button
                   onClick={handleCancel}
                   className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
@@ -170,29 +184,32 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 </p>
               </div>
 
-              {selectedBooking.guestCount && (
-                <div>
-                  <p className="text-sm text-body-color dark:text-dark-6">Número de Hóspedes</p>
-                  <p className="text-lg font-medium text-dark dark:text-white">
-                    {selectedBooking.guestCount} pessoa(s)
-                  </p>
-                </div>
-              )}
+              <div>
+                <p className="text-sm text-body-color dark:text-dark-6">Número de Hóspedes</p>
+                <p className="text-lg font-medium text-dark dark:text-white">
+                  {selectedBooking.adults + (selectedBooking.children || 0)} pessoa(s)
+                  {selectedBooking.children > 0 && (
+                    <span className="text-sm text-body-color dark:text-dark-6 ml-2">
+                      ({selectedBooking.adults} adultos, {selectedBooking.children} crianças)
+                    </span>
+                  )}
+                </p>
+              </div>
 
               {selectedBooking.totalAmount && (
                 <div>
                   <p className="text-sm text-body-color dark:text-dark-6">Valor Total</p>
                   <p className="text-lg font-semibold text-primary">
-                    R$ {selectedBooking.totalAmount.toFixed(2)}
+                    R$ {selectedBooking.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               )}
             </div>
 
-            {selectedBooking.specialRequests && (
+            {selectedBooking.notes && (
               <div className="mt-4 pt-4 border-t border-stroke dark:border-dark-3">
-                <p className="text-sm text-body-color dark:text-dark-6 mb-2">Solicitações Especiais</p>
-                <p className="text-dark dark:text-white">{selectedBooking.specialRequests}</p>
+                <p className="text-sm text-body-color dark:text-dark-6 mb-2">Observações</p>
+                <p className="text-dark dark:text-white">{selectedBooking.notes}</p>
               </div>
             )}
           </div>
@@ -211,20 +228,18 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 </span>
               </div>
               
-              {selectedBooking.confirmedAt && (
-                <div className="flex justify-between items-center">
-                  <span className="text-body-color dark:text-dark-6">Data de Confirmação</span>
-                  <span className="font-medium text-dark dark:text-white">
-                    {new Date(selectedBooking.confirmedAt).toLocaleString('pt-BR')}
-                  </span>
-                </div>
-              )}
+              <div className="flex justify-between items-center">
+                <span className="text-body-color dark:text-dark-6">Última Atualização</span>
+                <span className="font-medium text-dark dark:text-white">
+                  {new Date(selectedBooking.updatedAt).toLocaleString('pt-BR')}
+                </span>
+              </div>
 
-              {selectedBooking.cancelledAt && (
+              {selectedBooking.status === 'CANCELLED' && (
                 <div className="flex justify-between items-center">
-                  <span className="text-body-color dark:text-dark-6">Data de Cancelamento</span>
+                  <span className="text-body-color dark:text-dark-6">Status</span>
                   <span className="font-medium text-red-600">
-                    {new Date(selectedBooking.cancelledAt).toLocaleString('pt-BR')}
+                    Cancelada
                   </span>
                 </div>
               )}
