@@ -14,12 +14,15 @@ import { IBookingRepository } from '@/domain/repositories/IBookingRepository';
 import { IBookingService, BookingService } from '@/domain/services/IBookingService';
 import { IGuestRepository } from '@/domain/repositories/IGuestRepository';
 import { IGuestService, GuestService } from '@/domain/services/IGuestService';
+import { IInvoiceRepository } from '@/domain/repositories/IInvoiceRepository';
+import { IInvoiceService, InvoiceService } from '@/domain/services/IInvoiceService';
 
 import { AuthRepository } from '@/infrastructure/api/repositories/AuthRepository';
 import { HotelRepository } from '@/infrastructure/api/repositories/HotelRepository';
 import { RoomRepository } from '@/infrastructure/api/repositories/RoomRepository';
 import { BookingRepository } from '@/infrastructure/api/repositories/BookingRepository';
 import { GuestRepository } from '@/infrastructure/api/repositories/GuestRepository';
+import { InvoiceRepository } from '@/infrastructure/api/repositories/InvoiceRepository';
 import { httpClient } from '@/infrastructure/http/HttpClient';
 
 class Container {
@@ -31,6 +34,7 @@ class Container {
   private roomRepository: IRoomRepository;
   private bookingRepository: IBookingRepository;
   private guestRepository: IGuestRepository;
+  private invoiceRepository: IInvoiceRepository;
   
   // Services
   private authService: IAuthService;
@@ -38,6 +42,7 @@ class Container {
   private roomService: IRoomService;
   private bookingService: IBookingService;
   private guestService: IGuestService;
+  private invoiceService: IInvoiceService;
 
   private constructor() {
     // Configuração de repositórios
@@ -46,6 +51,7 @@ class Container {
     this.roomRepository = new RoomRepository(httpClient);
     this.bookingRepository = new BookingRepository(httpClient);
     this.guestRepository = new GuestRepository(httpClient);
+    this.invoiceRepository = new InvoiceRepository(httpClient);
     
     // Configuração de serviços
     this.authService = new AuthService(this.authRepository);
@@ -53,6 +59,7 @@ class Container {
     this.roomService = new RoomService(this.roomRepository);
     this.bookingService = new BookingService(this.bookingRepository);
     this.guestService = new GuestService(this.guestRepository);
+    this.invoiceService = new InvoiceService(this.invoiceRepository);
   }
 
   static getInstance(): Container {
@@ -105,6 +112,15 @@ class Container {
 
   getGuestRepository(): IGuestRepository {
     return this.guestRepository;
+  }
+
+  // Invoice
+  getInvoiceService(): IInvoiceService {
+    return this.invoiceService;
+  }
+
+  getInvoiceRepository(): IInvoiceRepository {
+    return this.invoiceRepository;
   }
 }
 
