@@ -46,8 +46,9 @@ export const guestCreateSchema = z.object({
   documentType: z
     .enum(['CPF', 'Passport', 'RG', 'CNH'], {
       errorMap: () => ({ message: 'Tipo de documento inválido' }),
-    })
-    .default('CPF'),
+    } as any)
+    .default('CPF')
+    .optional(),
   
   // Número do documento sem formatação (max 32 conforme API)
   documentNumber: z
@@ -108,12 +109,14 @@ export const guestCreateSchema = z.object({
     .string()
     .length(2, 'Código do país deve ter 2 letras')
     .default('BR')
-    .transform(val => val.toUpperCase()),
+    .transform(val => val.toUpperCase())
+    .optional(),
   
   // Consentimento de marketing
   marketingConsent: z
     .boolean()
-    .default(false),
+    .default(false)
+    .optional(),
 }).refine((data) => {
   if (data.documentType === 'CPF') {
     return cpfRegex.test(data.documentNumber);

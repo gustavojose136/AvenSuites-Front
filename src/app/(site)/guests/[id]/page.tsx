@@ -53,11 +53,8 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
   return (
     <>
       <Breadcrumb 
-        pageName={`${selectedGuest.firstName} ${selectedGuest.lastName}`}
-        pages={[
-          { name: 'Hóspedes', href: '/guests' },
-          { name: `${selectedGuest.firstName} ${selectedGuest.lastName}`, href: `/guests/${params.id}` },
-        ]}
+        pageName={selectedGuest.fullName}
+        pageDescription="Detalhes do hóspede"
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
@@ -65,7 +62,7 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
           {/* Header */}
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-dark dark:text-white">
-              {selectedGuest.firstName} {selectedGuest.lastName}
+              {selectedGuest.fullName}
             </h1>
 
             <RoleGuard allowedRoles={['Manager', 'Admin']}>
@@ -94,11 +91,11 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
                 </div>
               )}
 
-              {selectedGuest.nationality && (
+              {selectedGuest.countryCode && (
                 <div>
-                  <p className="text-sm text-body-color dark:text-dark-6">Nacionalidade</p>
+                  <p className="text-sm text-body-color dark:text-dark-6">País</p>
                   <p className="text-lg font-medium text-dark dark:text-white">
-                    {selectedGuest.nationality}
+                    {selectedGuest.countryCode}
                   </p>
                 </div>
               )}
@@ -121,11 +118,11 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
                 </div>
               )}
 
-              {selectedGuest.documentNumber && (
+              {selectedGuest.documentPlain && (
                 <div>
                   <p className="text-sm text-body-color dark:text-dark-6">Número do Documento</p>
                   <p className="text-lg font-medium text-dark dark:text-white">
-                    {selectedGuest.documentNumber}
+                    {selectedGuest.documentPlain}
                   </p>
                 </div>
               )}
@@ -139,36 +136,43 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
             </h2>
             
             <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <p className="text-sm text-body-color dark:text-dark-6">E-mail</p>
-                <p className="text-lg font-medium text-dark dark:text-white">
-                  <a href={`mailto:${selectedGuest.email}`} className="text-primary hover:underline">
-                    {selectedGuest.email}
-                  </a>
-                </p>
-              </div>
+              {selectedGuest.email && (
+                <div>
+                  <p className="text-sm text-body-color dark:text-dark-6">E-mail</p>
+                  <p className="text-lg font-medium text-dark dark:text-white">
+                    <a href={`mailto:${selectedGuest.email}`} className="text-primary hover:underline">
+                      {selectedGuest.email}
+                    </a>
+                  </p>
+                </div>
+              )}
 
-              <div>
-                <p className="text-sm text-body-color dark:text-dark-6">Telefone</p>
-                <p className="text-lg font-medium text-dark dark:text-white">
-                  <a href={`tel:${selectedGuest.phoneE164}`} className="text-primary hover:underline">
-                    {selectedGuest.phoneE164}
-                  </a>
-                </p>
-              </div>
+              {selectedGuest.phoneE164 && (
+                <div>
+                  <p className="text-sm text-body-color dark:text-dark-6">Telefone</p>
+                  <p className="text-lg font-medium text-dark dark:text-white">
+                    <a href={`tel:${selectedGuest.phoneE164}`} className="text-primary hover:underline">
+                      {selectedGuest.phoneE164}
+                    </a>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Endereço */}
-          {(selectedGuest.address || selectedGuest.city || selectedGuest.state) && (
+          {(selectedGuest.addressLine1 || selectedGuest.addressLine2 || selectedGuest.city || selectedGuest.state) && (
             <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
               <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
                 Endereço
               </h2>
               
               <div className="space-y-2">
-                {selectedGuest.address && (
-                  <p className="text-dark dark:text-white">{selectedGuest.address}</p>
+                {selectedGuest.addressLine1 && (
+                  <p className="text-dark dark:text-white">{selectedGuest.addressLine1}</p>
+                )}
+                {selectedGuest.addressLine2 && (
+                  <p className="text-dark dark:text-white">{selectedGuest.addressLine2}</p>
                 )}
                 {(selectedGuest.city || selectedGuest.state) && (
                   <p className="text-body-color dark:text-dark-6">
@@ -180,6 +184,11 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
                 {selectedGuest.postalCode && (
                   <p className="text-body-color dark:text-dark-6">
                     CEP: {selectedGuest.postalCode}
+                  </p>
+                )}
+                {selectedGuest.countryCode && (
+                  <p className="text-body-color dark:text-dark-6">
+                    País: {selectedGuest.countryCode}
                   </p>
                 )}
               </div>

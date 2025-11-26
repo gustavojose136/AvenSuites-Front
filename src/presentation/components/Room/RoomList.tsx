@@ -97,14 +97,17 @@ export const RoomList: React.FC<RoomListProps> = ({ hotelId }) => {
                     <span className="font-medium">Andar:</span> {room.floor}
                   </p>
                 )}
-                {room.maxOccupancy && (
+                {room.roomType && (
                   <p className="text-body-color dark:text-dark-6">
-                    <span className="font-medium">Capacidade:</span> {room.maxOccupancy} pessoa(s)
+                    <span className="font-medium">Capacidade:</span> {room.roomType.capacityAdults + room.roomType.capacityChildren} pessoa(s)
+                    <span className="text-xs ml-1">
+                      ({room.roomType.capacityAdults} adultos, {room.roomType.capacityChildren} crianças)
+                    </span>
                   </p>
                 )}
-                {room.bedType && (
+                {room.roomType && (
                   <p className="text-body-color dark:text-dark-6">
-                    <span className="font-medium">Tipo de Cama:</span> {room.bedType}
+                    <span className="font-medium">Tipo de Quarto:</span> {room.roomType.name}
                   </p>
                 )}
               </div>

@@ -59,10 +59,7 @@ function NewGuestContent() {
     <>
       <Breadcrumb 
         pageName="Novo Hóspede"
-        pages={[
-          { name: 'Hóspedes', href: '/guests' },
-          { name: 'Novo Hóspede', href: '/guests/new' },
-        ]}
+        pageDescription="Cadastrar um novo hóspede no sistema"
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">

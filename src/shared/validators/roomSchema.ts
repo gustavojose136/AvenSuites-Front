@@ -31,8 +31,9 @@ export const roomCreateSchema = z.object({
   status: z
     .enum(['Available', 'Occupied', 'Maintenance', 'OutOfOrder'], {
       errorMap: () => ({ message: 'Status inválido' }),
-    })
-    .default('Available'),
+    } as any)
+    .default('Available')
+    .optional(),
   
   maxOccupancy: z
     .number()
@@ -45,7 +46,7 @@ export const roomCreateSchema = z.object({
   bedType: z
     .enum(['Single', 'Double', 'Queen', 'King', 'Twin'], {
       errorMap: () => ({ message: 'Tipo de cama inválido' }),
-    })
+    } as any)
     .optional()
     .nullable(),
   

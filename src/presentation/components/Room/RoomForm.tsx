@@ -9,11 +9,10 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { roomCreateSchema, type RoomFormData } from '@/shared/validators/roomSchema';
-import { RoomCreateRequest } from '@/application/dto/Room.dto';
 
 interface RoomFormProps {
   hotelId: string;
-  onSubmit: (data: RoomCreateRequest) => Promise<void>;
+  onSubmit: (data: RoomFormData) => Promise<void>;
   initialData?: Partial<RoomFormData>;
   loading?: boolean;
   isEdit?: boolean;

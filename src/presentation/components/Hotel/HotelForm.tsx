@@ -9,10 +9,9 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { hotelCreateSchema, type HotelFormData } from '@/shared/validators/hotelSchema';
-import { HotelCreateRequest } from '@/application/dto/Hotel.dto';
 
 interface HotelFormProps {
-  onSubmit: (data: HotelCreateRequest) => Promise<void>;
+  onSubmit: (data: HotelFormData) => Promise<void>;
   initialData?: Partial<HotelFormData>;
   loading?: boolean;
   isEdit?: boolean;

@@ -42,7 +42,8 @@ export const hotelCreateSchema = z.object({
   
   timezone: z
     .string()
-    .default('America/Sao_Paulo'),
+    .default('America/Sao_Paulo')
+    .optional(),
   
   addressLine1: z
     .string()
@@ -74,7 +75,8 @@ export const hotelCreateSchema = z.object({
     .string()
     .length(2, 'Código do país deve ter 2 letras')
     .default('BR')
-    .toUpperCase(),
+    .transform(val => val.toUpperCase())
+    .optional(),
 });
 
 export const hotelUpdateSchema = hotelCreateSchema.partial();

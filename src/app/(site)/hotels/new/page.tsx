@@ -11,14 +11,32 @@ import { HotelForm } from '@/presentation/components/Hotel/HotelForm';
 import { showToast } from '@/shared/utils/toast';
 import Breadcrumb from '@/components/Common/Breadcrumb';
 import type { HotelCreateRequest } from '@/application/dto/Hotel.dto';
+import type { HotelFormData } from '@/shared/validators/hotelSchema';
 
 export default function NewHotelPage() {
   const router = useRouter();
   const { createHotel, loading } = useHotel(container.getHotelService());
 
-  const handleSubmit = async (data: HotelCreateRequest) => {
+  const handleSubmit = async (formData: HotelFormData) => {
     try {
-      const hotel = await createHotel(data);
+      // Converte HotelFormData para HotelCreateRequest
+      const apiRequest: HotelCreateRequest = {
+        name: formData.name,
+        tradeName: formData.tradeName || undefined,
+        cnpj: formData.cnpj || undefined,
+        email: formData.email,
+        phoneE164: formData.phoneE164,
+        timezone: formData.timezone || 'America/Sao_Paulo',
+        addressLine1: formData.addressLine1,
+        addressLine2: formData.addressLine2 || undefined,
+        city: formData.city,
+        state: formData.state,
+        postalCode: formData.postalCode || undefined,
+        countryCode: formData.countryCode || 'BR',
+        status: 'ACTIVE',
+      };
+      
+      const hotel = await createHotel(apiRequest);
       showToast.success(`Hotel "${hotel.name}" criado com sucesso!`);
       router.push(`/hotels/${hotel.id}`);
     } catch (error) {
@@ -32,10 +50,7 @@ export default function NewHotelPage() {
     <>
       <Breadcrumb 
         pageName="Novo Hotel"
-        pages={[
-          { name: 'Hotéis', href: '/hotels' },
-          { name: 'Novo Hotel', href: '/hotels/new' },
-        ]}
+        pageDescription="Cadastrar um novo hotel no sistema"
       />
       
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">

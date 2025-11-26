@@ -64,14 +64,16 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
   useEffect(() => {
     if (checkInDate && checkOutDate && guestCount) {
+      // Converte guestCount para adults (assumindo que todos são adultos por padrão)
       checkAvailability({
         hotelId,
         checkInDate,
         checkOutDate,
-        guestCount,
+        adults: guestCount,
+        children: 0,
       });
     }
-  }, [checkInDate, checkOutDate, guestCount, hotelId]);
+  }, [checkInDate, checkOutDate, guestCount, hotelId, checkAvailability]);
 
   const handleRoomToggle = (roomId: string) => {
     setSelectedRooms(prev => {
@@ -85,9 +87,18 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
   const handleFormSubmit = (data: BookingFormData) => {
     const roomsData = selectedRooms.map(roomId => ({ roomId }));
+    // Converte rooms para roomIds e mapeia guestCount para adults/children
     return onSubmit({
-      ...data,
-      rooms: roomsData,
+      hotelId: data.hotelId,
+      mainGuestId: data.primaryGuestId,
+      checkInDate: data.checkInDate,
+      checkOutDate: data.checkOutDate,
+      adults: data.guestCount,
+      children: 0,
+      roomIds: roomsData.map(r => r.roomId),
+      source: 'WEB',
+      currency: 'BRL',
+      notes: data.specialRequests || undefined,
     });
   };
 
@@ -99,8 +110,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     );
     
     const roomsTotal = selectedRooms.reduce((total, roomId) => {
-      const room = availableRooms.find(r => r.id === roomId);
-      return total + (room?.totalPrice || 0);
+      const room = availableRooms.find(r => r.roomId === roomId);
+      return total + (room?.price || 0);
     }, 0);
     
     return roomsTotal;
@@ -126,7 +137,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             <option value="">Selecione um hóspede...</option>
             {guests.map((guest) => (
               <option key={guest.id} value={guest.id}>
-                {guest.firstName} {guest.lastName} - {guest.email}
+                {guest.fullName} {guest.email ? `- ${guest.email}` : ''}
               </option>
             ))}
           </select>
@@ -221,9 +232,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             <div className="space-y-3">
               {availableRooms.map((room) => (
                 <label
-                  key={room.id}
+                  key={room.roomId}
                   className={`flex items-center justify-between rounded-lg border p-4 cursor-pointer transition ${
-                    selectedRooms.includes(room.id)
+                    selectedRooms.includes(room.roomId)
                       ? 'border-primary bg-primary/5'
                       : 'border-stroke hover:border-primary/50 dark:border-dark-3'
                   }`}
@@ -231,22 +242,24 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                   <div className="flex items-center gap-4">
                     <input
                       type="checkbox"
-                      checked={selectedRooms.includes(room.id)}
-                      onChange={() => handleRoomToggle(room.id)}
+                      checked={selectedRooms.includes(room.roomId)}
+                      onChange={() => handleRoomToggle(room.roomId)}
                       className="h-5 w-5 rounded border-stroke text-primary focus:ring-primary"
                     />
                     <div>
                       <p className="font-medium text-dark dark:text-white">
                         Quarto {room.roomNumber}
                       </p>
-                      <p className="text-sm text-body-color dark:text-dark-6">
-                        {room.bedType} • Capacidade: {room.maxOccupancy} pessoa(s)
-                      </p>
+                      {room.roomType && (
+                        <p className="text-sm text-body-color dark:text-dark-6">
+                          {room.roomType.name} • Capacidade: {room.roomType.capacityAdults + room.roomType.capacityChildren} pessoa(s)
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-primary">
-                      R$ {room.totalPrice?.toFixed(2)}
+                      R$ {room.price?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-body-color dark:text-dark-6">
                       total do período

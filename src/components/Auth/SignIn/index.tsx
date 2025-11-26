@@ -81,7 +81,6 @@ const Signin = () => {
           console.log('✅ Salvando token Admin no localStorage')
           localStorage.setItem('guestToken', session.accessToken as string)
           localStorage.setItem('guestUser', JSON.stringify({
-            id: session.user?.id,
             name: session.user?.name,
             email: session.user?.email,
           }))

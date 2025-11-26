@@ -84,7 +84,7 @@ export const GuestList: React.FC<GuestListProps> = ({ hotelId }) => {
             >
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-dark dark:text-white">
-                  {guest.firstName} {guest.lastName}
+                  {guest.fullName}
                 </h3>
               </div>
 
@@ -95,14 +95,14 @@ export const GuestList: React.FC<GuestListProps> = ({ hotelId }) => {
                 <p className="text-body-color dark:text-dark-6">
                   <span className="font-medium">Telefone:</span> {guest.phoneE164}
                 </p>
-                {guest.documentType && guest.documentNumber && (
+                {guest.documentType && guest.documentPlain && (
                   <p className="text-body-color dark:text-dark-6">
-                    <span className="font-medium">{guest.documentType}:</span> {guest.documentNumber}
+                    <span className="font-medium">{guest.documentType}:</span> {guest.documentPlain}
                   </p>
                 )}
-                {guest.nationality && (
+                {guest.countryCode && (
                   <p className="text-body-color dark:text-dark-6">
-                    <span className="font-medium">Nacionalidade:</span> {guest.nationality}
+                    <span className="font-medium">País:</span> {guest.countryCode}
                   </p>
                 )}
               </div>
@@ -117,7 +117,7 @@ export const GuestList: React.FC<GuestListProps> = ({ hotelId }) => {
                 
                 <RoleGuard allowedRoles={['Admin']}>
                   <button
-                    onClick={() => handleDelete(guest.id, `${guest.firstName} ${guest.lastName}`)}
+                    onClick={() => handleDelete(guest.id, guest.fullName)}
                     className="rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
                   >
                     Deletar
