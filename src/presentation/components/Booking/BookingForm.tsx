@@ -13,6 +13,7 @@ import { BookingCreateRequest } from '@/application/dto/Booking.dto';
 import { useRoom } from '@/presentation/hooks/useRoom';
 import { useGuest } from '@/presentation/hooks/useGuest';
 import { container } from '@/shared/di/Container';
+import { calculateRoomPrice } from '@/shared/utils/roomPriceCalculator';
 
 interface BookingFormProps {
   hotelId: string;
@@ -109,9 +110,17 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       (new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / (1000 * 60 * 60 * 24)
     );
     
+    const totalGuests = guestCount || 1;
+    
     const roomsTotal = selectedRooms.reduce((total, roomId) => {
       const room = availableRooms.find(r => r.roomId === roomId);
-      return total + (room?.price || 0);
+      if (!room || !room.roomType) {
+        return total;
+      }
+      
+      // Calcula preço baseado na ocupação
+      const roomPrice = calculateRoomPrice(room.roomType, totalGuests, nights);
+      return total + roomPrice;
     }, 0);
     
     return roomsTotal;
@@ -258,12 +267,32 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-primary">
-                      R$ {room.price?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
-                    <p className="text-xs text-body-color dark:text-dark-6">
-                      total do período
-                    </p>
+                    {checkInDate && checkOutDate && room.roomType ? (
+                      <>
+                        <p className="font-semibold text-primary">
+                          {(() => {
+                            const nights = Math.ceil(
+                              (new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / (1000 * 60 * 60 * 24)
+                            );
+                            const totalGuests = guestCount || 1;
+                            const price = calculateRoomPrice(room.roomType, totalGuests, nights);
+                            return `R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                          })()}
+                        </p>
+                        <p className="text-xs text-body-color dark:text-dark-6">
+                          total do período ({guestCount || 1} {guestCount === 1 ? 'hóspede' : 'hóspedes'})
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold text-primary">
+                          R$ {room.price?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
+                        </p>
+                        <p className="text-xs text-body-color dark:text-dark-6">
+                          total do período
+                        </p>
+                      </>
+                    )}
                   </div>
                 </label>
               ))}

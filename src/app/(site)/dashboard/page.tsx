@@ -12,6 +12,9 @@ import { useDashboard, useInvoices } from '@/hooks/useDashboard';
 import { useState, useMemo, useEffect } from 'react';
 import { getHotelIdFromToken } from '@/shared/utils/jwtHelper';
 import toast from 'react-hot-toast';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { useResponsiveItemsPerPage } from '@/shared/hooks/useResponsiveItemsPerPage';
+import { WeekBookingsPagination } from '@/presentation/components/Booking/WeekBookingsPagination';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -20,6 +23,29 @@ export default function DashboardPage() {
   const { createInvoice } = useInvoices();
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'year'>('today');
   const [generatingInvoice, setGeneratingInvoice] = useState<string | null>(null);
+
+  // Paginação responsiva para reservas da semana
+  const itemsPerPage = useResponsiveItemsPerPage({
+    mobile: 1,
+    tablet: 2,
+    desktop: 3,
+  });
+
+  const {
+    items: paginatedWeekBookings,
+    currentPage,
+    totalPages,
+    goToPage,
+    setCurrentPage,
+  } = usePagination({
+    items: weekBookings,
+    itemsPerPage,
+  });
+
+  // Resetar para primeira página quando os items mudarem ou itemsPerPage mudar
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [weekBookings.length, itemsPerPage, setCurrentPage]);
   
 
   // Extrai hotelId do token JWT
@@ -348,8 +374,9 @@ export default function DashboardPage() {
               <p className="text-body-color dark:text-dark-6">Não há reservas agendadas para esta semana.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {weekBookings.map((booking) => {
+            <>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {paginatedWeekBookings.map((booking) => {
                 const nights = calculateNights(booking.checkInDate, booking.checkOutDate);
                 const checkInDate = new Date(booking.checkInDate);
                 const checkOutDate = new Date(booking.checkOutDate);
@@ -514,7 +541,21 @@ export default function DashboardPage() {
                   </div>
                 );
               })}
-            </div>
+              </div>
+
+              {/* Paginação */}
+              {weekBookings.length > itemsPerPage && (
+                <div className="mt-6">
+                  <WeekBookingsPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                    totalItems={weekBookings.length}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -587,11 +628,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Gráficos e Calendário */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Gráficos */}
+        <div className="mb-8">
           
           {/* Status dos Quartos - Gráfico Visual */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
               <div className="mb-6 flex items-center justify-between">
                 <h3 className="text-xl font-bold text-dark dark:text-white">Status dos Quartos</h3>
@@ -731,65 +772,6 @@ export default function DashboardPage() {
                 })}
               </div>
             </div>
-          </div>
-
-          {/* Calendário Rápido */}
-          <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
-            <h3 className="mb-4 text-xl font-bold text-dark dark:text-white">
-              {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-            </h3>
-            
-            {/* Mini Calendário */}
-            <div className="space-y-2">
-              <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-body-color dark:text-dark-6">
-                {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, i) => (
-                  <div key={i} className="py-1">{day}</div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: 35 }).map((_, i) => {
-                  const today = new Date().getDate();
-                  const dayNumber = i - 3; // Ajuste para começar no dia certo
-                  const isToday = dayNumber === today;
-                  const hasBooking = Math.random() > 0.7; // Simulação
-                  
-                  return (
-                    <button
-                      key={i}
-                      className={`
-                        aspect-square rounded-lg text-xs font-medium transition-all
-                        ${isToday ? 'bg-primary text-white ring-2 ring-primary ring-offset-2' : ''}
-                        ${!isToday && hasBooking ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : ''}
-                        ${!isToday && !hasBooking ? 'text-body-color hover:bg-gray-100 dark:text-dark-6 dark:hover:bg-dark-3' : ''}
-                        ${dayNumber < 1 || dayNumber > 31 ? 'opacity-30' : ''}
-                      `}
-                    >
-                      {dayNumber > 0 && dayNumber <= 31 ? dayNumber : ''}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Legenda */}
-            <div className="mt-4 space-y-2 border-t border-gray-200 pt-4 dark:border-dark-3">
-              <div className="flex items-center gap-2 text-xs">
-                <div className="h-3 w-3 rounded-full bg-primary"></div>
-                <span className="text-body-color dark:text-dark-6">Hoje</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                <span className="text-body-color dark:text-dark-6">Com reservas</span>
-              </div>
-            </div>
-
-            {/* Ação Rápida */}
-            <Link
-              href="/bookings/calendar"
-              className="mt-4 block w-full rounded-lg bg-gray-100 py-2 text-center text-sm font-semibold text-dark transition hover:bg-gray-200 dark:bg-dark-3 dark:text-white dark:hover:bg-dark-4"
-            >
-              Ver Calendário Completo
-            </Link>
           </div>
         </div>
 

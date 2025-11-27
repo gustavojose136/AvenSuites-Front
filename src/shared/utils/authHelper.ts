@@ -29,6 +29,30 @@ export const AuthHelper = {
   },
 
   /**
+   * Extrai o GuestId do token JWT
+   */
+  getGuestIdFromToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    
+    const token = this.getGuestToken();
+    if (!token) return null;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Tenta diferentes formatos de guestId no token
+      return payload.GuestId || 
+             payload.guestId || 
+             payload.sub || 
+             payload.userId ||
+             payload.id ||
+             null;
+    } catch (e) {
+      console.error('❌ Erro ao extrair GuestId do token:', e);
+      return null;
+    }
+  },
+
+  /**
    * Limpa a sessão do Guest
    */
   clearGuestSession(): void {

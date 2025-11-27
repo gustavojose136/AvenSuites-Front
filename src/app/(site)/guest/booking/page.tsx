@@ -14,6 +14,12 @@ interface Hotel {
   phone?: string;
 }
 
+interface RoomTypeOccupancyPrice {
+  id: string;
+  occupancy: number;
+  pricePerNight: number;
+}
+
 interface RoomType {
   id: string;
   code: string;
@@ -22,6 +28,7 @@ interface RoomType {
   capacityAdults: number;
   capacityChildren: number;
   basePrice: number;
+  occupancyPrices?: RoomTypeOccupancyPrice[];
   amenities?: string[];
   active: boolean;
 }
@@ -207,12 +214,25 @@ function BookingContent() {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
+  const calculatePricePerNight = (room: Room) => {
+    if (!room.roomType) return room.basePrice || 0;
+    
+    // Busca preço específico para a ocupação
+    const occupancyPrice = room.roomType.occupancyPrices?.find(
+      op => op.occupancy === guests
+    );
+    
+    // Se encontrou preço específico, usa ele; senão usa basePrice como fallback
+    return occupancyPrice ? occupancyPrice.pricePerNight : room.roomType.basePrice;
+  };
+
   const calculateTotal = () => {
     if (!selectedRoomId) return 0;
     const selectedRoom = rooms.find(r => r.id === selectedRoomId);
     if (!selectedRoom) return 0;
-    const price = selectedRoom.basePrice || selectedRoom.roomType?.basePrice || 0;
-    return price * calculateNights();
+    
+    const pricePerNight = calculatePricePerNight(selectedRoom);
+    return pricePerNight * calculateNights();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -422,8 +442,8 @@ function BookingContent() {
                                   </span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-sm text-body-color dark:text-dark-6">Preço/noite</span>
-                                  <span className="font-bold text-primary">R$ {(room.basePrice || room.roomType?.basePrice || 0).toFixed(2)}</span>
+                                  <span className="text-sm text-body-color dark:text-dark-6">Preço/noite ({guests} {guests === 1 ? 'hóspede' : 'hóspedes'})</span>
+                                  <span className="font-bold text-primary">R$ {calculatePricePerNight(room).toFixed(2)}</span>
                                 </div>
                               </div>
 
@@ -479,7 +499,10 @@ function BookingContent() {
                         R$ {calculateTotal().toFixed(2)}
                       </p>
                        <p className="text-sm text-body-color dark:text-dark-6">
-                        {calculateNights()} {calculateNights() === 1 ? 'noite' : 'noites'} × R$ {selectedRoomId ? ((rooms.find(r => r.id === selectedRoomId)?.basePrice || rooms.find(r => r.id === selectedRoomId)?.roomType?.basePrice || 0).toFixed(2)) : '0.00'}
+                        {calculateNights()} {calculateNights() === 1 ? 'noite' : 'noites'} × R$ {selectedRoomId ? (() => {
+                          const selectedRoom = rooms.find(r => r.id === selectedRoomId);
+                          return selectedRoom ? calculatePricePerNight(selectedRoom).toFixed(2) : '0.00';
+                        })() : '0.00'}
                       </p>
                     </div>
                   </div>

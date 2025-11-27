@@ -131,10 +131,10 @@ export const useBooking = (bookingService: IBookingService) => {
       await bookingService.cancelBooking(id, reason);
       // Atualizar status local
       setBookings(prev => prev.map(b => 
-        b.id === id ? { ...b, status: 'Cancelled' } : b
+        b.id === id ? { ...b, status: 'CANCELLED' } : b
       ));
       if (selectedBooking?.id === id) {
-        setSelectedBooking({ ...selectedBooking, status: 'Cancelled' });
+        setSelectedBooking({ ...selectedBooking, status: 'CANCELLED' });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao cancelar reserva';
@@ -152,13 +152,57 @@ export const useBooking = (bookingService: IBookingService) => {
       await bookingService.confirmBooking(id);
       // Atualizar status local
       setBookings(prev => prev.map(b => 
-        b.id === id ? { ...b, status: 'Confirmed' } : b
+        b.id === id ? { ...b, status: 'CONFIRMED' } : b
       ));
       if (selectedBooking?.id === id) {
-        setSelectedBooking({ ...selectedBooking, status: 'Confirmed' });
+        setSelectedBooking({ ...selectedBooking, status: 'CONFIRMED' });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao confirmar reserva';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [bookingService, selectedBooking]);
+
+  const checkIn = useCallback(async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updatedBooking = await bookingService.checkIn(id);
+      // Atualizar status local
+      setBookings(prev => prev.map(b => 
+        b.id === id ? updatedBooking : b
+      ));
+      if (selectedBooking?.id === id) {
+        setSelectedBooking(updatedBooking);
+      }
+      return updatedBooking;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao realizar check-in';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [bookingService, selectedBooking]);
+
+  const checkOut = useCallback(async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updatedBooking = await bookingService.checkOut(id);
+      // Atualizar status local
+      setBookings(prev => prev.map(b => 
+        b.id === id ? updatedBooking : b
+      ));
+      if (selectedBooking?.id === id) {
+        setSelectedBooking(updatedBooking);
+      }
+      return updatedBooking;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao realizar check-out';
       setError(message);
       throw err;
     } finally {
@@ -180,6 +224,8 @@ export const useBooking = (bookingService: IBookingService) => {
     updateBooking,
     cancelBooking,
     confirmBooking,
+    checkIn,
+    checkOut,
   };
 };
 

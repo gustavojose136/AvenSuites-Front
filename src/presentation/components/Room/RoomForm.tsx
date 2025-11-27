@@ -5,7 +5,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { roomCreateSchema, type RoomFormData } from '@/shared/validators/roomSchema';
@@ -27,15 +27,35 @@ export const RoomForm: React.FC<RoomFormProps> = ({
 }) => {
   const { 
     register, 
-    handleSubmit, 
+    handleSubmit,
+    reset,
     formState: { errors, isSubmitting } 
   } = useForm<RoomFormData>({
     resolver: zodResolver(roomCreateSchema),
     defaultValues: {
-      ...initialData,
       hotelId,
+      roomNumber: '',
+      status: 'Available' as const,
+      ...initialData,
     },
   });
+
+  // Atualiza o formulário quando initialData mudar (importante para edição)
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      reset({
+        hotelId,
+        roomNumber: initialData.roomNumber || '',
+        floor: initialData.floor ?? undefined,
+        roomTypeId: initialData.roomTypeId ?? undefined,
+        status: initialData.status || 'Available',
+        maxOccupancy: initialData.maxOccupancy ?? undefined,
+        bedType: initialData.bedType ?? undefined,
+        basePrice: initialData.basePrice ?? undefined,
+        notes: initialData.notes ?? undefined,
+      });
+    }
+  }, [initialData, hotelId, reset]);
 
   const isLoading = loading || isSubmitting;
 

@@ -31,11 +31,18 @@ function LoginContent() {
       setLoading(true);
       console.log('🔐 Fazendo login como Guest...');
 
-      // IMPORTANTE: Limpa qualquer token Admin anterior antes de fazer login Guest
+      // IMPORTANTE: Limpa TODOS os tokens anteriores antes de fazer login Guest
       if (typeof window !== 'undefined') {
-        console.log('🧹 Limpando tokens anteriores...');
+        console.log('🧹 Limpando TODOS os tokens anteriores...');
         localStorage.removeItem('guestToken');
         localStorage.removeItem('guestUser');
+        localStorage.removeItem('authToken'); // Limpa token Admin também
+        // Limpa qualquer cookie de sessão do NextAuth
+        document.cookie.split(";").forEach((c) => {
+          if (c.trim().startsWith('next-auth')) {
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+          }
+        });
       }
 
       const response = await httpClient.post<any>('/Auth/login', {
@@ -43,30 +50,79 @@ function LoginContent() {
         password,
       });
 
-      console.log('✅ Login Guest bem-sucedido:', response);
+      console.log('✅ Resposta completa do login:', response);
+      console.log('📦 Tipo da resposta:', typeof response);
+      console.log('📦 Estrutura da resposta:', Object.keys(response || {}));
+      
+      // Verifica se a resposta tem token (pode estar em response.data ou diretamente)
+      const token = response?.token || response?.data?.token;
+      const user = response?.user || response?.data?.user;
+      
+      console.log('🔑 Token encontrado?', !!token);
+      console.log('👤 User encontrado?', !!user);
+      
+      if (!token) {
+        console.error('❌ Token não encontrado na resposta:', response);
+        toast.error('Erro: Token não recebido do servidor. Verifique as credenciais.');
+        return;
+      }
       
       // Salva o token Guest usando o helper
-      if (response.token) {
-        console.log('💾 Salvando token Guest no localStorage...');
-        AuthHelper.saveGuestSession(response.token, response.user);
+      console.log('💾 Salvando token Guest no localStorage...');
+      AuthHelper.saveGuestSession(token, user || { email, name: email });
+      
+      // Verifica se o token foi salvo corretamente
+      const savedToken = localStorage.getItem('guestToken');
+      if (savedToken !== token) {
+        console.error('❌ ERRO: Token salvo é diferente do token recebido!');
+        console.error('Token recebido:', token.substring(0, 50));
+        console.error('Token salvo:', savedToken?.substring(0, 50));
+        // Força a salvar o token correto
+        localStorage.setItem('guestToken', token);
+      }
+      
+      // Debug: mostra o payload do token Guest
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const guestId = payload.GuestId || payload.guestId || payload.sub || payload.userId || payload.id;
+        console.log('📋 Token Guest decodificado (COMPLETO):', {
+          role: payload.role,
+          GuestId: guestId,
+          HotelId: payload.HotelId,
+          name: payload.name,
+          email: payload.email,
+          fullPayload: payload,
+        });
         
-        // Debug: mostra o payload do token Guest
-        try {
-          const payload = JSON.parse(atob(response.token.split('.')[1]));
-          console.log('📋 Token Guest decodificado:', {
-            role: payload.role,
-            GuestId: payload.GuestId,
-            HotelId: payload.HotelId,
-            name: payload.name,
-          });
-        } catch (e) {
-          console.log('⚠️ Não foi possível decodificar o token Guest');
+        // Verifica se o guestId está presente
+        if (!guestId) {
+          console.error('⚠️ ATENÇÃO: GuestId não encontrado no token!');
+          console.error('📋 Payload completo:', payload);
+        } else {
+          console.log('✅ GuestId encontrado no token:', guestId);
         }
-        
-        AuthHelper.debugSession();
+      } catch (e) {
+        console.error('⚠️ Erro ao decodificar token Guest:', e);
+      }
+      
+      AuthHelper.debugSession();
+      
+      // Verifica novamente após salvar
+      const finalToken = localStorage.getItem('guestToken');
+      console.log('🔍 Verificação final - Token no localStorage:', finalToken ? '✅ Presente' : '❌ Ausente');
+      if (finalToken) {
+        try {
+          const finalPayload = JSON.parse(atob(finalToken.split('.')[1]));
+          console.log('🔍 Verificação final - GuestId no token:', finalPayload.GuestId || finalPayload.guestId || finalPayload.sub || finalPayload.userId || finalPayload.id);
+        } catch (e) {
+          console.error('❌ Erro ao verificar token final:', e);
+        }
       }
       
       toast.success('Login realizado com sucesso!');
+
+      // Pequeno delay para garantir que o token foi salvo
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Redireciona
       if (hotelId && checkIn && checkOut) {
@@ -75,8 +131,23 @@ function LoginContent() {
         router.push('/guest/portal');
       }
     } catch (error: any) {
-      console.error('❌ Erro ao fazer login:', error);
-      const message = error.response?.data?.message || 'Email ou senha inválidos';
+      console.error('❌ Erro completo ao fazer login:', error);
+      console.error('❌ Stack trace:', error.stack);
+      console.error('❌ Response data:', error.response?.data);
+      console.error('❌ Response status:', error.response?.status);
+      
+      // Tenta extrair mensagem de erro de diferentes formatos
+      let message = 'Email ou senha inválidos';
+      
+      if (error.response?.data) {
+        message = error.response.data.message || 
+                  error.response.data.title || 
+                  error.response.data.error ||
+                  JSON.stringify(error.response.data);
+      } else if (error.message) {
+        message = error.message;
+      }
+      
       toast.error(message);
     } finally {
       setLoading(false);

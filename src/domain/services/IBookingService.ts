@@ -16,6 +16,8 @@ export interface IBookingService {
   updateBooking(id: string, data: BookingUpdateRequest): Promise<Booking>;
   cancelBooking(id: string, reason?: string): Promise<void>;
   confirmBooking(id: string): Promise<void>;
+  checkIn(id: string): Promise<Booking>;
+  checkOut(id: string): Promise<Booking>;
 }
 
 export class BookingService implements IBookingService {
@@ -69,6 +71,14 @@ export class BookingService implements IBookingService {
     if (!success) {
       throw new Error('Falha ao confirmar reserva');
     }
+  }
+
+  async checkIn(id: string): Promise<Booking> {
+    return this.bookingRepository.checkIn(id);
+  }
+
+  async checkOut(id: string): Promise<Booking> {
+    return this.bookingRepository.checkOut(id);
   }
 }
 
