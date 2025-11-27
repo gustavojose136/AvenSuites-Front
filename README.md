@@ -300,6 +300,11 @@ npm run start        # Inicia servidor de produção
 # Qualidade de Código
 npm run lint         # Executa ESLint
 
+# Testes
+npm test             # Executa testes
+npm run test:watch   # Executa testes em modo watch
+npm run test:coverage # Executa testes com relatório de cobertura
+
 # Configuração
 npm run setup        # Executa script de setup
 ```
@@ -402,6 +407,57 @@ O projeto utiliza:
 - Use Dependency Injection
 - Valide dados com Zod
 - Trate erros adequadamente
+
+### Testes
+
+O projeto utiliza **Jest** e **React Testing Library** para testes automatizados, seguindo os princípios SOLID:
+
+- **Single Responsibility**: Cada teste testa uma funcionalidade específica
+- **Dependency Inversion**: Testes usam mocks para dependências
+- **Interface Segregation**: Testes através de interfaces
+
+#### Estrutura de Testes
+
+```
+src/
+├── domain/services/__tests__/      # Testes de serviços
+├── infrastructure/api/repositories/__tests__/  # Testes de repositórios
+├── shared/utils/__tests__/         # Testes de utilitários
+├── shared/hooks/__tests__/         # Testes de hooks compartilhados
+├── presentation/hooks/__tests__/    # Testes de hooks de apresentação
+└── presentation/components/__tests__/  # Testes de componentes
+```
+
+#### Executando Testes
+
+```bash
+# Executar todos os testes
+npm test
+
+# Executar em modo watch
+npm run test:watch
+
+# Executar com cobertura (mínimo 20%)
+npm run test:coverage
+```
+
+#### Cobertura de Código
+
+O projeto mantém uma cobertura mínima de **20%** nas seguintes métricas:
+- Branches: 20%
+- Functions: 20%
+- Lines: 20%
+- Statements: 20%
+
+#### Escrevendo Testes
+
+Siga estes padrões ao escrever testes:
+
+1. **Nome descritivo**: Use nomes que descrevem o comportamento esperado
+2. **Arrange-Act-Assert**: Organize testes em três fases
+3. **Mocks**: Use mocks para dependências externas
+4. **Isolamento**: Cada teste deve ser independente
+5. **SOLID**: Aplique os princípios SOLID nos testes
 
 ## 🐛 Troubleshooting
 

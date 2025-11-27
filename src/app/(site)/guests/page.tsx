@@ -40,7 +40,10 @@ interface Guest {
 }
 
 export default function GuestsPage() {
-  const { data: session, status } = useSession();
+  const sessionResult = useSession();
+  // Garante que sempre temos valores padrão mesmo durante build estático
+  const status = sessionResult?.status || 'loading';
+  const session = sessionResult?.data || null;
   const router = useRouter();
   
   const [hotels, setHotels] = useState<Hotel[]>([]);
