@@ -12,7 +12,7 @@ export class HttpClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7000/api',
+      baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api-avensuits.azurewebsites.net/api',
       httpsAgent: new https.Agent({
         rejectUnauthorized: false
       }),

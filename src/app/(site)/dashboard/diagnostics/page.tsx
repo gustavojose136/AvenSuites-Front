@@ -89,7 +89,7 @@ export default function DiagnosticsPage() {
             <h2 className="mb-4 text-xl font-semibold">Como usar este diagnóstico</h2>
             <ul className="space-y-3 text-muted-foreground">
               {[
-                `Certifique-se que sua API está rodando em ${process.env.NEXT_PUBLIC_API_URL || "https://localhost:7000/api"}`,
+                `Certifique-se que sua API está rodando em ${process.env.NEXT_PUBLIC_API_URL || "https://api-avensuits.azurewebsites.net/api"}`,
                 'Clique em "Executar Diagnóstico" para testar todos os endpoints comuns',
                 "Veja quais endpoints estão disponíveis e ajuste o código se necessário",
                 "Abra o Console do navegador (F12) para ver logs detalhados",
