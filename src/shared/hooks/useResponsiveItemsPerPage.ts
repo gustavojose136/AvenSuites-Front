@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 interface ResponsiveConfig {
   mobile?: number;    // < 768px (sm)
@@ -21,7 +21,7 @@ const defaultConfig: Required<ResponsiveConfig> = {
 };
 
 export function useResponsiveItemsPerPage(config: ResponsiveConfig = {}) {
-  const finalConfig = { ...defaultConfig, ...config };
+  const finalConfig = useMemo(() => ({ ...defaultConfig, ...config }), [config.mobile, config.tablet, config.desktop]);
   
   const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -42,7 +42,7 @@ export function useResponsiveItemsPerPage(config: ResponsiveConfig = {}) {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [finalConfig.mobile, finalConfig.tablet, finalConfig.desktop]);
+  }, [finalConfig]);
 
   return itemsPerPage;
 }

@@ -63,7 +63,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
 
   useEffect(() => {
     fetchHotels();
-  }, []);
+  }, [fetchHotels]);
 
   useEffect(() => {
     if (hotelId) {
@@ -83,7 +83,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
         }
       }
     }
-  }, [bookingId, bookings]);
+  }, [bookingId, bookings, watch]);
 
   const calculateItemsTotal = () => {
     return items.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
