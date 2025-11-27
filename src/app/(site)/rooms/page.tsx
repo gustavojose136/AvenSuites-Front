@@ -19,31 +19,26 @@ interface Hotel {
   state: string;
 }
 
+interface RoomType {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  capacityAdults: number;
+  capacityChildren: number;
+  basePrice: number;
+  active: boolean;
+}
+
 interface Room {
   id: string;
   hotelId: string;
+  roomTypeId: string;
   roomNumber: string;
-  floor: number;
+  floor: string;
   status: 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE' | 'OCCUPIED' | 'CLEANING';
-  maxOccupancy: number;
   createdAt: string;
   updatedAt: string;
-}
-
-interface RoomType {
-  id: string;
-  hotelId: string;
-  name: string;
-  description: string;
-  maxOccupancy: number;
-  basePrice: number;
-  amenities: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface RoomWithType extends Room {
   roomType?: RoomType;
 }
 
@@ -52,8 +47,7 @@ export default function RoomsPage() {
   const router = useRouter();
   
   const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [rooms, setRooms] = useState<RoomWithType[]>([]);
-  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedHotelId, setSelectedHotelId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -88,45 +82,18 @@ export default function RoomsPage() {
     }
   };
 
-  const fetchRoomTypes = async (hotelId: string) => {
-    try {
-      console.log('🏷️ Buscando tipos de quarto...');
-      const data = await httpClient.get<RoomType[]>(`/RoomType`);
-      console.log('✅ Tipos de quarto recebidos:', data);
-      
-      // Filtra apenas os tipos do hotel atual
-      const hotelTypes = data.filter(rt => rt.hotelId === hotelId);
-      setRoomTypes(hotelTypes);
-      return hotelTypes;
-    } catch (error) {
-      console.error('❌ Erro ao buscar tipos de quarto:', error);
-      setRoomTypes([]);
-      return [];
-    }
-  };
-
   const fetchRooms = async (hotelId: string) => {
     setLoading(true);
     try {
       console.log('🛏️ Buscando quartos do hotel:', hotelId);
       
-      // Busca quartos e tipos em paralelo
-      const [roomsData, typesData] = await Promise.all([
-        httpClient.get<Room[]>(`/Rooms?hotelId=${hotelId}`),
-        fetchRoomTypes(hotelId)
-      ]);
+      // O backend já retorna os quartos com roomType incluído
+      const roomsData = await httpClient.get<Room[]>(`/Rooms?hotelId=${hotelId}`);
       
       console.log('✅ Quartos recebidos da API:', roomsData);
-      console.log('✅ Tipos disponíveis:', typesData);
       
-      // Associa os tipos aos quartos (se houver um padrão de associação)
-      // Por enquanto, vamos pegar o primeiro tipo disponível para cada quarto
-      const roomsWithTypes: RoomWithType[] = roomsData.map((room, index) => ({
-        ...room,
-        roomType: typesData[index % typesData.length] // Distribui os tipos ciclicamente
-      }));
-      
-      setRooms(roomsWithTypes);
+      // Os quartos já vêm com roomType do backend, não precisa associar manualmente
+      setRooms(roomsData);
     } catch (error) {
       console.error('❌ Erro ao buscar quartos:', error);
       toast.error('Erro ao carregar quartos');
@@ -373,9 +340,11 @@ export default function RoomsPage() {
                             #{room.roomNumber}
                           </h3>
                           <div className="mt-2 flex items-center gap-2">
-                            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                              {room.floor}º Andar
-                            </span>
+                            {room.floor && (
+                              <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                                {room.floor}º Andar
+                              </span>
+                            )}
                             {room.roomType && (
                               <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
                                 {room.roomType.name}
@@ -404,17 +373,24 @@ export default function RoomsPage() {
                         {/* Informações em Grid */}
                         <div className="grid grid-cols-2 gap-4">
                           {/* Capacidade */}
-                          <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-3 dark:from-blue-900/20 dark:to-blue-800/20">
-                            <div className="flex items-center gap-2">
-                              <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                              </svg>
-                              <div>
-                                <p className="text-xs text-blue-600 dark:text-blue-400">Capacidade</p>
-                                <p className="text-lg font-bold text-blue-800 dark:text-blue-300">{room.maxOccupancy}</p>
+                          {room.roomType && (
+                            <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-3 dark:from-blue-900/20 dark:to-blue-800/20">
+                              <div className="flex items-center gap-2">
+                                <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <div>
+                                  <p className="text-xs text-blue-600 dark:text-blue-400">Capacidade</p>
+                                  <p className="text-lg font-bold text-blue-800 dark:text-blue-300">
+                                    {room.roomType.capacityAdults + room.roomType.capacityChildren}
+                                  </p>
+                                  <p className="text-xs text-blue-600 dark:text-blue-400">
+                                    {room.roomType.capacityAdults} adultos, {room.roomType.capacityChildren} crianças
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Preço */}
                           {room.roomType && (
@@ -434,36 +410,6 @@ export default function RoomsPage() {
                           )}
                         </div>
 
-                        {/* Amenidades */}
-                        {room.roomType?.amenities && room.roomType.amenities.length > 0 && (
-                          <div className="rounded-lg border-2 border-dashed border-gray-200 p-4 dark:border-dark-3">
-                            <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-body-color dark:text-dark-6">
-                              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-                              </svg>
-                              Comodidades
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {room.roomType.amenities.slice(0, 4).map((amenity, idx) => (
-                                <span
-                                  key={idx}
-                                  className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1.5 text-xs font-semibold text-purple-700 dark:from-purple-900/30 dark:to-pink-900/30 dark:text-purple-300"
-                                >
-                                  <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                  </svg>
-                                  {amenity}
-                                </span>
-                              ))}
-                              {room.roomType.amenities.length > 4 && (
-                                <span className="flex items-center rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:bg-dark-3 dark:text-gray-300">
-                                  +{room.roomType.amenities.length - 4} mais
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       {/* Ações com Animações */}

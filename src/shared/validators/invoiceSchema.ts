@@ -33,8 +33,8 @@ export const invoiceCreateSchema = z.object({
     .number()
     .min(0, 'Valor de imposto deve ser maior ou igual a zero')
     .max(999999, 'Valor de imposto máximo é 999999')
-    .optional()
-    .default(0),
+    .default(0)
+    .optional(),
   
   dueDate: z
     .string()

@@ -15,6 +15,12 @@ export interface Room {
   roomType?: RoomTypeSummary;
 }
 
+export interface RoomTypeOccupancyPrice {
+  id: string;
+  occupancy: number;
+  pricePerNight: number;
+}
+
 export interface RoomTypeSummary {
   id: string;
   code: string;
@@ -23,6 +29,7 @@ export interface RoomTypeSummary {
   capacityAdults: number;
   capacityChildren: number;
   basePrice: number;
+  occupancyPrices?: RoomTypeOccupancyPrice[];
   active: boolean;
 }
 

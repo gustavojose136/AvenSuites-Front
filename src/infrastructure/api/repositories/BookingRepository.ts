@@ -26,6 +26,7 @@ export class BookingRepository implements IBookingRepository {
 
   async getByCode(hotelId: string, code: string): Promise<Booking | null> {
     try {
+      // A API espera: GET /Booking/code/{code} com hotelId como query param opcional
       return await this.httpClient.get<Booking>(`${this.baseUrl}/code/${code}?hotelId=${hotelId}`);
     } catch {
       return null;
@@ -33,11 +34,12 @@ export class BookingRepository implements IBookingRepository {
   }
 
   async getByHotel(hotelId: string, startDate?: string, endDate?: string): Promise<Booking[]> {
+    // A API espera: GET /Booking/hotel/{hotelId}
     const params = new URLSearchParams();
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
     const query = params.toString() ? `?${params}` : '';
-    return this.httpClient.get<Booking[]>(`${this.baseUrl}/hotels/${hotelId}${query}`);
+    return this.httpClient.get<Booking[]>(`${this.baseUrl}/hotel/${hotelId}${query}`);
   }
 
   async getByGuest(guestId: string): Promise<Booking[]> {
@@ -69,6 +71,14 @@ export class BookingRepository implements IBookingRepository {
     } catch {
       return false;
     }
+  }
+
+  async checkIn(id: string): Promise<Booking> {
+    return this.httpClient.post<Booking>(`${this.baseUrl}/${id}/check-in`, {});
+  }
+
+  async checkOut(id: string): Promise<Booking> {
+    return this.httpClient.post<Booking>(`${this.baseUrl}/${id}/check-out`, {});
   }
 }
 

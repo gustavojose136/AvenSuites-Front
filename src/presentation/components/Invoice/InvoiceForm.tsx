@@ -331,7 +331,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
 
         {fields.length === 0 ? (
           <p className="text-sm text-body-color dark:text-dark-6">
-            Nenhum item adicionado. Clique em "Adicionar Item" para começar.
+            Nenhum item adicionado. Clique em &quot;Adicionar Item&quot; para começar.
           </p>
         ) : (
           <div className="space-y-4">

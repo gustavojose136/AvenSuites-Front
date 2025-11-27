@@ -37,7 +37,7 @@ export const BookingList: React.FC<BookingListProps> = ({ hotelId, guestId }) =>
     } else {
       fetchBookings();
     }
-  }, [hotelId, guestId]);
+  }, [hotelId, guestId, fetchBookings, fetchBookingsByHotel, fetchBookingsByGuest]);
 
   const handleCancel = async (id: string) => {
     if (confirm('Deseja realmente cancelar esta reserva?')) {

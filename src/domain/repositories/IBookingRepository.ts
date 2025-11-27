@@ -15,5 +15,7 @@ export interface IBookingRepository {
   update(id: string, data: BookingUpdateRequest): Promise<Booking>;
   cancel(id: string, reason?: string): Promise<boolean>;
   confirm(id: string): Promise<boolean>;
+  checkIn(id: string): Promise<Booking>;
+  checkOut(id: string): Promise<Booking>;
 }
 
