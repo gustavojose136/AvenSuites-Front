@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           // Remove barra final da API URL se existir
-          const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7000/api').replace(/\/$/, '');
+          const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api-avensuits.azurewebsites.net/api').replace(/\/$/, '');
           const loginEndpoint = '/Auth/login';
           const fullUrl = `${apiUrl}${loginEndpoint}`;
           
@@ -138,7 +138,7 @@ export const authOptions: NextAuthOptions = {
             // A requisição foi feita mas não houve resposta
             console.error("📡 Request feito mas sem resposta");
             console.error("📡 Request:", error.request);
-            throw new Error("Erro de conexão com o servidor. Verifique se a API está rodando em: " + (process.env.NEXT_PUBLIC_API_URL || 'https://localhost:7000/api'));
+            throw new Error("Erro de conexão com o servidor. Verifique se a API está rodando em: " + (process.env.NEXT_PUBLIC_API_URL || 'https://api-avensuits.azurewebsites.net/api'));
             
           } else if (error.code === 'ECONNREFUSED') {
             console.error("📡 Conexão recusada");

@@ -28,7 +28,7 @@ jest.mock('next-auth/react', () => ({
     data: null,
     status: 'unauthenticated',
   })),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => children,
+  SessionProvider: ({ children }) => children,
 }))
 
 // Mock react-hot-toast

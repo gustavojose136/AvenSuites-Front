@@ -30,6 +30,7 @@ const customJestConfig = {
       statements: 20,
     },
   },
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
   testMatch: [
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)',

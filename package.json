@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node build.js",
     "start": "next start",
     "lint": "next lint",
     "setup": "node setup-env.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:coverage:check": "jest --coverage --coverageThreshold='{\"global\":{\"branches\":20,\"functions\":20,\"lines\":20,\"statements\":20}}'",
+    "test:ci": "jest --ci --coverage --maxWorkers=2"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^1.5.0",
