@@ -67,9 +67,7 @@ export default function RoomsPage() {
 
   const fetchHotels = async () => {
     try {
-      console.log('🏨 Buscando hotéis...');
       const data = await httpClient.get<Hotel[]>('/Hotels');
-      console.log('✅ Hotéis recebidos:', data);
       setHotels(data);
       
       // Seleciona o primeiro hotel automaticamente
@@ -85,12 +83,8 @@ export default function RoomsPage() {
   const fetchRooms = async (hotelId: string) => {
     setLoading(true);
     try {
-      console.log('🛏️ Buscando quartos do hotel:', hotelId);
-      
       // O backend já retorna os quartos com roomType incluído
       const roomsData = await httpClient.get<Room[]>(`/Rooms?hotelId=${hotelId}`);
-      
-      console.log('✅ Quartos recebidos da API:', roomsData);
       
       // Os quartos já vêm com roomType do backend, não precisa associar manualmente
       setRooms(roomsData);

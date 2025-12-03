@@ -70,9 +70,7 @@ export default function BookingsPage() {
    */
   const fetchHotels = async () => {
     try {
-      console.log('🏨 Buscando hotéis...');
       const data = await httpClient.get<Hotel[]>('/Hotels');
-      console.log('✅ Hotéis recebidos:', data);
       setHotels(data);
     } catch (error) {
       console.error('❌ Erro ao buscar hotéis:', error);

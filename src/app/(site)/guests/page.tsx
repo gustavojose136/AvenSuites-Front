@@ -69,9 +69,7 @@ export default function GuestsPage() {
 
   const fetchHotels = async () => {
     try {
-      console.log('🏨 Buscando hotéis...');
       const data = await httpClient.get<Hotel[]>('/Hotels');
-      console.log('✅ Hotéis recebidos:', data);
       setHotels(data);
     } catch (error) {
       console.error('❌ Erro ao buscar hotéis:', error);
@@ -82,10 +80,8 @@ export default function GuestsPage() {
   const fetchGuests = async (hotelId?: string) => {
     setLoading(true);
     try {
-      console.log('👥 Buscando hóspedes...');
       const endpoint = hotelId ? `/Guests?hotelId=${hotelId}` : '/Guests';
       const data = await httpClient.get<Guest[]>(endpoint);
-      console.log('✅ Hóspedes recebidos:', data);
       setGuests(data);
     } catch (error) {
       console.error('❌ Erro ao buscar hóspedes:', error);

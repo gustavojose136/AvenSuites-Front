@@ -33,7 +33,7 @@ const MagicLink = () => {
           }
         })
         .catch((error) => {
-          console.log(error);
+          console.error("Erro ao enviar email:", error);
           toast.error("Unable to send email!");
           setLoader(false);
         });

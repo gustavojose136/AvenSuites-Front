@@ -18,9 +18,7 @@ export interface DiagnosticResult {
  */
 async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
   try {
-    console.log(`🔍 Testando: ${endpoint}`);
     const data = await httpClient.get<any[]>(endpoint);
-    console.log(`✅ ${endpoint}: ${Array.isArray(data) ? data.length : 'OK'} registros`);
     
     return {
       endpoint,
@@ -32,7 +30,6 @@ async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
     const statusCode = error.response?.status || 0;
     
     if (statusCode === 404) {
-      console.log(`❌ ${endpoint}: 404 - Não encontrado`);
       return {
         endpoint,
         status: 'not_found',
@@ -40,7 +37,6 @@ async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
       };
     }
     
-    console.log(`❌ ${endpoint}: ${statusCode} - ${error.message}`);
     return {
       endpoint,
       status: 'error',
@@ -54,9 +50,6 @@ async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
  * Testa todos os endpoints comuns
  */
 export async function diagnoseAPI(): Promise<DiagnosticResult[]> {
-  console.log('\n🔬 ============================================');
-  console.log('🔬 DIAGNÓSTICO DA API');
-  console.log('🔬 ============================================\n');
 
   const endpointsToTest = [
     // Hotéis
@@ -109,35 +102,9 @@ export async function diagnoseAPI(): Promise<DiagnosticResult[]> {
   }
 
   // Resumo
-  console.log('\n📊 ============================================');
-  console.log('📊 RESUMO DO DIAGNÓSTICO');
-  console.log('📊 ============================================\n');
-
   const successCount = results.filter(r => r.status === 'success').length;
   const notFoundCount = results.filter(r => r.status === 'not_found').length;
   const errorCount = results.filter(r => r.status === 'error').length;
-
-  console.log(`✅ Endpoints encontrados: ${successCount}`);
-  console.log(`❌ Endpoints não encontrados (404): ${notFoundCount}`);
-  console.log(`⚠️  Outros erros: ${errorCount}`);
-
-  console.log('\n✅ ENDPOINTS DISPONÍVEIS:');
-  results
-    .filter(r => r.status === 'success')
-    .forEach(r => {
-      console.log(`   ${r.endpoint} (${r.recordCount} registros)`);
-    });
-
-  if (successCount === 0) {
-    console.log('\n⚠️  ATENÇÃO: Nenhum endpoint foi encontrado!');
-    console.log('   Verifique:');
-    console.log('   1. Se a API está rodando');
-    console.log('   2. Se a URL está correta em .env.local');
-    console.log('   3. Se você está autenticado');
-    console.log('   4. Se os nomes dos controllers estão corretos');
-  }
-
-  console.log('\n🔬 ============================================\n');
 
   return results;
 }

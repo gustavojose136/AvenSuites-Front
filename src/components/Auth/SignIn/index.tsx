@@ -54,7 +54,6 @@ const Signin = () => {
   const loginUser = async (e: any) => {
     e.preventDefault()
 
-    console.log("🚀 Login iniciado com dados:", loginData)
     setLoading(true)
     
     try {
@@ -67,7 +66,6 @@ const Signin = () => {
       
       if (callback?.error) {
         toast.error(callback?.error)
-        console.log(callback?.error)
         setLoading(false)
         return
       }
@@ -78,7 +76,6 @@ const Signin = () => {
         const session = await getSession()
         
         if (session?.accessToken) {
-          console.log('✅ Salvando token Admin no localStorage')
           localStorage.setItem('guestToken', session.accessToken as string)
           localStorage.setItem('guestUser', JSON.stringify({
             name: session.user?.name,
@@ -92,7 +89,6 @@ const Signin = () => {
       }
     } catch (err: any) {
       setLoading(false)
-      console.log(err.message)
       toast.error(err.message)
     }
   }
@@ -257,25 +253,7 @@ const Signin = () => {
               </div>
             </div>
 
-            {/* Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-stroke text-primary focus:ring-primary"
-                />
-                <label htmlFor="remember" className="ml-2 text-sm text-body-color dark:text-dark-6">
-                  Lembrar-me
-                </label>
-              </div>
-              <Link
-                href="/forgot-password"
-                className="text-sm font-medium text-primary hover:underline"
-              >
-                Esqueceu a senha?
-              </Link>
-            </div>
+          
 
             {/* Submit Button */}
             <button
@@ -299,36 +277,7 @@ const Signin = () => {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-stroke dark:border-dark-3" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-dark text-body-color dark:text-dark-6">
-                Ainda não tem uma conta?
-              </span>
-            </div>
-          </div>
-
-          {/* Sign Up Link */}
-          <Link
-            href="/signup"
-            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-stroke dark:border-dark-3 px-6 py-3.5 text-base font-semibold text-dark dark:text-white transition-all duration-300 hover:border-primary hover:bg-primary/5"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            Criar uma Conta
-          </Link>
-
-          {/* Support Link */}
-          <p className="text-center text-sm text-body-color dark:text-dark-6">
-            Precisa de ajuda?{" "}
-            <Link href="/contact" className="font-medium text-primary hover:underline">
-              Entre em contato
-            </Link>
-          </p>
+          
         </div>
       </div>
     </section>

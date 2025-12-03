@@ -59,7 +59,6 @@ export const AuthHelper = {
     if (typeof window === 'undefined') return;
     localStorage.removeItem('guestToken');
     localStorage.removeItem('guestUser');
-    console.log('🔓 Sessão Guest limpa');
   },
 
   /**
@@ -69,7 +68,6 @@ export const AuthHelper = {
     if (typeof window === 'undefined') return;
     localStorage.setItem('guestToken', token);
     localStorage.setItem('guestUser', JSON.stringify(user));
-    console.log('✅ Sessão Guest salva');
   },
 
   /**
@@ -85,22 +83,7 @@ export const AuthHelper = {
    */
   debugSession(): void {
     if (typeof window === 'undefined') return;
-    
-    console.group('🔍 Auth Debug');
-    console.log('Rota atual:', window.location.pathname);
-    console.log('É rota Guest?', this.isGuestRoute());
-    console.log('Guest logado?', this.isGuestLoggedIn());
-    
-    if (this.isGuestLoggedIn()) {
-      const user = this.getGuestUser();
-      console.log('Guest User:', {
-        id: user?.id,
-        name: user?.name,
-        email: user?.email,
-      });
-    }
-    
-    console.groupEnd();
+    // Função de debug removida - usar ferramentas de desenvolvimento do navegador
   }
 };
 

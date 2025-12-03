@@ -46,15 +46,9 @@ export default function GuestPortalPage() {
     if (typeof window !== 'undefined') {
       const guestToken = localStorage.getItem('guestToken');
       
-      console.group('🔍 Portal Guest - Validação Síncrona (BLOQUEANTE)');
-      console.log('📍 Rota:', window.location.pathname);
-      console.log('🔑 Token existe?', !!guestToken);
-      
       if (!guestToken) {
-        console.error('❌ Nenhum token encontrado');
         toast.error('Faça login para acessar o portal');
         router.push('/guest/login');
-        console.groupEnd();
         return;
       }
       
@@ -62,45 +56,27 @@ export default function GuestPortalPage() {
         const payload = JSON.parse(atob(guestToken.split('.')[1]));
         const isGuest = payload.role === 'Guest' || payload.GuestId;
         
-        console.log('📋 Token decodificado:', {
-          role: payload.role,
-          GuestId: payload.GuestId,
-          HotelId: payload.HotelId,
-          email: payload.email,
-          name: payload.name,
-        });
-        
         // VALIDAÇÃO CRÍTICA: Se não é Guest, BLOQUEIA TUDO
         if (!isGuest) {
-          console.error('❌❌❌ TOKEN ADMIN DETECTADO - BLOQUEANDO TUDO! ❌❌❌');
-          console.error('🧹 Limpando token Admin do localStorage IMEDIATAMENTE...');
-          
           // LIMPA IMEDIATAMENTE
           localStorage.removeItem('guestToken');
           localStorage.removeItem('guestUser');
           
-          console.error('🚫 NENHUMA REQUISIÇÃO SERÁ FEITA!');
-          console.error('🔄 Redirecionando para login Guest...');
-          
           toast.error('Token inválido. Você precisa fazer login como hóspede.');
           router.push('/guest/login');
-          console.groupEnd();
           setIsValidated(true);
           setIsGuestToken(false);
           return;
         }
         
-        console.log('✅✅✅ Token VALIDADO como Guest - PERMITINDO REQUISIÇÕES');
         setIsValidated(true);
         setIsGuestToken(true);
-        console.groupEnd();
       } catch (e) {
         console.error('❌ Erro ao decodificar token:', e);
         localStorage.removeItem('guestToken');
         localStorage.removeItem('guestUser');
         toast.error('Token inválido. Faça login novamente.');
         router.push('/guest/login');
-        console.groupEnd();
         setIsValidated(true);
         setIsGuestToken(false);
         return;
@@ -111,29 +87,22 @@ export default function GuestPortalPage() {
   // useEffect SEPARADO: Só faz requisições quando token foi validado como Guest
   useEffect(() => {
     if (isValidated && isGuestToken) {
-      console.log('🎯 Estados validados - executando checkAuth...');
       checkAuth();
-    } else if (isValidated && !isGuestToken) {
-      console.log('🚫 Token não é Guest - requisições bloqueadas');
     }
   }, [isValidated, isGuestToken]);
 
   const checkAuth = () => {
     // Proteção: só executa se token foi validado como Guest
     if (!isGuestToken) {
-      console.error('🚫 checkAuth bloqueado - token não é Guest');
       return;
     }
     
     const token = localStorage.getItem('guestToken');
     if (!token) {
-      console.error('❌ Token não encontrado no checkAuth');
       toast.error('Faça login para acessar o portal');
       router.push('/guest/login');
       return;
     }
-
-    console.log('✅ checkAuth: Token Guest validado, fazendo requisições...');
     
     // Configura o token no httpClient
     fetchProfile();

@@ -89,32 +89,18 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (params.id) {
-      console.log('🔄 Carregando quarto para edição:', params.id);
       fetchRoomById(params.id).catch((err) => {
         console.error('❌ Erro ao buscar quarto:', err);
       });
     }
   }, [params.id, fetchRoomById]);
 
-  // Debug: log do estado atual
-  useEffect(() => {
-    console.log('📊 Estado da página de edição:', {
-      loading,
-      error,
-      hasSelectedRoom: !!selectedRoom,
-      selectedRoom,
-      paramsId: params.id,
-    });
-  }, [loading, error, selectedRoom, params.id]);
-
   // Mapeia os dados do quarto para o formato do formulário
   const initialFormData = useMemo(() => {
     if (!selectedRoom) {
-      console.log('⏳ Aguardando dados do quarto...');
       return undefined;
     }
     const formData = mapRoomToFormData(selectedRoom);
-    console.log('✅ Dados do quarto mapeados para formulário:', { selectedRoom, formData });
     return formData;
   }, [selectedRoom]);
 
@@ -162,11 +148,6 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     try {
       // Converte os dados do formulário para o formato da API
       const updateRequest = mapFormDataToUpdateRequest(formData);
-      
-      console.log('📤 Atualizando quarto:', { 
-        id: params.id, 
-        originalRoom: selectedRoom,
-        formData,
         updateRequest 
       });
       

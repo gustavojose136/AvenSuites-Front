@@ -77,7 +77,6 @@ function BookingContent() {
     // Verifica se tem token Guest
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('guestToken');
-      console.log('🔍 Verificando autenticação Guest:', token ? 'Token encontrado' : 'Sem token');
       
       if (!token) {
         toast.error('Faça login para fazer uma reserva');
@@ -99,48 +98,34 @@ function BookingContent() {
     try {
       setLoading(true);
       
-      console.log('🔍 Buscando dados para hotelId:', hotelId);
-      console.log('👥 Número de hóspedes:', guests);
-      
       // Busca hotel
       let hotelData: Hotel | null = null;
       try {
         hotelData = await httpClient.get<Hotel>(`/Hotels/${hotelId}`);
-        console.log('✅ Hotel encontrado:', hotelData);
       } catch (err) {
-        console.log('⚠️ Tentando endpoint /Hotel...');
         hotelData = await httpClient.get<Hotel>(`/Hotels/${hotelId}`);
-        console.log('✅ Hotel encontrado com /Hotel:', hotelData);
       }
       
       setHotel(hotelData);
       
       // Busca quartos do hotel
       const roomsData = await httpClient.get<any[]>(`/Rooms?hotelId=${hotelId}`);
-      console.log('🛏️ Total de quartos recebidos:', roomsData.length);
-      console.log('🛏️ Estrutura do primeiro quarto:', roomsData[0]);
       
       // Verifica se tem roomNumber (são quartos reais) ou code (são tipos)
       const hasRoomNumber = roomsData.length > 0 && 'roomNumber' in roomsData[0];
-      console.log('📋 Dados são quartos reais?', hasRoomNumber);
 
       let availableRooms: Room[] = [];
 
       if (hasRoomNumber) {
         // Os dados são Rooms reais com roomType aninhado
-        console.log('✅ Trabalhando com Rooms (com roomType aninhado)');
-        
         const filteredByStatus = roomsData.filter(r => r.status === 'ACTIVE');
-        console.log(`✅ Quartos com status ACTIVE: ${filteredByStatus.length}`);
         
         // Calcula capacidade baseada no roomType
         const filteredByCapacity = filteredByStatus.filter(r => {
           const totalCapacity = (r.roomType?.capacityAdults || 0) + (r.roomType?.capacityChildren || 0);
           const hasCapacity = totalCapacity >= guests;
-          console.log(`Quarto #${r.roomNumber}: capacityAdults=${r.roomType?.capacityAdults}, capacityChildren=${r.roomType?.capacityChildren}, total=${totalCapacity}, guests=${guests}, ok=${hasCapacity}`);
           return hasCapacity;
         });
-        console.log(`✅ Quartos com capacidade suficiente: ${filteredByCapacity.length}`);
         
         // Mapeia para formato esperado
         availableRooms = filteredByCapacity.map(r => ({
@@ -155,13 +140,10 @@ function BookingContent() {
         }));
       } else {
         // Os dados são RoomTypes direto
-        console.log('✅ Trabalhando com RoomTypes');
-        
         availableRooms = roomsData
           .filter(rt => {
             const isActive = rt.active !== false;
             const capacityOk = (rt.capacityAdults + (rt.capacityChildren || 0)) >= guests;
-            console.log(`Tipo "${rt.name}": active=${isActive}, capacity=${rt.capacityAdults + (rt.capacityChildren || 0)}, guests=${guests}, ok=${capacityOk}`);
             return isActive && capacityOk;
           })
           .map((rt) => ({
@@ -188,15 +170,10 @@ function BookingContent() {
             }
           }));
       }
-
-      console.log('✅ Total de quartos disponíveis após filtros:', availableRooms.length);
-      console.log('✅ Quartos disponíveis completos:', availableRooms);
       
       setRooms(availableRooms);
 
       if (availableRooms.length === 0) {
-        console.warn('⚠️ NENHUM QUARTO DISPONÍVEL!');
-        console.warn(`Total de quartos recebidos: ${roomsData.length}`);
         toast('Nenhum quarto disponível para o número de hóspedes selecionado', { icon: 'ℹ️' });
       }
     } catch (error) {
@@ -291,8 +268,6 @@ function BookingContent() {
         additionalGuestIds: []
       };
 
-      console.log('📤 Criando reserva com formato correto:', bookingData);
-      console.log('🔐 Token será adicionado automaticamente pelo HttpClient');
 
       await httpClient.post('/Bookings', bookingData);
 

@@ -98,7 +98,6 @@ function RegisterContent() {
 
     try {
       setLoading(true)
-      console.log("📝 Registrando novo hóspede...")
 
       const registerData = {
         name: formData.name,
@@ -119,10 +118,7 @@ function RegisterContent() {
         hotelId: hotelId,
       }
 
-      console.log("📤 Dados do registro:", registerData)
-
       const response = await httpClient.post<any>("/Auth/register-guest", registerData)
-      console.log("✅ Registro bem-sucedido:", response)
 
       toast.success("Cadastro realizado com sucesso!")
 
