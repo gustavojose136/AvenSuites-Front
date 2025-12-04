@@ -25,6 +25,19 @@ interface FilterState {
   rating: number
 }
 
+// Helper para formatar data no timezone local
+const formatDateLocal = (dateString: string): string => {
+  const [year, month, day] = dateString.split("-").map(Number)
+  const date = new Date(year, month - 1, day)
+  return date.toLocaleDateString("pt-BR")
+}
+
+// Helper para criar data no timezone local a partir de string YYYY-MM-DD
+const createLocalDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
+
 export default function GuestSearchPage() {
   const router = useRouter()
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -88,8 +101,8 @@ export default function GuestSearchPage() {
       return
     }
 
-    const checkIn = new Date(checkInDate)
-    const checkOut = new Date(checkOutDate)
+    const checkIn = createLocalDate(checkInDate)
+    const checkOut = createLocalDate(checkOutDate)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
@@ -114,8 +127,8 @@ export default function GuestSearchPage() {
 
   const calculateNights = () => {
     if (!checkInDate || !checkOutDate) return 0
-    const checkIn = new Date(checkInDate)
-    const checkOut = new Date(checkOutDate)
+    const checkIn = createLocalDate(checkInDate)
+    const checkOut = createLocalDate(checkOutDate)
     const diff = checkOut.getTime() - checkIn.getTime()
     return Math.ceil(diff / (1000 * 60 * 60 * 24))
   }
@@ -197,23 +210,12 @@ export default function GuestSearchPage() {
                 ))}
               </select>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-2">&nbsp;</label>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 font-semibold hover:bg-primary/90 transition-colors"
-              >
-                {showFilters ? "Fechar Filtros" : "Mostrar Filtros"}
-              </button>
-            </div>
           </div>
 
           {checkInDate && checkOutDate && (
             <div className="mt-4 p-3 bg-muted rounded-lg flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
-                {new Date(checkInDate).toLocaleDateString("pt-BR")} →{" "}
-                {new Date(checkOutDate).toLocaleDateString("pt-BR")}
+                {formatDateLocal(checkInDate)} → {formatDateLocal(checkOutDate)}
               </span>
               <span className="text-sm font-semibold text-primary">
                 {calculateNights()} {calculateNights() === 1 ? "noite" : "noites"}
@@ -270,9 +272,6 @@ export default function GuestSearchPage() {
                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                           />
                         </svg>
-                      </div>
-                      <div className="absolute top-3 right-3 bg-accent text-accent-foreground px-2 py-1 rounded-lg text-xs font-semibold">
-                        R$ 150/noite
                       </div>
                     </div>
 

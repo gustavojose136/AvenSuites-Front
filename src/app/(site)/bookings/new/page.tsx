@@ -133,9 +133,11 @@ export default function NewBookingPage() {
     }
     
     try {
-      // Busca quartos e tipos em paralelo
+      // Busca quartos disponíveis para as datas selecionadas e quantidade de hóspedes
       const [roomsData, typesData] = await Promise.all([
-        httpClient.get<Room[]>(`/Rooms?hotelId=${selectedHotelId}`),
+        httpClient.get<Room[]>(
+          `/Rooms?hotelId=${selectedHotelId}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&guests=${guestCount}`
+        ),
         httpClient.get<RoomType[]>(`/RoomType`)
       ]);
       

@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { httpClient } from "@/infrastructure/http/HttpClient"
@@ -27,11 +26,55 @@ interface RegisterFormData {
   marketingConsent: boolean
 }
 
+const createLocalDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
+
+const formatDateLocal = (dateString: string, options?: Intl.DateTimeFormatOptions): string => {
+  const date = createLocalDate(dateString)
+  return date.toLocaleDateString("pt-BR", options)
+}
+
+const isStepValid = (step: number, formData: RegisterFormData, birthDay?: string, birthMonth?: string, birthYear?: string): boolean => {
+  switch (step) {
+    case 1:
+      return (
+        formData.name.trim() !== "" &&
+        formData.birthDate !== "" &&
+        birthDay !== "" &&
+        birthMonth !== "" &&
+        birthYear !== "" &&
+        formData.documentType !== "" &&
+        formData.document.trim() !== ""
+      )
+    case 2:
+      return formData.email.trim() !== "" && formData.phone.trim() !== ""
+    case 3:
+      return (
+        formData.addressLine1.trim() !== "" &&
+        formData.city.trim() !== "" &&
+        formData.state.trim() !== "" &&
+        formData.postalCode.trim() !== ""
+      )
+    case 4:
+      return (
+        formData.password !== "" &&
+        formData.confirmPassword !== "" &&
+        formData.password === formData.confirmPassword &&
+        formData.password.length >= 6
+      )
+    default:
+      return false
+  }
+}
+
 function RegisterContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [hotelName, setHotelName] = useState("")
+  const [currentStep, setCurrentStep] = useState(1)
 
   const hotelId = searchParams.get("hotelId") || ""
   const checkIn = searchParams.get("checkIn") || ""
@@ -57,11 +100,36 @@ function RegisterContent() {
     marketingConsent: false,
   })
 
+  const [birthDay, setBirthDay] = useState("")
+  const [birthMonth, setBirthMonth] = useState("")
+  const [birthYear, setBirthYear] = useState("")
+
   useEffect(() => {
     if (hotelId) {
       fetchHotelName(hotelId)
     }
   }, [hotelId])
+
+  // Sincroniza os campos de data separados com birthDate
+  useEffect(() => {
+    if (birthDay && birthMonth && birthYear) {
+      const day = birthDay.padStart(2, "0")
+      const month = birthMonth.padStart(2, "0")
+      const year = birthYear
+      setFormData((prev) => ({ ...prev, birthDate: `${year}-${month}-${day}` }))
+    }
+  }, [birthDay, birthMonth, birthYear])
+
+  // Carrega valores iniciais se birthDate já existir
+  useEffect(() => {
+    if (formData.birthDate && !birthDay && !birthMonth && !birthYear) {
+      const [year, month, day] = formData.birthDate.split("-")
+      setBirthYear(year || "")
+      setBirthMonth(month || "")
+      setBirthDay(day || "")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.birthDate])
 
   const fetchHotelName = async (id: string) => {
     try {
@@ -83,16 +151,23 @@ function RegisterContent() {
     }
   }
 
+  const handleNextStep = () => {
+    if (isStepValid(currentStep, formData, birthDay, birthMonth, birthYear)) {
+      setCurrentStep(currentStep + 1)
+    } else {
+      toast.error("Por favor, preencha todos os campos obrigatórios")
+    }
+  }
+
+  const handlePrevStep = () => {
+    setCurrentStep(currentStep - 1)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("As senhas não coincidem")
-      return
-    }
-
-    if (formData.password.length < 6) {
-      toast.error("A senha deve ter no mínimo 6 caracteres")
+    if (!isStepValid(4, formData, birthDay, birthMonth, birthYear)) {
+      toast.error("Por favor, verifique os dados de segurança")
       return
     }
 
@@ -143,180 +218,135 @@ function RegisterContent() {
 
   const calculateNights = () => {
     if (!checkIn || !checkOut) return 0
-    const checkInDate = new Date(checkIn)
-    const checkOutDate = new Date(checkOut)
+    const checkInDate = createLocalDate(checkIn)
+    const checkOutDate = createLocalDate(checkOut)
     const diff = checkOutDate.getTime() - checkInDate.getTime()
     return Math.ceil(diff / (1000 * 60 * 60 * 24))
   }
 
+  const steps = [
+    { number: 1, title: "Dados Pessoais", icon: "👤" },
+    { number: 2, title: "Contato", icon: "📧" },
+    { number: 3, title: "Endereço", icon: "📍" },
+    { number: 4, title: "Segurança", icon: "🔐" },
+  ]
+
   return (
-    <section className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950 dark:to-slate-900 py-12 md:py-16">
+    <section className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 md:py-12">
       <div className="container mx-auto px-4">
-        <div className="grid gap-8 lg:grid-cols-5 max-w-7xl mx-auto">
-          {/* Left Column - Hotel Info and Summary */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Heading */}
-            <div className="pt-4">
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                Completar Cadastro
-              </h1>
-              <p className="text-slate-600 dark:text-slate-300 text-sm md:text-base">
-                Finalize seu cadastro para confirmar a reserva
-              </p>
-            </div>
-
-            {/* Reservation Summary Card */}
-            {hotelName && checkIn && checkOut && (
-              <div className="sticky top-6 rounded-2xl border-2 border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-800 dark:via-indigo-900/30 dark:to-purple-900/30 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div className="mb-4 pb-4 border-b-2 border-blue-200 dark:border-indigo-700">
-                  <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400 line-clamp-2">
-                    {hotelName}
-                  </h3>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <svg
-                      className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Entrada</p>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                        {new Date(checkIn).toLocaleDateString("pt-BR", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <svg
-                      className="h-5 w-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Saída</p>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                        {new Date(checkOut).toLocaleDateString("pt-BR", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <svg
-                      className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Hóspedes</p>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                        {guests} {Number(guests) === 1 ? "pessoa" : "pessoas"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 pt-4 border-t-2 border-blue-200 dark:border-indigo-700">
-                    <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-3 rounded-lg">
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Duração</span>
-                      <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-400">
-                        {calculateNights()} {calculateNights() === 1 ? "noite" : "noites"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Seção de Login - Sempre visível */}
-            <div className="sticky top-6 rounded-2xl border-2 border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-800 dark:via-indigo-900/30 dark:to-purple-900/30 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="text-center">
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 font-medium">
-                  Já tem uma conta?
-                </p>
-                <Link
-                  href={`/guest/login?hotelId=${hotelId || ''}&checkIn=${checkIn || ''}&checkOut=${checkOut || ''}&guests=${guests}`}
-                  className="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-                >
-                  <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                    />
-                  </svg>
-                  Fazer Login
-                </Link>
-                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                  Faça login para continuar sua reserva
-                </p>
-              </div>
-            </div>
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">Completar Cadastro</h1>
+            <p className="text-slate-600 dark:text-slate-400">Finalize seu registro em {steps.length} passos simples</p>
           </div>
 
-          {/* Right Column - Form */}
-          <form onSubmit={handleSubmit} className="lg:col-span-3">
-            <div className="rounded-2xl bg-gradient-to-br from-white via-white to-blue-50/50 dark:from-slate-800 dark:via-slate-800 dark:to-indigo-900/30 border-2 border-blue-200 dark:border-indigo-800 p-6 md:p-8 shadow-xl">
-              <div className="space-y-6">
-                {/* Personal Info Section */}
-                <div>
-                  <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30">
-                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md">
-                      <svg
-                        className="h-5 w-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Left Column - Progress and Summary */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Step Indicator */}
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 sticky top-6">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Etapas do Cadastro</h3>
+                <div className="space-y-3">
+                  {steps.map((step) => (
+                    <div
+                      key={step.number}
+                      className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                        currentStep === step.number
+                          ? "bg-slate-900 dark:bg-white"
+                          : currentStep > step.number
+                            ? "bg-emerald-100 dark:bg-emerald-900/30"
+                            : "bg-slate-100 dark:bg-slate-800"
+                      }`}
+                    >
+                      <div
+                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
+                          currentStep === step.number
+                            ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                            : currentStep > step.number
+                              ? "bg-emerald-600 text-white"
+                              : "bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300"
+                        }`}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
+                        {currentStep > step.number ? "✓" : step.number}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`text-sm font-medium ${
+                            currentStep === step.number
+                              ? "text-white dark:text-slate-900"
+                              : currentStep > step.number
+                                ? "text-emerald-900 dark:text-emerald-100"
+                                : "text-slate-700 dark:text-slate-300"
+                          }`}
+                        >
+                          {step.title}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-400">
-                      Dados Pessoais
-                    </h3>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
+                  ))}
+                </div>
+              </div>
+
+              {/* Reservation Summary */}
+              {hotelName && checkIn && checkOut && (
+                <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Sua Reserva</h3>
+                  <div className="space-y-3 text-sm">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <p className="text-slate-600 dark:text-slate-400 text-xs mb-1">Hotel</p>
+                      <p className="font-medium text-slate-900 dark:text-white line-clamp-2">{hotelName}</p>
+                    </div>
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-between">
+                      <div>
+                        <p className="text-slate-600 dark:text-slate-400 text-xs mb-1">Entrada</p>
+                        <p className="font-medium text-slate-900 dark:text-white">
+                          {formatDateLocal(checkIn, { month: "short", day: "numeric" })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-slate-600 dark:text-slate-400 text-xs mb-1">Saída</p>
+                        <p className="font-medium text-slate-900 dark:text-white">
+                          {formatDateLocal(checkOut, { month: "short", day: "numeric" })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-slate-600 dark:text-slate-400 text-xs mb-1">Noites</p>
+                        <p className="font-medium text-slate-900 dark:text-white">{calculateNights()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Login Link */}
+              <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 text-center">
+                <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">Já tem uma conta?</p>
+                <Link
+                  href={`/guest/login?hotelId=${hotelId || ""}&checkIn=${checkIn || ""}&checkOut=${checkOut || ""}&guests=${guests}`}
+                  className="w-full inline-flex items-center justify-center px-3 py-2 text-sm font-medium bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg transition-colors"
+                >
+                  Fazer Login
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Column - Form */}
+            <div className="lg:col-span-2">
+              <form
+                onSubmit={handleSubmit}
+                className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6 md:p-8"
+              >
+                {/* Step 1: Personal Info */}
+                {currentStep === 1 && (
+                  <div className="space-y-6 animate-in fade-in duration-300">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Dados Pessoais</h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">Informações básicas sobre você</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Nome Completo *
                       </label>
                       <input
@@ -326,45 +356,141 @@ function RegisterContent() {
                         onChange={handleChange}
                         required
                         maxLength={100}
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                         placeholder="João Silva"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
                     </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Data de Nascimento *
-                      </label>
-                      <input
-                        type="date"
-                        name="birthDate"
-                        value={formData.birthDate}
-                        onChange={handleChange}
-                        required
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
-                      />
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          <div className="flex items-center gap-2">
+                            <svg
+                              className="h-4 w-4 text-slate-500 dark:text-slate-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                            Data de Nascimento *
+                          </div>
+                        </label>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <select
+                              value={birthDay}
+                              onChange={(e) => setBirthDay(e.target.value)}
+                              required
+                              className="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition text-sm"
+                            >
+                              <option value="">Dia</option>
+                              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                                <option key={day} value={day.toString()}>
+                                  {day.toString().padStart(2, "0")}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <select
+                              value={birthMonth}
+                              onChange={(e) => setBirthMonth(e.target.value)}
+                              required
+                              className="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition text-sm"
+                            >
+                              <option value="">Mês</option>
+                              <option value="1">Janeiro</option>
+                              <option value="2">Fevereiro</option>
+                              <option value="3">Março</option>
+                              <option value="4">Abril</option>
+                              <option value="5">Maio</option>
+                              <option value="6">Junho</option>
+                              <option value="7">Julho</option>
+                              <option value="8">Agosto</option>
+                              <option value="9">Setembro</option>
+                              <option value="10">Outubro</option>
+                              <option value="11">Novembro</option>
+                              <option value="12">Dezembro</option>
+                            </select>
+                          </div>
+                          <div>
+                            <select
+                              value={birthYear}
+                              onChange={(e) => setBirthYear(e.target.value)}
+                              required
+                              className="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition text-sm"
+                            >
+                              <option value="">Ano</option>
+                              {Array.from({ length: 100 }, (_, i) => {
+                                const year = new Date().getFullYear() - 18 - i
+                                return year >= 1920 ? year : null
+                              })
+                                .filter((year) => year !== null)
+                                .map((year) => (
+                                  <option key={year} value={year!.toString()}>
+                                    {year}
+                                  </option>
+                                ))}
+                            </select>
+                          </div>
+                        </div>
+                        {birthDay && birthMonth && birthYear && (
+                          <div className="mt-2 flex items-center gap-2 rounded-md bg-slate-50 dark:bg-slate-800/50 px-3 py-2">
+                            <svg
+                              className="h-4 w-4 text-slate-500 dark:text-slate-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                              {new Date(
+                                parseInt(birthYear),
+                                parseInt(birthMonth) - 1,
+                                parseInt(birthDay)
+                              ).toLocaleDateString("pt-BR", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          Tipo de Documento *
+                        </label>
+                        <select
+                          name="documentType"
+                          value={formData.documentType}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
+                        >
+                          <option value="CPF">CPF</option>
+                          <option value="RG">RG</option>
+                          <option value="CNH">CNH</option>
+                          <option value="Passport">Passaporte</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Tipo de Documento *
-                      </label>
-                      <select
-                        name="documentType"
-                        value={formData.documentType}
-                        onChange={handleChange}
-                        required
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
-                      >
-                        <option value="CPF">CPF</option>
-                        <option value="RG">RG</option>
-                        <option value="CNH">CNH</option>
-                        <option value="Passport">Passaporte</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Número do Documento *
                       </label>
                       <input
@@ -374,38 +500,25 @@ function RegisterContent() {
                         onChange={handleChange}
                         required
                         maxLength={20}
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                         placeholder="000.000.000-00"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Contact Section */}
-                <div>
-                  <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-gradient-to-r from-purple-100 via-pink-100 to-rose-100 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-rose-900/30">
-                    <div className="p-2.5 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-md">
-                      <svg
-                        className="h-5 w-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-pink-400">
-                      Contato
-                    </h3>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
+                {/* Step 2: Contact */}
+                {currentStep === 2 && (
+                  <div className="space-y-6 animate-in fade-in duration-300">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Informações de Contato</h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                        Como podemos entrar em contato com você
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         E-mail *
                       </label>
                       <input
@@ -415,13 +528,13 @@ function RegisterContent() {
                         onChange={handleChange}
                         required
                         maxLength={100}
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                         placeholder="seu@email.com"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Telefone *
                       </label>
                       <input
@@ -430,78 +543,57 @@ function RegisterContent() {
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                         placeholder="+55 11 99999-9999"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Address Section */}
-                <div>
-                  <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-gradient-to-r from-emerald-100 via-teal-100 to-cyan-100 dark:from-emerald-900/30 dark:via-teal-900/30 dark:to-cyan-900/30">
-                    <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg shadow-md">
-                      <svg
-                        className="h-5 w-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-400">
-                      Endereço
-                    </h3>
-                  </div>
-                  <div className="grid gap-4">
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <div className="md:col-span-2">
-                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                          Logradouro *
-                        </label>
-                        <input
-                          type="text"
-                          name="addressLine1"
-                          value={formData.addressLine1}
-                          onChange={handleChange}
-                          required
-                          maxLength={200}
-                          className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
-                          placeholder="Rua Exemplo, 123"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                          Complemento
-                        </label>
-                        <input
-                          type="text"
-                          name="addressLine2"
-                          value={formData.addressLine2}
-                          onChange={handleChange}
-                          maxLength={200}
-                          className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
-                          placeholder="Apto 45"
-                        />
-                      </div>
+                {/* Step 3: Address */}
+                {currentStep === 3 && (
+                  <div className="space-y-6 animate-in fade-in duration-300">
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Endereço</h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                        Onde você deseja receber correspondências
+                      </p>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Logradouro *
+                      </label>
+                      <input
+                        type="text"
+                        name="addressLine1"
+                        value={formData.addressLine1}
+                        onChange={handleChange}
+                        required
+                        maxLength={200}
+                        placeholder="Rua Exemplo, 123"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Complemento
+                      </label>
+                      <input
+                        type="text"
+                        name="addressLine2"
+                        value={formData.addressLine2}
+                        onChange={handleChange}
+                        maxLength={200}
+                        placeholder="Apto 45"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
+                      />
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Bairro
                         </label>
                         <input
@@ -510,13 +602,13 @@ function RegisterContent() {
                           value={formData.neighborhood}
                           onChange={handleChange}
                           maxLength={100}
-                          className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                           placeholder="Centro"
+                          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                         />
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Cidade *
                         </label>
                         <input
@@ -526,13 +618,15 @@ function RegisterContent() {
                           onChange={handleChange}
                           required
                           maxLength={100}
-                          className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                           placeholder="São Paulo"
+                          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                         />
                       </div>
+                    </div>
 
+                    <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           Estado *
                         </label>
                         <input
@@ -542,13 +636,13 @@ function RegisterContent() {
                           onChange={handleChange}
                           required
                           maxLength={2}
-                          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 uppercase"
                           placeholder="SP"
+                          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition uppercase"
                         />
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                           CEP *
                         </label>
                         <input
@@ -558,39 +652,26 @@ function RegisterContent() {
                           onChange={handleChange}
                           required
                           maxLength={10}
-                          className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                           placeholder="01234-567"
+                          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                         />
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Password Section */}
-                <div>
-                  <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-gradient-to-r from-amber-100 via-orange-100 to-red-100 dark:from-amber-900/30 dark:via-orange-900/30 dark:to-red-900/30">
-                    <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg shadow-md">
-                      <svg
-                        className="h-5 w-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent dark:from-amber-400 dark:to-orange-400">
-                      Segurança
-                    </h3>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
+                {/* Step 4: Security */}
+                {currentStep === 4 && (
+                  <div className="space-y-6 animate-in fade-in duration-300">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Criar Senha</h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                        Escolha uma senha segura para sua conta
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Senha *
                       </label>
                       <input
@@ -600,14 +681,14 @@ function RegisterContent() {
                         onChange={handleChange}
                         required
                         minLength={6}
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                         placeholder="••••••••"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Mínimo 6 caracteres</p>
+                      <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400">Mínimo 6 caracteres</p>
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Confirmar Senha *
                       </label>
                       <input
@@ -617,70 +698,69 @@ function RegisterContent() {
                         onChange={handleChange}
                         required
                         minLength={6}
-                        className="w-full rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
                         placeholder="••••••••"
+                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
                     </div>
+
+                    {formData.password !== formData.confirmPassword && formData.confirmPassword !== "" && (
+                      <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                        <p className="text-sm text-red-800 dark:text-red-200">As senhas não coincidem</p>
+                      </div>
+                    )}
+
+                    <label className="flex items-start gap-3 cursor-pointer p-4 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <input
+                        type="checkbox"
+                        name="marketingConsent"
+                        checked={formData.marketingConsent}
+                        onChange={handleChange}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white cursor-pointer"
+                      />
+                      <span className="text-sm text-slate-700 dark:text-slate-300">
+                        Desejo receber ofertas e promoções do hotel por email
+                      </span>
+                    </label>
                   </div>
-                </div>
+                )}
 
-                {/* Consent Section */}
-                <div className="rounded-lg border-2 border-purple-200 dark:border-purple-800 bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-rose-900/20 p-4">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="marketingConsent"
-                      checked={formData.marketingConsent}
-                      onChange={handleChange}
-                      className="mt-1 h-5 w-5 rounded border-2 border-purple-300 dark:border-purple-600 text-purple-600 focus:ring-2 focus:ring-purple-500 cursor-pointer accent-purple-600"
-                    />
-                    <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-                      Desejo receber ofertas e promoções do hotel por email
-                    </span>
-                  </label>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 disabled:from-slate-400 disabled:via-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Cadastrando...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      Concluir Cadastro
-                    </>
+                {/* Navigation Buttons */}
+                <div className="flex gap-3 mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+                  {currentStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={handlePrevStep}
+                      className="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-colors"
+                    >
+                      Voltar
+                    </button>
                   )}
-                </button>
 
-                <p className="text-xs text-center text-slate-600 dark:text-slate-400">
-                  Ao se cadastrar, você concorda com nossos{" "}
-                  <span className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-semibold">Termos de Serviço</span> e{" "}
-                  <span className="text-purple-600 dark:text-purple-400 hover:underline cursor-pointer font-semibold">Política de Privacidade</span>
+                  {currentStep < 4 ? (
+                    <button
+                      type="button"
+                      onClick={handleNextStep}
+                      className="ml-auto px-6 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-medium transition-colors"
+                    >
+                      Próximo
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="ml-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-colors"
+                    >
+                      {loading ? "Cadastrando..." : "Concluir Cadastro"}
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-center text-slate-600 dark:text-slate-400 mt-6">
+                  Ao se cadastrar, você concorda com nossos Termos de Serviço e Política de Privacidade
                 </p>
-              </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </section>
