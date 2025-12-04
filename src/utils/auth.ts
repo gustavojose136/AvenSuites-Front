@@ -31,13 +31,6 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        console.log("\n");
-        console.log("🔐 ================================================");
-        console.log("🔐 ATENÇÃO: AUTENTICAÇÃO VIA API EXTERNA");
-        console.log("🔐 NextAuth está apenas criando a sessão!");
-        console.log("🔐 A validação é feita na SUA API em C#");
-        console.log("🔐 ================================================");
-        
         // Validação dos campos obrigatórios
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Por favor, insira seu e-mail e senha");
@@ -48,14 +41,6 @@ export const authOptions: NextAuthOptions = {
           const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api-avensuits.azurewebsites.net/api').replace(/\/$/, '');
           const loginEndpoint = '/Auth/login';
           const fullUrl = `${apiUrl}${loginEndpoint}`;
-          
-          console.log("\n📡 FAZENDO CHAMADA PARA SUA API EXTERNA:");
-          console.log("   📧 Email:", credentials.email);
-          console.log("   🌐 API URL:", apiUrl);
-          console.log("   🔗 Endpoint Completo:", fullUrl);
-          console.log("   ⚙️  Método: POST");
-          console.log("   📦 Body:", JSON.stringify({ email: credentials.email, password: "***" }));
-          console.log("\n⏳ Aguardando resposta da API...");
           
           // Cria um agente HTTPS que ignora certificados SSL em desenvolvimento
           const httpsAgent = new https.Agent({
@@ -73,14 +58,6 @@ export const authOptions: NextAuthOptions = {
             httpsAgent: httpsAgent, // Ignora SSL em desenvolvimento
             timeout: 10000, // Timeout de 10 segundos
           });
-
-          console.log("\n✅ ================================================");
-          console.log("✅ RESPOSTA RECEBIDA DA SUA API!");
-          console.log("✅ ================================================");
-          console.log("📡 Status HTTP:", response.status);
-          console.log("📦 Dados recebidos da API:");
-          console.log(JSON.stringify(response.data, null, 2));
-          console.log("✅ ================================================\n");
           
           const userData = response.data;
           
@@ -108,10 +85,6 @@ export const authOptions: NextAuthOptions = {
             roles: userData.user?.roles || userData.roles || [],
             expiresAt: userData.expiresAt || null,
           };
-
-          console.log("💾 Salvando na sessão do NextAuth:");
-          console.log(JSON.stringify(user, null, 2));
-          console.log("\n🎉 AUTENTICAÇÃO CONCLUÍDA VIA SUA API!\n");
           
           return user;
           
@@ -187,8 +160,6 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     jwt: async (payload: any) => {
-      console.log("jwt");
-      console.log(payload);
       const { token } = payload;
       const user = payload.user;
 

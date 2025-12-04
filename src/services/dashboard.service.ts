@@ -158,9 +158,7 @@ class DashboardService {
    */
   async getHotels(): Promise<Hotel[]> {
     try {
-      console.log('🏨 Buscando hotéis...');
       const hotels = await httpClient.get<Hotel[]>('/Hotels');
-      console.log(`✅ ${hotels.length} hotéis encontrados`);
       return hotels;
     } catch (error: any) {
       console.error('❌ Erro ao buscar hotéis:', error);
@@ -173,10 +171,8 @@ class DashboardService {
    */
   async getRooms(hotelId?: string): Promise<Room[]> {
     try {
-      console.log('🛏️  Buscando quartos...');
       const endpoint = hotelId ? `/Rooms?hotelId=${hotelId}` : '/Rooms';
       const rooms = await httpClient.get<Room[]>(endpoint);
-      console.log(`✅ ${rooms.length} quartos encontrados`);
       return rooms;
     } catch (error: any) {
       console.error('❌ Erro ao buscar quartos:', error);
@@ -189,10 +185,8 @@ class DashboardService {
    */
   async getGuests(hotelId?: string): Promise<Guest[]> {
     try {
-      console.log('👥 Buscando hóspedes...');
       const endpoint = hotelId ? `/Guests?hotelId=${hotelId}` : '/Guests';
       const guests = await httpClient.get<Guest[]>(endpoint);
-      console.log(`✅ ${guests.length} hóspedes encontrados`);
       return guests;
     } catch (error: any) {
       console.error('❌ Erro ao buscar hóspedes:', error);
@@ -205,10 +199,8 @@ class DashboardService {
    */
   async getBookings(hotelId?: string): Promise<Booking[]> {
     try {
-      console.log('📅 Buscando reservas...');
       const endpoint = hotelId ? `/Bookings?hotelId=${hotelId}` : '/Bookings';
       const bookings = await httpClient.get<Booking[]>(endpoint);
-      console.log(`✅ ${bookings.length} reservas encontradas`);
       return bookings;
     } catch (error: any) {
       console.error('❌ Erro ao buscar reservas:', error);
@@ -221,10 +213,6 @@ class DashboardService {
    */
   async getDashboardStats(): Promise<DashboardStats> {
     try {
-      console.log('📊 ============================================');
-      console.log('📊 BUSCANDO DADOS DO DASHBOARD');
-      console.log('📊 ============================================');
-
       // Buscar todos os dados em paralelo
       const [hotels, rooms, guests, bookings] = await Promise.all([
         this.getHotels(),
@@ -232,13 +220,6 @@ class DashboardService {
         this.getGuests(),
         this.getBookings(),
       ]);
-
-      console.log('\n📊 RESUMO DOS DADOS:');
-      console.log('🏨 Hotéis:', hotels.length);
-      console.log('🛏️  Quartos:', rooms.length);
-      console.log('👥 Hóspedes:', guests.length);
-      console.log('📅 Reservas:', bookings.length);
-      console.log('📊 ============================================\n');
 
       // ============ CÁLCULOS DE ESTATÍSTICAS ============
 
@@ -366,8 +347,6 @@ class DashboardService {
    */
   async getInvoices(): Promise<Invoice[]> {
     try {
-      console.log('📄 Buscando notas fiscais...');
-      
       // Buscar reservas e hóspedes para simular invoices
       const [bookings, guests, hotels] = await Promise.all([
         this.getBookings(),
@@ -406,7 +385,6 @@ class DashboardService {
           };
         });
 
-      console.log(`✅ ${invoices.length} notas fiscais geradas`);
       return invoices;
     } catch (error) {
       console.error('❌ Erro ao buscar notas fiscais:', error);
@@ -438,30 +416,18 @@ class DashboardService {
    */
   async createInvoice(bookingId: string): Promise<Invoice> {
     try {
-      console.log(`📄 ============================================`);
-      console.log(`📄 CRIANDO NOTA FISCAL`);
-      console.log(`📄 ============================================`);
-      console.log(`📄 Booking ID: ${bookingId}`);
-      
       // Buscar dados da reserva
-      console.log(`📄 Buscando dados da reserva...`);
       const bookings = await this.getBookings();
       const booking = bookings.find(b => b.id === bookingId);
       
       if (!booking) {
-        console.error('❌ Reserva não encontrada');
         throw new Error('Reserva não encontrada');
       }
 
-      console.log(`✅ Reserva encontrada: ${booking.code}`);
-      console.log(`📄 Total: R$ ${booking.totalAmount}`);
-
       // Verificar se já existe invoice para esta reserva
-      console.log(`📄 Verificando se já existe nota fiscal...`);
       const existingInvoices = await this.getInvoices();
       const existingInvoice = existingInvoices.find(inv => inv.bookingId === bookingId);
       if (existingInvoice) {
-        console.warn('⚠️ Já existe uma nota fiscal para esta reserva');
         throw new Error('Já existe uma nota fiscal para esta reserva');
       }
 
@@ -487,15 +453,7 @@ class DashboardService {
         })) || [],
       };
 
-      console.log(`📄 Dados da nota fiscal:`, JSON.stringify(invoiceData, null, 2));
-      console.log(`📄 Enviando requisição para /Invoice...`);
-
       const invoice = await httpClient.post<Invoice>('/Invoice', invoiceData);
-      
-      console.log(`✅ Nota fiscal criada com sucesso!`);
-      console.log(`📄 Invoice ID: ${invoice.id || 'N/A'}`);
-      console.log(`📄 Invoice Number: ${invoice.number || 'N/A'}`);
-      console.log(`📄 ============================================`);
       
       // Se a resposta não tiver todos os campos, completar com dados da reserva
       const completeInvoice: Invoice = {
@@ -516,14 +474,6 @@ class DashboardService {
       
       return completeInvoice;
     } catch (error: any) {
-      console.error('❌ ============================================');
-      console.error('❌ ERRO AO CRIAR NOTA FISCAL');
-      console.error('❌ ============================================');
-      console.error('❌ Erro completo:', error);
-      console.error('❌ Response:', error.response?.data);
-      console.error('❌ Status:', error.response?.status);
-      console.error('❌ ============================================');
-      
       let errorMessage = 'Erro ao criar nota fiscal';
       
       if (error.response?.data) {
@@ -547,9 +497,7 @@ class DashboardService {
    */
   async checkIn(bookingId: string): Promise<Booking> {
     try {
-      console.log(`🔑 Realizando check-in da reserva ${bookingId}...`);
       const booking = await httpClient.post<Booking>(`/Booking/${bookingId}/check-in`, {});
-      console.log('✅ Check-in realizado com sucesso');
       return booking;
     } catch (error) {
       console.error('❌ Erro ao realizar check-in:', error);
@@ -562,9 +510,7 @@ class DashboardService {
    */
   async checkOut(bookingId: string): Promise<Booking> {
     try {
-      console.log(`🚪 Realizando check-out da reserva ${bookingId}...`);
       const booking = await httpClient.post<Booking>(`/Booking/${bookingId}/check-out`, {});
-      console.log('✅ Check-out realizado com sucesso');
       return booking;
     } catch (error) {
       console.error('❌ Erro ao realizar check-out:', error);

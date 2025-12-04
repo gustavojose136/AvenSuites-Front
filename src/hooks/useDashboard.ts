@@ -17,9 +17,7 @@ export function useDashboard() {
     setError(null);
     
     try {
-      console.log('📊 Buscando estatísticas do dashboard...');
       const data = await dashboardService.getDashboardStats();
-      console.log('✅ Estatísticas carregadas:', data);
       setStats(data);
     } catch (err: any) {
       console.error('❌ Erro ao carregar dashboard:', err);
@@ -33,7 +31,6 @@ export function useDashboard() {
 
   const fetchWeekBookings = useCallback(async (hotelId?: string) => {
     try {
-      console.log('📅 Buscando reservas da semana...');
       const bookings = await dashboardService.getBookings(hotelId);
       
       // Filtrar reservas da semana atual
@@ -59,7 +56,6 @@ export function useDashboard() {
         return new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime();
       });
       
-      console.log(`✅ ${weekBookings.length} reservas da semana encontradas`);
       setWeekBookings(weekBookings);
     } catch (err: any) {
       console.error('❌ Erro ao buscar reservas da semana:', err);
@@ -90,9 +86,7 @@ export function useInvoices() {
     setError(null);
     
     try {
-      console.log('📄 Buscando notas fiscais...');
       const data = await dashboardService.getInvoices();
-      console.log('✅ Notas fiscais carregadas:', data.length);
       setInvoices(data);
     } catch (err: any) {
       console.error('❌ Erro ao carregar notas fiscais:', err);
@@ -106,9 +100,7 @@ export function useInvoices() {
 
   const createInvoice = async (bookingId: string) => {
     try {
-      console.log(`📄 [useInvoices] Criando nota fiscal para reserva ${bookingId}...`);
       const invoice = await dashboardService.createInvoice(bookingId);
-      console.log(`✅ [useInvoices] Nota fiscal criada:`, invoice);
       toast.success('Nota fiscal criada com sucesso!');
       
       // Atualizar lista de invoices

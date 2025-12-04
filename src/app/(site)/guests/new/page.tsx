@@ -36,8 +36,6 @@ function NewGuestContent() {
       // Transforma dados do formulário para o formato da API
       const apiRequest = mapFormDataToApiRequest(formDataWithHotel);
       
-      console.log('📤 Enviando dados para API:', apiRequest);
-      
       const guest = await createGuest(apiRequest);
       
       // Extrai nome do fullName para exibir no toast

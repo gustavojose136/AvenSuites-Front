@@ -6,7 +6,6 @@ export class ApiClient {
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    console.log(this.baseURL);
   }
 
   // Método para fazer requisições autenticadas

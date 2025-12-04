@@ -29,11 +29,9 @@ function LoginContent() {
 
     try {
       setLoading(true);
-      console.log('🔐 Fazendo login como Guest...');
 
       // IMPORTANTE: Limpa TODOS os tokens anteriores antes de fazer login Guest
       if (typeof window !== 'undefined') {
-        console.log('🧹 Limpando TODOS os tokens anteriores...');
         localStorage.removeItem('guestToken');
         localStorage.removeItem('guestUser');
         localStorage.removeItem('authToken'); // Limpa token Admin também
@@ -49,74 +47,24 @@ function LoginContent() {
         email,
         password,
       });
-
-      console.log('✅ Resposta completa do login:', response);
-      console.log('📦 Tipo da resposta:', typeof response);
-      console.log('📦 Estrutura da resposta:', Object.keys(response || {}));
       
       // Verifica se a resposta tem token (pode estar em response.data ou diretamente)
       const token = response?.token || response?.data?.token;
       const user = response?.user || response?.data?.user;
       
-      console.log('🔑 Token encontrado?', !!token);
-      console.log('👤 User encontrado?', !!user);
-      
       if (!token) {
-        console.error('❌ Token não encontrado na resposta:', response);
         toast.error('Erro: Token não recebido do servidor. Verifique as credenciais.');
         return;
       }
       
       // Salva o token Guest usando o helper
-      console.log('💾 Salvando token Guest no localStorage...');
       AuthHelper.saveGuestSession(token, user || { email, name: email });
       
       // Verifica se o token foi salvo corretamente
       const savedToken = localStorage.getItem('guestToken');
       if (savedToken !== token) {
-        console.error('❌ ERRO: Token salvo é diferente do token recebido!');
-        console.error('Token recebido:', token.substring(0, 50));
-        console.error('Token salvo:', savedToken?.substring(0, 50));
         // Força a salvar o token correto
         localStorage.setItem('guestToken', token);
-      }
-      
-      // Debug: mostra o payload do token Guest
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const guestId = payload.GuestId || payload.guestId || payload.sub || payload.userId || payload.id;
-        console.log('📋 Token Guest decodificado (COMPLETO):', {
-          role: payload.role,
-          GuestId: guestId,
-          HotelId: payload.HotelId,
-          name: payload.name,
-          email: payload.email,
-          fullPayload: payload,
-        });
-        
-        // Verifica se o guestId está presente
-        if (!guestId) {
-          console.error('⚠️ ATENÇÃO: GuestId não encontrado no token!');
-          console.error('📋 Payload completo:', payload);
-        } else {
-          console.log('✅ GuestId encontrado no token:', guestId);
-        }
-      } catch (e) {
-        console.error('⚠️ Erro ao decodificar token Guest:', e);
-      }
-      
-      AuthHelper.debugSession();
-      
-      // Verifica novamente após salvar
-      const finalToken = localStorage.getItem('guestToken');
-      console.log('🔍 Verificação final - Token no localStorage:', finalToken ? '✅ Presente' : '❌ Ausente');
-      if (finalToken) {
-        try {
-          const finalPayload = JSON.parse(atob(finalToken.split('.')[1]));
-          console.log('🔍 Verificação final - GuestId no token:', finalPayload.GuestId || finalPayload.guestId || finalPayload.sub || finalPayload.userId || finalPayload.id);
-        } catch (e) {
-          console.error('❌ Erro ao verificar token final:', e);
-        }
       }
       
       toast.success('Login realizado com sucesso!');

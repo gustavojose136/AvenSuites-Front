@@ -32,26 +32,13 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
   // Garantir que params.id seja uma string e carregar dados
   useEffect(() => {
     const id = typeof params.id === 'string' ? params.id : params.id?.[0] || null;
-    console.log('🔍 Check-in Page - params:', { params, id });
     if (id) {
       setBookingId(id);
-      console.log('📥 Buscando reserva para check-in:', id);
       fetchBookingById(id).catch((err) => {
         console.error('❌ Erro ao buscar reserva:', err);
       });
-    } else {
-      console.warn('⚠️ ID da reserva não encontrado nos params');
     }
   }, [params, fetchBookingById]);
-
-  // Debug: log do estado
-  useEffect(() => {
-    console.log('📊 Estado da página de check-in:', {
-      loading,
-      error,
-      hasSelectedBooking: !!selectedBooking,
-      bookingId,
-      paramsId: params.id,
     });
   }, [loading, error, selectedBooking, bookingId, params.id]);
 

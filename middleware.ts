@@ -13,9 +13,7 @@ export default withAuth(
   function middleware(req) {
     // Se for rota guest, permite acesso sem verificar Next Auth
     // Essas rotas usam apenas localStorage
-    console.log('🔐 Middleware - Rota:', req.nextUrl.pathname);
     if (req.nextUrl.pathname.startsWith('/guest')) {
-      console.log('✅ Rota guest detectada - bypass Next Auth, usando apenas localStorage');
       return NextResponse.next();
     }
 
@@ -26,17 +24,9 @@ export default withAuth(
     const isManager = roles.includes('Manager');
     const isEmployee = roles.includes('Employee');
 
-    console.log('🔐 Middleware:', {
-      path: req.nextUrl.pathname,
-      roles,
-      isAdmin,
-      isManager,
-    });
-
     // Proteger rotas admin
     if (req.nextUrl.pathname.startsWith('/admin')) {
       if (!isAdmin) {
-        console.log('❌ Acesso negado: Admin required');
         return NextResponse.redirect(new URL('/unauthorized', req.url));
       }
     }
@@ -48,7 +38,6 @@ export default withAuth(
     );
 
     if (isManagementPath && !isManager && !isAdmin) {
-      console.log('❌ Acesso negado: Manager ou Admin required');
       return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
 
@@ -60,13 +49,11 @@ export default withAuth(
       authorized: ({ token, req }) => {
         // Rotas guest não passam por autorização do Next Auth
         if (req.nextUrl.pathname.startsWith('/guest')) {
-          console.log('✅ Rota guest - bypass autorização Next Auth');
           return true;
         }
 
         // Verificar se está autenticado para outras rotas
         const isAuthenticated = !!token;
-        console.log('🔑 Autorização:', { isAuthenticated });
         return isAuthenticated;
       },
     },

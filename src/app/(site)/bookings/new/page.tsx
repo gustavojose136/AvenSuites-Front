@@ -91,9 +91,7 @@ export default function NewBookingPage() {
 
   const fetchHotels = async () => {
     try {
-      console.log('🏨 Buscando hotéis da API...');
       const data = await httpClient.get<Hotel[]>('/Hotels');
-      console.log('✅ Hotéis recebidos:', data);
       setHotels(data);
     } catch (error) {
       console.error('❌ Erro ao buscar hotéis:', error);
@@ -108,10 +106,8 @@ export default function NewBookingPage() {
 
   const fetchGuests = async (hotelId: string) => {
     try {
-      console.log('👥 Buscando hóspedes da API...');
       const endpoint = hotelId ? `/Guests?hotelId=${hotelId}` : '/Guests';
       const data = await httpClient.get<any[]>(endpoint);
-      console.log('✅ Hóspedes recebidos:', data);
       
       // Mapear para o formato esperado
       const mappedGuests: Guest[] = data.map(g => ({
@@ -137,16 +133,13 @@ export default function NewBookingPage() {
     }
     
     try {
-      console.log('🛏️ Buscando quartos disponíveis da API...');
-      
-      // Busca quartos e tipos em paralelo
+      // Busca quartos disponíveis para as datas selecionadas e quantidade de hóspedes
       const [roomsData, typesData] = await Promise.all([
-        httpClient.get<Room[]>(`/Rooms?hotelId=${selectedHotelId}`),
+        httpClient.get<Room[]>(
+          `/Rooms?hotelId=${selectedHotelId}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&guests=${guestCount}`
+        ),
         httpClient.get<RoomType[]>(`/RoomType`)
       ]);
-      
-      console.log('✅ Quartos recebidos da API:', roomsData);
-      console.log('✅ Tipos de quarto recebidos:', typesData);
       
       // Filtra tipos do hotel atual
       const hotelTypes = typesData.filter(rt => rt.hotelId === selectedHotelId);
@@ -159,7 +152,6 @@ export default function NewBookingPage() {
           roomType: hotelTypes[index % hotelTypes.length] // Distribui os tipos ciclicamente
         }));
       
-      console.log('✅ Quartos disponíveis com tipos:', availableRooms);
       setRooms(availableRooms);
       
       if (availableRooms.length === 0) {
@@ -202,8 +194,6 @@ export default function NewBookingPage() {
 
     setLoading(true);
     try {
-      console.log('📝 Criando reserva...');
-      
       const bookingData = {
         hotelId: selectedHotelId,
         primaryGuestId: selectedGuestId,
@@ -216,11 +206,8 @@ export default function NewBookingPage() {
         status: 'Confirmed', // ou o status padrão que sua API espera
       };
 
-      console.log('📦 Dados da reserva:', bookingData);
-
       const booking = await httpClient.post('/Bookings', bookingData);
       
-      console.log('✅ Reserva criada:', booking);
       toast.success('Reserva criada com sucesso!');
       router.push('/bookings');
       

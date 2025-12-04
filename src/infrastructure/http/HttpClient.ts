@@ -65,17 +65,6 @@ export class HttpClient {
                 payload.email || // Se tem email, provavelmente é guest
                 (payload.name && !payload.roles); // Guest geralmente não tem array de roles
               
-              console.group(`🔐 HttpClient - Rota Guest (APENAS localStorage)`);
-              console.log('📍 Rota:', window.location.pathname);
-              console.log('🔑 Token do localStorage:', guestToken.substring(0, 30) + '...');
-              console.log('📋 Payload completo:', payload);
-              console.log('🔍 Validação:', {
-                role,
-                guestId,
-                hasGuestClaim,
-                isGuestToken,
-              });
-              
               // Validação: token DEVE ser Guest
               if (!isGuestToken) {
                 console.error('❌ BLOQUEADO: Token não é Guest!');
@@ -83,26 +72,10 @@ export class HttpClient {
                 console.error('🧹 Limpando token inválido...');
                 localStorage.removeItem('guestToken');
                 localStorage.removeItem('guestUser');
-                console.groupEnd();
                 return config; // Não adiciona header
               }
               
               config.headers.Authorization = `Bearer ${guestToken}`;
-              
-              // Log detalhado do token e guestId (para debug)
-              console.log('🔑 Token completo (primeiros 50 chars):', guestToken.substring(0, 50) + '...');
-              if (guestId) {
-                console.log('👤 GuestId extraído do token:', guestId);
-                console.log('📋 Payload completo do token:', payload);
-              } else {
-                console.warn('⚠️ GuestId não encontrado no token!');
-                console.warn('📋 Payload completo:', payload);
-              }
-              
-              console.log('✅ Header Authorization adicionado (localStorage)');
-              console.log('📤 URL da requisição:', config.url);
-              console.log('📤 Método:', config.method);
-              console.groupEnd();
             } catch (e) {
               console.error('❌ Erro ao decodificar token:', e);
               // Em caso de erro ao decodificar, ainda tenta usar o token

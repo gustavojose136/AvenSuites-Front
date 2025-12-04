@@ -188,12 +188,6 @@ export default function Home() {
               >
                 Acessar Sistema
               </Link>
-              <Link
-                href="/about"
-                className="rounded-lg border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50"
-              >
-                Conhecer mais
-              </Link>
             </motion.div>
 
             <motion.div variants={itemVariants} className="mt-16 grid grid-cols-2 gap-3 sm:grid-cols-4">
