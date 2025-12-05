@@ -148,8 +148,6 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     try {
       // Converte os dados do formulário para o formato da API
       const updateRequest = mapFormDataToUpdateRequest(formData);
-        updateRequest 
-      });
       
       // Valida se há pelo menos um campo para atualizar
       if (Object.keys(updateRequest).length === 0) {
