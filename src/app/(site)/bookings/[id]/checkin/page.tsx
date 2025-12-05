@@ -39,8 +39,6 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
       });
     }
   }, [params, fetchBookingById]);
-    });
-  }, [loading, error, selectedBooking, bookingId, params.id]);
 
   /**
    * Realiza o check-in (SOLID - Single Responsibility)
