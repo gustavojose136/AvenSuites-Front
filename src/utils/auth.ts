@@ -1,22 +1,23 @@
-import bcrypt from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import { prisma } from "./prismaDB";
-import type { Adapter } from "next-auth/adapters";
+// Removido PrismaAdapter pois não é necessário com JWT strategy
+// import { PrismaAdapter } from "@auth/prisma-adapter";
+// import { PrismaClient } from "@prisma/client";
+// import { prisma } from "./prismaDB";
+// import type { Adapter } from "next-auth/adapters";
 import axios from "axios";
 import https from "https";
 
 export const authOptions: NextAuthOptions = {
   pages: {
-    signIn: "/auth/signin",
+    signIn: "/signin",
   },
-  adapter: PrismaAdapter(prisma) as Adapter,
-  secret: process.env.SECRET,
+  // Não usa adapter quando usa JWT strategy - remove PrismaAdapter para evitar erros
+  // adapter: PrismaAdapter(prisma) as Adapter,
+  secret: process.env.NEXTAUTH_SECRET || process.env.SECRET,
   session: {
     strategy: "jwt",
   },
@@ -42,22 +43,27 @@ export const authOptions: NextAuthOptions = {
           const loginEndpoint = '/Auth/login';
           const fullUrl = `${apiUrl}${loginEndpoint}`;
           
-          // Cria um agente HTTPS que ignora certificados SSL em desenvolvimento
-          const httpsAgent = new https.Agent({
-            rejectUnauthorized: false
-          });
-
-          // Faz a requisição usando Axios (funciona melhor com HTTPS)
-          const response = await axios.post(fullUrl, {
-            email: credentials.email,
-            password: credentials.password,
-          }, {
+          // Configuração do axios para produção e desenvolvimento
+          const axiosConfig: any = {
             headers: {
               'Content-Type': 'application/json',
             },
-            httpsAgent: httpsAgent, // Ignora SSL em desenvolvimento
             timeout: 10000, // Timeout de 10 segundos
-          });
+          };
+
+          // Apenas ignora SSL em desenvolvimento (não em produção)
+          if (process.env.NODE_ENV === 'development') {
+            const httpsAgent = new https.Agent({
+              rejectUnauthorized: false
+            });
+            axiosConfig.httpsAgent = httpsAgent;
+          }
+
+          // Faz a requisição usando Axios
+          const response = await axios.post(fullUrl, {
+            email: credentials.email,
+            password: credentials.password,
+          }, axiosConfig);
           
           const userData = response.data;
           
@@ -135,27 +141,44 @@ export const authOptions: NextAuthOptions = {
       },
     }),
 
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
+    // Providers opcionais - apenas adiciona se as variáveis estiverem configuradas
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? [
+          GitHubProvider({
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+          }),
+        ]
+      : []),
 
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
 
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
-      from: process.env.EMAIL_FROM,
-    }),
+    ...(process.env.EMAIL_SERVER_HOST &&
+    process.env.EMAIL_SERVER_PORT &&
+    process.env.EMAIL_SERVER_USER &&
+    process.env.EMAIL_SERVER_PASSWORD &&
+    process.env.EMAIL_FROM
+      ? [
+          EmailProvider({
+            server: {
+              host: process.env.EMAIL_SERVER_HOST,
+              port: Number(process.env.EMAIL_SERVER_PORT),
+              auth: {
+                user: process.env.EMAIL_SERVER_USER,
+                pass: process.env.EMAIL_SERVER_PASSWORD,
+              },
+            },
+            from: process.env.EMAIL_FROM,
+          }),
+        ]
+      : []),
   ],
 
   callbacks: {
