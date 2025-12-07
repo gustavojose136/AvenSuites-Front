@@ -76,7 +76,7 @@ function RegisterContent() {
   const [hotelName, setHotelName] = useState("")
   const [currentStep, setCurrentStep] = useState(1)
 
-  const hotelId = searchParams.get("hotelId") || ""
+  const hotelId = searchParams.get("hotelId") || "7a326969-3bf6-40d9-96dc-1aecef585000"
   const checkIn = searchParams.get("checkIn") || ""
   const checkOut = searchParams.get("checkOut") || ""
   const guests = searchParams.get("guests") || "2"
@@ -105,9 +105,7 @@ function RegisterContent() {
   const [birthYear, setBirthYear] = useState("")
 
   useEffect(() => {
-    if (hotelId) {
-      fetchHotelName(hotelId)
-    }
+    fetchHotelName(hotelId)
   }, [hotelId])
 
   // Sincroniza os campos de data separados com birthDate
