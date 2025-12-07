@@ -20,6 +20,8 @@ import { BookingTable } from '@/presentation/components/Booking/BookingTable';
 import { showToast } from '@/shared/utils/toast';
 import { httpClient } from '@/infrastructure/http/HttpClient';
 import type { Booking } from '@/application/dto/Booking.dto';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { Pagination } from '@/presentation/components/common/Pagination';
 
 interface Hotel {
   id: string;
@@ -104,6 +106,31 @@ export default function BookingsPage() {
 
     return result;
   }, [bookings, statusFilter, searchTerm]);
+
+  /**
+   * Paginação das reservas filtradas
+   */
+  const {
+    items: paginatedBookings,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    goToPage,
+    setCurrentPage,
+    hasNextPage,
+    hasPreviousPage,
+    goToNextPage,
+    goToPreviousPage,
+  } = usePagination({
+    items: filteredBookings,
+    itemsPerPage: 5,
+  });
+
+  // Resetar para primeira página quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchTerm, selectedHotelId, setCurrentPage]);
 
   /**
    * Handlers de ações (SOLID - Single Responsibility)
@@ -274,24 +301,148 @@ export default function BookingsPage() {
               )}
             </div>
           ) : viewMode === 'cards' ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredBookings.map((booking) => (
-                <BookingCard
-                  key={booking.id}
-                  booking={booking}
-                  onCancel={handleCancel}
-                  onConfirm={handleConfirm}
-                  onViewDetails={handleViewDetails}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {paginatedBookings.map((booking) => (
+                  <BookingCard
+                    key={booking.id}
+                    booking={booking}
+                    onCancel={handleCancel}
+                    onConfirm={handleConfirm}
+                    onViewDetails={handleViewDetails}
+                  />
+                ))}
+              </div>
+              
+              {/* Paginação */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex flex-col items-center gap-4">
+                  <div className="text-sm text-body-color dark:text-dark-6">
+                    Mostrando <span className="font-semibold text-dark dark:text-white">
+                      {(currentPage - 1) * itemsPerPage + 1}
+                    </span> até{' '}
+                    <span className="font-semibold text-dark dark:text-white">
+                      {Math.min(currentPage * itemsPerPage, totalItems)}
+                    </span> de{' '}
+                    <span className="font-semibold text-dark dark:text-white">
+                      {totalItems}
+                    </span> reservas
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={goToPage}
+                    />
+                  </div>
+                  
+                  {/* Navegação rápida */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={!hasPreviousPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Primeira
+                    </button>
+                    <button
+                      onClick={goToPreviousPage}
+                      disabled={!hasPreviousPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Anterior
+                    </button>
+                    <span className="px-4 py-2 text-sm font-medium text-body-color dark:text-dark-6">
+                      Página {currentPage} de {totalPages}
+                    </span>
+                    <button
+                      onClick={goToNextPage}
+                      disabled={!hasNextPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Próxima
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={!hasNextPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Última
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
-            <BookingTable
-              bookings={filteredBookings}
-              onViewDetails={handleViewDetails}
-              onConfirm={handleConfirm}
-              onCancel={handleCancel}
-            />
+            <>
+              <BookingTable
+                bookings={paginatedBookings}
+                onViewDetails={handleViewDetails}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+              />
+              
+              {/* Paginação */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex flex-col items-center gap-4">
+                  <div className="text-sm text-body-color dark:text-dark-6">
+                    Mostrando <span className="font-semibold text-dark dark:text-white">
+                      {(currentPage - 1) * itemsPerPage + 1}
+                    </span> até{' '}
+                    <span className="font-semibold text-dark dark:text-white">
+                      {Math.min(currentPage * itemsPerPage, totalItems)}
+                    </span> de{' '}
+                    <span className="font-semibold text-dark dark:text-white">
+                      {totalItems}
+                    </span> reservas
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={goToPage}
+                    />
+                  </div>
+                  
+                  {/* Navegação rápida */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={!hasPreviousPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Primeira
+                    </button>
+                    <button
+                      onClick={goToPreviousPage}
+                      disabled={!hasPreviousPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Anterior
+                    </button>
+                    <span className="px-4 py-2 text-sm font-medium text-body-color dark:text-dark-6">
+                      Página {currentPage} de {totalPages}
+                    </span>
+                    <button
+                      onClick={goToNextPage}
+                      disabled={!hasNextPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Próxima
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={!hasNextPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Última
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

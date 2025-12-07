@@ -79,12 +79,6 @@ function LoginContent() {
         router.push('/guest/portal');
       }
     } catch (error: any) {
-      console.error('❌ Erro completo ao fazer login:', error);
-      console.error('❌ Stack trace:', error.stack);
-      console.error('❌ Response data:', error.response?.data);
-      console.error('❌ Response status:', error.response?.status);
-      
-      // Tenta extrair mensagem de erro de diferentes formatos
       let message = 'Email ou senha inválidos';
       
       if (error.response?.data) {

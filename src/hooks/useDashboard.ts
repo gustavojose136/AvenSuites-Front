@@ -43,18 +43,25 @@ export function useDashboard() {
       endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado
       endOfWeek.setHours(23, 59, 59, 999);
       
-      const weekBookings = bookings.filter(booking => {
-        const checkIn = new Date(booking.checkInDate);
-        const checkOut = new Date(booking.checkOutDate);
-        
-        // Reservas que têm check-in ou check-out na semana
-        return (checkIn >= startOfWeek && checkIn <= endOfWeek) ||
-               (checkOut >= startOfWeek && checkOut <= endOfWeek) ||
-               (checkIn <= startOfWeek && checkOut >= endOfWeek);
-      }).sort((a, b) => {
-        // Ordenar por data de check-in
-        return new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime();
-      });
+      const weekBookings = bookings
+        .filter(booking => {
+          // Filtrar reservas canceladas
+          if (booking.status === 'CANCELLED') {
+            return false;
+          }
+          
+          const checkIn = new Date(booking.checkInDate);
+          const checkOut = new Date(booking.checkOutDate);
+          
+          // Reservas que têm check-in ou check-out na semana
+          return (checkIn >= startOfWeek && checkIn <= endOfWeek) ||
+                 (checkOut >= startOfWeek && checkOut <= endOfWeek) ||
+                 (checkIn <= startOfWeek && checkOut >= endOfWeek);
+        })
+        .sort((a, b) => {
+          // Ordenar por data de check-in
+          return new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime();
+        });
       
       setWeekBookings(weekBookings);
     } catch (err: any) {

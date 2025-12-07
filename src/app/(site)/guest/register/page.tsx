@@ -105,10 +105,9 @@ function RegisterContent() {
   const [birthYear, setBirthYear] = useState("")
 
   useEffect(() => {
-    fetchHotelName(hotelId)
+      fetchHotelName(hotelId)
   }, [hotelId])
 
-  // Sincroniza os campos de data separados com birthDate
   useEffect(() => {
     if (birthDay && birthMonth && birthYear) {
       const day = birthDay.padStart(2, "0")
@@ -118,7 +117,6 @@ function RegisterContent() {
     }
   }, [birthDay, birthMonth, birthYear])
 
-  // Carrega valores iniciais se birthDate já existir
   useEffect(() => {
     if (formData.birthDate && !birthDay && !birthMonth && !birthYear) {
       const [year, month, day] = formData.birthDate.split("-")
@@ -134,7 +132,7 @@ function RegisterContent() {
       const hotel = await httpClient.get<any>(`/Hotels/${id}`)
       setHotelName(hotel.name)
     } catch (error) {
-      console.error("Erro ao buscar hotel:", error)
+      // Erro silencioso - hotel não é crítico para o cadastro
     }
   }
 
@@ -206,7 +204,6 @@ function RegisterContent() {
         router.push("/guest/portal")
       }
     } catch (error: any) {
-      console.error("❌ Erro ao registrar:", error)
       const message = error.response?.data?.message || error.message || "Erro ao realizar cadastro"
       toast.error(message)
     } finally {
@@ -237,7 +234,7 @@ function RegisterContent() {
           <div className="mb-8 text-center">
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">Completar Cadastro</h1>
             <p className="text-slate-600 dark:text-slate-400">Finalize seu registro em {steps.length} passos simples</p>
-          </div>
+            </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Left Column - Progress and Summary */}
@@ -267,7 +264,7 @@ function RegisterContent() {
                         }`}
                       >
                         {currentStep > step.number ? "✓" : step.number}
-                      </div>
+                </div>
                       <div className="flex-1 min-w-0">
                         <p
                           className={`text-sm font-medium ${
@@ -279,9 +276,9 @@ function RegisterContent() {
                           }`}
                         >
                           {step.title}
-                        </p>
-                      </div>
+                      </p>
                     </div>
+                  </div>
                   ))}
                 </div>
               </div>
@@ -365,19 +362,19 @@ function RegisterContent() {
                           <div className="flex items-center gap-2">
                             <svg
                               className="h-4 w-4 text-slate-500 dark:text-slate-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
                             Data de Nascimento *
-                          </div>
+                    </div>
                         </label>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
@@ -394,14 +391,14 @@ function RegisterContent() {
                                 </option>
                               ))}
                             </select>
-                          </div>
+                  </div>
                           <div>
                             <select
                               value={birthMonth}
                               onChange={(e) => setBirthMonth(e.target.value)}
                               required
                               className="w-full px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition text-sm"
-                            >
+                    >
                               <option value="">Mês</option>
                               <option value="1">Janeiro</option>
                               <option value="2">Fevereiro</option>
@@ -416,7 +413,7 @@ function RegisterContent() {
                               <option value="11">Novembro</option>
                               <option value="12">Dezembro</option>
                             </select>
-                          </div>
+                    </div>
                           <div>
                             <select
                               value={birthYear}
@@ -436,23 +433,23 @@ function RegisterContent() {
                                   </option>
                                 ))}
                             </select>
-                          </div>
-                        </div>
+              </div>
+            </div>
                         {birthDay && birthMonth && birthYear && (
                           <div className="mt-2 flex items-center gap-2 rounded-md bg-slate-50 dark:bg-slate-800/50 px-3 py-2">
                             <svg
                               className="h-4 w-4 text-slate-500 dark:text-slate-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
+                        />
+                      </svg>
                             <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
                               {new Date(
                                 parseInt(birthYear),
@@ -464,26 +461,26 @@ function RegisterContent() {
                                 year: "numeric",
                               })}
                             </p>
-                          </div>
+                    </div>
                         )}
-                      </div>
+                    </div>
 
-                      <div>
+                    <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          Tipo de Documento *
-                        </label>
-                        <select
-                          name="documentType"
-                          value={formData.documentType}
-                          onChange={handleChange}
-                          required
+                        Tipo de Documento *
+                      </label>
+                      <select
+                        name="documentType"
+                        value={formData.documentType}
+                        onChange={handleChange}
+                        required
                           className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
-                        >
-                          <option value="CPF">CPF</option>
-                          <option value="RG">RG</option>
-                          <option value="CNH">CNH</option>
-                          <option value="Passport">Passaporte</option>
-                        </select>
+                      >
+                        <option value="CPF">CPF</option>
+                        <option value="RG">RG</option>
+                        <option value="CNH">CNH</option>
+                        <option value="Passport">Passaporte</option>
+                      </select>
                       </div>
                     </div>
 
@@ -513,9 +510,9 @@ function RegisterContent() {
                       <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
                         Como podemos entrar em contato com você
                       </p>
-                    </div>
+                </div>
 
-                    <div>
+                <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         E-mail *
                       </label>
@@ -556,37 +553,37 @@ function RegisterContent() {
                       <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
                         Onde você deseja receber correspondências
                       </p>
-                    </div>
+                </div>
 
-                    <div>
+                <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Logradouro *
-                      </label>
-                      <input
-                        type="text"
-                        name="addressLine1"
-                        value={formData.addressLine1}
-                        onChange={handleChange}
-                        required
-                        maxLength={200}
-                        placeholder="Rua Exemplo, 123"
+                          Logradouro *
+                        </label>
+                        <input
+                          type="text"
+                          name="addressLine1"
+                          value={formData.addressLine1}
+                          onChange={handleChange}
+                          required
+                          maxLength={200}
+                          placeholder="Rua Exemplo, 123"
                         className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
-                      />
-                    </div>
+                        />
+                      </div>
 
-                    <div>
+                      <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Complemento
-                      </label>
-                      <input
-                        type="text"
-                        name="addressLine2"
-                        value={formData.addressLine2}
-                        onChange={handleChange}
-                        maxLength={200}
-                        placeholder="Apto 45"
+                          Complemento
+                        </label>
+                        <input
+                          type="text"
+                          name="addressLine2"
+                          value={formData.addressLine2}
+                          onChange={handleChange}
+                          maxLength={200}
+                          placeholder="Apto 45"
                         className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
-                      />
+                        />
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -620,7 +617,7 @@ function RegisterContent() {
                           className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                         />
                       </div>
-                    </div>
+                      </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
@@ -666,9 +663,9 @@ function RegisterContent() {
                       <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
                         Escolha uma senha segura para sua conta
                       </p>
-                    </div>
+                </div>
 
-                    <div>
+                <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Senha *
                       </label>
@@ -704,22 +701,22 @@ function RegisterContent() {
                     {formData.password !== formData.confirmPassword && formData.confirmPassword !== "" && (
                       <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                         <p className="text-sm text-red-800 dark:text-red-200">As senhas não coincidem</p>
-                      </div>
+                  </div>
                     )}
 
                     <label className="flex items-start gap-3 cursor-pointer p-4 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                      <input
-                        type="checkbox"
-                        name="marketingConsent"
-                        checked={formData.marketingConsent}
-                        onChange={handleChange}
+                    <input
+                      type="checkbox"
+                      name="marketingConsent"
+                      checked={formData.marketingConsent}
+                      onChange={handleChange}
                         className="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white cursor-pointer"
-                      />
+                    />
                       <span className="text-sm text-slate-700 dark:text-slate-300">
-                        Desejo receber ofertas e promoções do hotel por email
-                      </span>
-                    </label>
-                  </div>
+                      Desejo receber ofertas e promoções do hotel por email
+                    </span>
+                  </label>
+                </div>
                 )}
 
                 {/* Navigation Buttons */}
@@ -743,20 +740,20 @@ function RegisterContent() {
                       Próximo
                     </button>
                   ) : (
-                    <button
-                      type="submit"
-                      disabled={loading}
+                <button
+                  type="submit"
+                  disabled={loading}
                       className="ml-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-colors"
-                    >
+                >
                       {loading ? "Cadastrando..." : "Concluir Cadastro"}
-                    </button>
+                </button>
                   )}
                 </div>
 
                 <p className="text-xs text-center text-slate-600 dark:text-slate-400 mt-6">
                   Ao se cadastrar, você concorda com nossos Termos de Serviço e Política de Privacidade
                 </p>
-              </form>
+          </form>
             </div>
           </div>
         </div>
