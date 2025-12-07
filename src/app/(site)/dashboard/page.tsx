@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { usePagination } from '@/shared/hooks/usePagination';
 import { useResponsiveItemsPerPage } from '@/shared/hooks/useResponsiveItemsPerPage';
 import { WeekBookingsPagination } from '@/presentation/components/Booking/WeekBookingsPagination';
+import { dashboardService, Room } from '@/services/dashboard.service';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -23,6 +24,7 @@ export default function DashboardPage() {
   const { createInvoice } = useInvoices();
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'year'>('today');
   const [generatingInvoice, setGeneratingInvoice] = useState<string | null>(null);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
   // Paginação responsiva para reservas da semana
   const itemsPerPage = useResponsiveItemsPerPage({
@@ -80,6 +82,22 @@ export default function DashboardPage() {
       refetchWeekBookings(hotelId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hotelId, status]);
+
+  // Buscar quartos para o resumo visual
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const roomsData = await dashboardService.getRooms(hotelId || undefined);
+        setRooms(roomsData);
+      } catch (err) {
+        console.error('Erro ao buscar quartos:', err);
+      }
+    };
+
+    if (status === 'authenticated') {
+      fetchRooms();
+    }
   }, [hotelId, status]);
 
   if (status === 'loading' || loading) {
@@ -336,6 +354,75 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Operações do Dia */}
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+          {/* Check-ins Hoje */}
+          <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900/20">
+                <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+              </div>
+              <Link 
+                href="/bookings?filter=checkin-today"
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Ver todos →
+              </Link>
+            </div>
+            <h3 className="text-sm font-medium text-body-color dark:text-dark-6">Check-ins Hoje</h3>
+            <p className="mt-2 text-3xl font-bold text-dark dark:text-white">{stats.checkInsToday}</p>
+            <p className="mt-2 text-xs text-body-color dark:text-dark-6">
+              Chegadas previstas para hoje
+            </p>
+          </div>
+
+          {/* Check-outs Hoje */}
+          <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-lg bg-purple-100 p-3 dark:bg-purple-900/20">
+                <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </div>
+              <Link 
+                href="/bookings?filter=checkout-today"
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Ver todos →
+              </Link>
+            </div>
+            <h3 className="text-sm font-medium text-body-color dark:text-dark-6">Check-outs Hoje</h3>
+            <p className="mt-2 text-3xl font-bold text-dark dark:text-white">{stats.checkOutsToday}</p>
+            <p className="mt-2 text-xs text-body-color dark:text-dark-6">
+              Saídas previstas para hoje
+            </p>
+          </div>
+
+          {/* Quartos Disponíveis */}
+          <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-lg bg-green-100 p-3 dark:bg-green-900/20">
+                <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <Link 
+                href="/rooms?status=available"
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Ver quartos →
+              </Link>
+            </div>
+            <h3 className="text-sm font-medium text-body-color dark:text-dark-6">Quartos Disponíveis</h3>
+            <p className="mt-2 text-3xl font-bold text-dark dark:text-white">{stats.availableRooms}</p>
+            <p className="mt-2 text-xs text-body-color dark:text-dark-6">
+              De {stats.totalRooms} quartos totais
+            </p>
+          </div>
+        </div>
+
         {/* Reservas da Semana */}
         <div className="mb-8">
           <div className="mb-6 flex items-center justify-between">
@@ -559,75 +646,6 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Operações do Dia */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Check-ins Hoje */}
-          <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900/20">
-                <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-              </div>
-              <Link 
-                href="/bookings?filter=checkin-today"
-                className="text-sm font-semibold text-primary hover:underline"
-              >
-                Ver todos →
-              </Link>
-            </div>
-            <h3 className="text-sm font-medium text-body-color dark:text-dark-6">Check-ins Hoje</h3>
-            <p className="mt-2 text-3xl font-bold text-dark dark:text-white">{stats.checkInsToday}</p>
-            <p className="mt-2 text-xs text-body-color dark:text-dark-6">
-              Chegadas previstas para hoje
-            </p>
-          </div>
-
-          {/* Check-outs Hoje */}
-          <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="rounded-lg bg-purple-100 p-3 dark:bg-purple-900/20">
-                <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </div>
-              <Link 
-                href="/bookings?filter=checkout-today"
-                className="text-sm font-semibold text-primary hover:underline"
-              >
-                Ver todos →
-              </Link>
-            </div>
-            <h3 className="text-sm font-medium text-body-color dark:text-dark-6">Check-outs Hoje</h3>
-            <p className="mt-2 text-3xl font-bold text-dark dark:text-white">{stats.checkOutsToday}</p>
-            <p className="mt-2 text-xs text-body-color dark:text-dark-6">
-              Saídas previstas para hoje
-            </p>
-          </div>
-
-          {/* Quartos Disponíveis */}
-          <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="rounded-lg bg-green-100 p-3 dark:bg-green-900/20">
-                <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <Link 
-                href="/rooms?status=available"
-                className="text-sm font-semibold text-primary hover:underline"
-              >
-                Ver quartos →
-              </Link>
-            </div>
-            <h3 className="text-sm font-medium text-body-color dark:text-dark-6">Quartos Disponíveis</h3>
-            <p className="mt-2 text-3xl font-bold text-dark dark:text-white">{stats.availableRooms}</p>
-            <p className="mt-2 text-xs text-body-color dark:text-dark-6">
-              De {stats.totalRooms} quartos totais
-            </p>
-          </div>
-        </div>
-
         {/* Gráficos */}
         <div className="mb-8">
           
@@ -642,135 +660,185 @@ export default function DashboardPage() {
               </div>
               
               {/* Gráfico de Barras Horizontal */}
-              <div className="space-y-4">
-                {/* Disponíveis */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                      <span className="text-sm font-medium text-dark dark:text-white">Disponíveis</span>
-                    </div>
-                    <span className="text-sm font-bold text-dark dark:text-white">
-                      {stats.roomsByStatus.available} ({((stats.roomsByStatus.available / stats.totalRooms) * 100).toFixed(0)}%)
-                    </span>
-                  </div>
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                    <div 
-                      className="h-full rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500"
-                      style={{ width: `${(stats.roomsByStatus.available / stats.totalRooms) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
+              {stats.totalRooms > 0 ? (
+                <>
+                  <div className="space-y-4">
+                    {/* Disponíveis */}
+                    {stats.roomsByStatus.available > 0 && (
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                            <span className="text-sm font-medium text-dark dark:text-white">Disponíveis</span>
+                          </div>
+                          <span className="text-sm font-bold text-dark dark:text-white">
+                            {stats.roomsByStatus.available} ({((stats.roomsByStatus.available / stats.totalRooms) * 100).toFixed(1)}%)
+                          </span>
+                        </div>
+                        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500"
+                            style={{ width: `${Math.min((stats.roomsByStatus.available / stats.totalRooms) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
 
-                {/* Ocupados */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                      <span className="text-sm font-medium text-dark dark:text-white">Ocupados</span>
-                    </div>
-                    <span className="text-sm font-bold text-dark dark:text-white">
-                      {stats.roomsByStatus.occupied} ({((stats.roomsByStatus.occupied / stats.totalRooms) * 100).toFixed(0)}%)
-                    </span>
-                  </div>
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                    <div 
-                      className="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500"
-                      style={{ width: `${(stats.roomsByStatus.occupied / stats.totalRooms) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
+                    {/* Ocupados */}
+                    {stats.roomsByStatus.occupied > 0 && (
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                            <span className="text-sm font-medium text-dark dark:text-white">Ocupados</span>
+                          </div>
+                          <span className="text-sm font-bold text-dark dark:text-white">
+                            {stats.roomsByStatus.occupied} ({((stats.roomsByStatus.occupied / stats.totalRooms) * 100).toFixed(1)}%)
+                          </span>
+                        </div>
+                        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500"
+                            style={{ width: `${Math.min((stats.roomsByStatus.occupied / stats.totalRooms) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
 
-                {/* Em Limpeza */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                      <span className="text-sm font-medium text-dark dark:text-white">Em Limpeza</span>
-                    </div>
-                    <span className="text-sm font-bold text-dark dark:text-white">
-                      {stats.roomsByStatus.cleaning} ({((stats.roomsByStatus.cleaning / stats.totalRooms) * 100).toFixed(0)}%)
-                    </span>
-                  </div>
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                    <div 
-                      className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
-                      style={{ width: `${(stats.roomsByStatus.cleaning / stats.totalRooms) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
+                    {/* Em Limpeza */}
+                    {stats.roomsByStatus.cleaning > 0 && (
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+                            <span className="text-sm font-medium text-dark dark:text-white">Em Limpeza</span>
+                          </div>
+                          <span className="text-sm font-bold text-dark dark:text-white">
+                            {stats.roomsByStatus.cleaning} ({((stats.roomsByStatus.cleaning / stats.totalRooms) * 100).toFixed(1)}%)
+                          </span>
+                        </div>
+                        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
+                            style={{ width: `${Math.min((stats.roomsByStatus.cleaning / stats.totalRooms) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
 
-                {/* Em Manutenção */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-orange-500"></div>
-                      <span className="text-sm font-medium text-dark dark:text-white">Em Manutenção</span>
-                    </div>
-                    <span className="text-sm font-bold text-dark dark:text-white">
-                      {stats.roomsByStatus.maintenance} ({((stats.roomsByStatus.maintenance / stats.totalRooms) * 100).toFixed(0)}%)
-                    </span>
-                  </div>
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                    <div 
-                      className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
-                      style={{ width: `${(stats.roomsByStatus.maintenance / stats.totalRooms) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
+                    {/* Em Manutenção */}
+                    {stats.roomsByStatus.maintenance > 0 && (
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                            <span className="text-sm font-medium text-dark dark:text-white">Em Manutenção</span>
+                          </div>
+                          <span className="text-sm font-bold text-dark dark:text-white">
+                            {stats.roomsByStatus.maintenance} ({((stats.roomsByStatus.maintenance / stats.totalRooms) * 100).toFixed(1)}%)
+                          </span>
+                        </div>
+                        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
+                            style={{ width: `${Math.min((stats.roomsByStatus.maintenance / stats.totalRooms) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
 
-                {/* Inativos */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-gray-500"></div>
-                      <span className="text-sm font-medium text-dark dark:text-white">Inativos</span>
-                    </div>
-                    <span className="text-sm font-bold text-dark dark:text-white">
-                      {stats.roomsByStatus.inactive} ({((stats.roomsByStatus.inactive / stats.totalRooms) * 100).toFixed(0)}%)
-                    </span>
+                    {/* Inativos */}
+                    {stats.roomsByStatus.inactive > 0 && (
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-gray-500"></div>
+                            <span className="text-sm font-medium text-dark dark:text-white">Inativos</span>
+                          </div>
+                          <span className="text-sm font-bold text-dark dark:text-white">
+                            {stats.roomsByStatus.inactive} ({((stats.roomsByStatus.inactive / stats.totalRooms) * 100).toFixed(1)}%)
+                          </span>
+                        </div>
+                        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-gray-400 to-gray-600 transition-all duration-500"
+                            style={{ width: `${Math.min((stats.roomsByStatus.inactive / stats.totalRooms) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                    <div 
-                      className="h-full rounded-full bg-gradient-to-r from-gray-400 to-gray-600 transition-all duration-500"
-                      style={{ width: `${(stats.roomsByStatus.inactive / stats.totalRooms) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Resumo Visual */}
-              <div className="mt-6 grid grid-cols-5 gap-2">
-                {Array.from({ length: stats.totalRooms }).map((_, i) => {
-                  let color = 'bg-gray-300';
-                  let tooltip = 'Quarto';
-                  
-                  if (i < stats.roomsByStatus.available) {
-                    color = 'bg-green-500';
-                    tooltip = 'Disponível';
-                  } else if (i < stats.roomsByStatus.available + stats.roomsByStatus.occupied) {
-                    color = 'bg-blue-500';
-                    tooltip = 'Ocupado';
-                  } else if (i < stats.roomsByStatus.available + stats.roomsByStatus.occupied + stats.roomsByStatus.cleaning) {
-                    color = 'bg-yellow-500';
-                    tooltip = 'Limpeza';
-                  } else if (i < stats.roomsByStatus.available + stats.roomsByStatus.occupied + stats.roomsByStatus.cleaning + stats.roomsByStatus.maintenance) {
-                    color = 'bg-orange-500';
-                    tooltip = 'Manutenção';
-                  } else {
-                    color = 'bg-gray-500';
-                    tooltip = 'Inativo';
-                  }
-                  
-                  return (
-                    <div 
-                      key={i} 
-                      className={`h-8 rounded ${color} transition-all hover:scale-110 hover:shadow-lg`}
-                      title={tooltip}
-                    ></div>
-                  );
-                })}
-              </div>
+                  {/* Resumo Visual - Grid Responsivo */}
+                  {stats.totalRooms > 0 && rooms.length > 0 && (
+                    <div className="mt-6">
+                      <p className="mb-3 text-sm font-medium text-body-color dark:text-dark-6">
+                        Distribuição Visual ({stats.totalRooms} quartos)
+                      </p>
+                      <div className="grid grid-cols-5 gap-2 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20">
+                        {rooms.slice(0, Math.min(stats.totalRooms, 100)).map((room) => {
+                          let color = 'bg-gray-300';
+                          let textColor = 'text-gray-800';
+                          let tooltip = `Quarto ${room.roomNumber}`;
+                          
+                          switch (room.status) {
+                            case 'ACTIVE':
+                              color = 'bg-green-500';
+                              textColor = 'text-white';
+                              tooltip = `Quarto ${room.roomNumber} - Disponível`;
+                              break;
+                            case 'OCCUPIED':
+                              color = 'bg-blue-500';
+                              textColor = 'text-white';
+                              tooltip = `Quarto ${room.roomNumber} - Ocupado`;
+                              break;
+                            case 'CLEANING':
+                              color = 'bg-yellow-500';
+                              textColor = 'text-gray-800';
+                              tooltip = `Quarto ${room.roomNumber} - Em Limpeza`;
+                              break;
+                            case 'MAINTENANCE':
+                              color = 'bg-orange-500';
+                              textColor = 'text-white';
+                              tooltip = `Quarto ${room.roomNumber} - Em Manutenção`;
+                              break;
+                            case 'INACTIVE':
+                              color = 'bg-gray-500';
+                              textColor = 'text-white';
+                              tooltip = `Quarto ${room.roomNumber} - Inativo`;
+                              break;
+                            default:
+                              color = 'bg-gray-300';
+                              textColor = 'text-gray-800';
+                              tooltip = `Quarto ${room.roomNumber}`;
+                          }
+                          
+                          return (
+                            <div 
+                              key={room.id} 
+                              className={`h-12 rounded transition-all hover:scale-110 hover:shadow-lg flex items-center justify-center ${color}`}
+                              title={tooltip}
+                            >
+                              <span className={`text-xs font-semibold ${textColor} truncate px-1`}>
+                                {room.roomNumber}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {stats.totalRooms > 100 && (
+                        <p className="mt-2 text-xs text-body-color dark:text-dark-6">
+                          Mostrando os primeiros 100 quartos de {stats.totalRooms} totais
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="py-8 text-center text-body-color dark:text-dark-6">
+                  <p>Nenhum quarto cadastrado ainda</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -904,61 +972,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Ações Rápidas */}
-        <div className="rounded-xl bg-gradient-to-r from-primary to-indigo-600 p-8 text-white shadow-2xl">
-          <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <h3 className="text-2xl font-bold">Ações Rápidas</h3>
-              <p className="mt-1 text-blue-100">Acesse rapidamente as principais funcionalidades</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <Link
-              href="/hotels/new"
-              className="flex flex-col items-center gap-3 rounded-lg bg-white/10 p-4 backdrop-blur-sm transition hover:bg-white/20"
-            >
-              <div className="rounded-full bg-white/20 p-3">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <span className="text-sm font-semibold">Novo Hotel</span>
-            </Link>
-            <Link
-              href="/rooms/new"
-              className="flex flex-col items-center gap-3 rounded-lg bg-white/10 p-4 backdrop-blur-sm transition hover:bg-white/20"
-            >
-              <div className="rounded-full bg-white/20 p-3">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </div>
-              <span className="text-sm font-semibold">Novo Quarto</span>
-            </Link>
-            <Link
-              href={hotelId ? `/guests/new?hotelId=${hotelId}&returnTo=/dashboard` : '/guests/new'}
-              className="flex flex-col items-center gap-3 rounded-lg bg-white/10 p-4 backdrop-blur-sm transition hover:bg-white/20"
-            >
-              <div className="rounded-full bg-white/20 p-3">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-              </div>
-              <span className="text-sm font-semibold">Novo Hóspede</span>
-            </Link>
-            <Link
-              href="/bookings/new"
-              className="flex flex-col items-center gap-3 rounded-lg bg-white/10 p-4 backdrop-blur-sm transition hover:bg-white/20"
-            >
-              <div className="rounded-full bg-white/20 p-3">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <span className="text-sm font-semibold">Nova Reserva</span>
-            </Link>
-          </div>
-        </div>
+      
 
       </div>
     </section>

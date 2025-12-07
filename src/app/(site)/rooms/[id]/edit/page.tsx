@@ -47,14 +47,9 @@ const mapStatusToApi = (status: string): string => {
 const mapRoomToFormData = (room: any): Partial<RoomFormData> => {
   return {
     roomNumber: room.roomNumber,
-    floor: room.floor ? (typeof room.floor === 'string' ? parseInt(room.floor) : room.floor) : undefined,
+    floor: room.floor ? (typeof room.floor === 'string' ? room.floor : String(room.floor)) : undefined,
     roomTypeId: room.roomTypeId || undefined,
     status: mapStatusToForm(room.status),
-    // Campos que não existem no DTO mas podem estar no form
-    maxOccupancy: undefined,
-    bedType: undefined,
-    basePrice: undefined,
-    notes: undefined,
   };
 };
 

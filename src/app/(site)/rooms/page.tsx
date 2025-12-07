@@ -1,16 +1,12 @@
-/**
- * Gerenciador de Quartos - AvenSuites
- * Lista, visualiza, edita e cria quartos
- */
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { httpClient } from '@/infrastructure/http/HttpClient';
+import { usePagination } from '@/shared/hooks/usePagination';
 
 interface Hotel {
   id: string;
@@ -52,31 +48,43 @@ export default function RoomsPage() {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [roomTypeFilter, setRoomTypeFilter] = useState<string>('all');
+  const [floorFilter, setFloorFilter] = useState<string>('all');
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
+
+  const fetchHotels = useCallback(async () => {
+    try {
+      const data = await httpClient.get<Hotel[]>('/Hotels');
+      setHotels(data);
+      
+      if (data.length > 0 && !selectedHotelId) {
+        setSelectedHotelId(data[0].id);
+      }
+    } catch (error) {
+      toast.error('Erro ao carregar hotéis');
+    }
+  }, [selectedHotelId]);
 
   useEffect(() => {
     if (status === 'authenticated') {
       fetchHotels();
     }
-  }, [status]);
+  }, [status, fetchHotels]);
 
   useEffect(() => {
     if (selectedHotelId) {
       fetchRooms(selectedHotelId);
+      fetchRoomTypes(selectedHotelId);
     }
   }, [selectedHotelId]);
 
-  const fetchHotels = async () => {
+  const fetchRoomTypes = async (hotelId: string) => {
     try {
-      const data = await httpClient.get<Hotel[]>('/Hotels');
-      setHotels(data);
-      
-      // Seleciona o primeiro hotel automaticamente
-      if (data.length > 0 && !selectedHotelId) {
-        setSelectedHotelId(data[0].id);
-      }
+      const data = await httpClient.get<RoomType[]>(`/RoomTypes/hotel/${hotelId}?activeOnly=true`);
+      setRoomTypes(data);
     } catch (error) {
-      console.error('❌ Erro ao buscar hotéis:', error);
-      toast.error('Erro ao carregar hotéis');
+      setRoomTypes([]);
     }
   };
 
@@ -126,9 +134,28 @@ export default function RoomsPage() {
   };
 
   const filteredRooms = rooms.filter(room => {
-    const matchesSearch = room.roomNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = 
+      room.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      room.roomType?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      room.roomType?.code.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || room.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesRoomType = roomTypeFilter === 'all' || room.roomTypeId === roomTypeFilter;
+    const matchesFloor = floorFilter === 'all' || room.floor === floorFilter;
+    return matchesSearch && matchesStatus && matchesRoomType && matchesFloor;
+  });
+
+  const uniqueFloors = Array.from(new Set(rooms.map(r => r.floor).filter(Boolean))).sort();
+
+  const {
+    items: paginatedRooms,
+    currentPage,
+    totalPages,
+    goToPage,
+    hasNextPage,
+    hasPreviousPage,
+  } = usePagination({
+    items: filteredRooms,
+    itemsPerPage: 5,
   });
 
   const stats = {
@@ -185,6 +212,7 @@ export default function RoomsPage() {
               </p>
             </div>
             
+            <div className="flex items-center gap-3">
             {selectedHotelId && (
               <Link
                 href={`/rooms/new?hotelId=${selectedHotelId}`}
@@ -196,6 +224,41 @@ export default function RoomsPage() {
                 Novo Quarto
               </Link>
             )}
+              
+              <div className="relative">
+                <button
+                  onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-700 transition-all hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:hover:border-primary"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                </button>
+                
+                {showOptionsMenu && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowOptionsMenu(false)}
+                    ></div>
+                    <div className="absolute right-0 top-12 z-20 w-56 rounded-lg border border-gray-200 bg-white shadow-xl dark:border-dark-3 dark:bg-dark-2">
+                      <div className="p-1">
+                        <Link
+                          href={selectedHotelId ? `/room-types?hotelId=${selectedHotelId}` : '/room-types'}
+                          onClick={() => setShowOptionsMenu(false)}
+                          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-primary/10 hover:text-primary dark:text-gray-300 dark:hover:bg-primary/20"
+                        >
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
+                          </svg>
+                          Tipos de Quartos
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -246,13 +309,17 @@ export default function RoomsPage() {
 
             {/* Filtros */}
             <div className="mb-6 rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-2">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">Filtros</h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {/* Busca */}
-                <div className="flex-1">
+                <div className="lg:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                    Buscar
+                  </label>
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Buscar por número ou tipo..."
+                      placeholder="Número, tipo ou código..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full rounded-lg border-2 border-gray-300 bg-white py-3 pl-12 pr-4 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
@@ -265,12 +332,15 @@ export default function RoomsPage() {
 
                 {/* Filtro de Status */}
                 <div>
+                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                    Status
+                  </label>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+                    className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
                   >
-                    <option value="all">Todos os Status</option>
+                    <option value="all">Todos</option>
                     <option value="ACTIVE">Disponível</option>
                     <option value="OCCUPIED">Ocupado</option>
                     <option value="CLEANING">Limpeza</option>
@@ -278,6 +348,46 @@ export default function RoomsPage() {
                     <option value="INACTIVE">Inativo</option>
                   </select>
                 </div>
+
+                {/* Filtro de Tipo de Quarto */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                    Tipo de Quarto
+                  </label>
+                  <select
+                    value={roomTypeFilter}
+                    onChange={(e) => setRoomTypeFilter(e.target.value)}
+                    className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+                  >
+                    <option value="all">Todos</option>
+                    {roomTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name} ({type.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtro de Andar */}
+                {uniqueFloors.length > 0 && (
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                      Andar
+                    </label>
+                    <select
+                      value={floorFilter}
+                      onChange={(e) => setFloorFilter(e.target.value)}
+                      className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+                    >
+                      <option value="all">Todos</option>
+                      {uniqueFloors.map((floor) => (
+                        <option key={floor} value={floor}>
+                          {floor}º Andar
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -317,8 +427,14 @@ export default function RoomsPage() {
                 )}
               </div>
             ) : (
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm text-body-color dark:text-dark-6">
+                    Mostrando {paginatedRooms.length} de {filteredRooms.length} quartos
+                  </p>
+                </div>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredRooms.map((room) => (
+                  {paginatedRooms.map((room) => (
                   <div
                     key={room.id}
                     className="group overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-dark-2"
@@ -432,6 +548,68 @@ export default function RoomsPage() {
                   </div>
                 ))}
               </div>
+
+                {/* Paginação */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => goToPage(1)}
+                      disabled={!hasPreviousPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Primeira
+                    </button>
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={!hasPreviousPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Anterior
+                    </button>
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => goToPage(pageNum)}
+                            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                              currentPage === pageNum
+                                ? 'bg-primary text-white'
+                                : 'border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={!hasNextPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Próxima
+                    </button>
+                    <button
+                      onClick={() => goToPage(totalPages)}
+                      disabled={!hasNextPage}
+                      className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-dark-3 dark:bg-dark-2 dark:text-gray-300"
+                    >
+                      Última
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}

@@ -471,12 +471,6 @@ export default function Home() {
               >
                 Começar Agora
               </Link>
-              <Link
-                href="/contact"
-                className="rounded-lg border border-white/30 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/50"
-              >
-                Falar com Vendas
-              </Link>
             </div>
           </motion.div>
 

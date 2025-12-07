@@ -236,8 +236,10 @@ class DashboardService {
       const totalRooms = rooms.length;
       const occupiedRooms = roomsByStatus.occupied;
       const availableRooms = roomsByStatus.available;
-      const occupancyRate = totalRooms > 0 
-        ? (occupiedRooms / totalRooms) * 100 
+      // Taxa de ocupação considera apenas quartos ativos (exclui inativos)
+      const activeRooms = totalRooms - roomsByStatus.inactive;
+      const occupancyRate = activeRooms > 0 
+        ? (occupiedRooms / activeRooms) * 100 
         : 0;
 
       // Reservas ativas (confirmadas e em andamento)
@@ -257,35 +259,39 @@ class DashboardService {
         b.status === 'CHECKED_OUT'
       ).length;
 
-      // Receita total (baseado em pagamentos)
-      let totalRevenue = 0;
-      let monthlyRevenue = 0;
-      let paidInvoicesCount = 0;
-      let pendingInvoicesCount = 0;
-
+      // Receita total (baseado no totalAmount das reservas confirmadas e com check-in)
+      // Mesmo cálculo usado na tela de bookings - "Valor Total Confirmado"
+      const confirmedBookings = bookings.filter(b => 
+        b.status === 'CONFIRMED' || b.status === 'CHECKED_IN'
+      );
+      
+      const totalRevenue = confirmedBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+      
+      // Receita mensal (reservas confirmadas criadas nos últimos 30 dias)
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
+      
+      const monthlyRevenue = confirmedBookings
+        .filter(b => {
+          const bookingDate = new Date(b.createdAt);
+          return bookingDate >= thirtyDaysAgo;
+        })
+        .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+      
+      // Contagem de invoices (para compatibilidade)
+      let paidInvoicesCount = 0;
+      let pendingInvoicesCount = 0;
+      
       bookings.forEach(booking => {
         if (booking.payments && booking.payments.length > 0) {
           booking.payments.forEach(payment => {
             if (payment.status === 'PAID') {
-              totalRevenue += payment.amount;
               paidInvoicesCount++;
-              
-              // Receita mensal
-              if (payment.paidAt) {
-                const paidDate = new Date(payment.paidAt);
-                if (paidDate >= thirtyDaysAgo) {
-                  monthlyRevenue += payment.amount;
-                }
-              }
             } else {
               pendingInvoicesCount++;
             }
           });
         } else {
-          // Se não tem pagamento, considera pendente
           if (booking.status !== 'CANCELLED') {
             pendingInvoicesCount++;
           }

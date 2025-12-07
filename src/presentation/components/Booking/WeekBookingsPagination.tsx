@@ -1,9 +1,3 @@
-/**
- * Component: WeekBookingsPagination
- * Componente de paginação específico para reservas da semana
- * SOLID - Single Responsibility: Apenas paginação de reservas da semana
- */
-
 'use client';
 
 import React from 'react';
@@ -49,6 +43,8 @@ export const WeekBookingsPagination: React.FC<WeekBookingsPaginationProps> = ({
     </div>
   );
 };
+
+
 
 
 

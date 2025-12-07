@@ -74,7 +74,6 @@ export default function GuestSearchPage() {
       const activeHotels = data.filter((h) => h.status === "ACTIVE")
       setHotels(activeHotels.length > 0 ? activeHotels : data)
     } catch (error) {
-      console.error("❌ Erro ao buscar hotéis:", error)
       toast.error("Erro ao carregar hotéis disponíveis")
     } finally {
       setLoading(false)
