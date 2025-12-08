@@ -2,13 +2,18 @@
 
 /**
  * Script para validar cobertura de testes
- * Verifica se a cobertura está acima de 20%
+ * Verifica se a cobertura está acima dos thresholds mínimos
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const COVERAGE_THRESHOLD = 20;
+const COVERAGE_THRESHOLDS = {
+  statements: 25,
+  branches: 20,
+  functions: 25,
+  lines: 25,
+};
 
 function readCoverageSummary() {
   const coveragePath = path.join(__dirname, '..', 'coverage', 'coverage-summary.json');
@@ -35,22 +40,34 @@ function checkCoverage() {
   };
 
   console.log('📈 Cobertura atual:');
-  console.log(`   Linhas:        ${metrics.lines.toFixed(2)}%`);
-  console.log(`   Statements:    ${metrics.statements.toFixed(2)}%`);
-  console.log(`   Funções:       ${metrics.functions.toFixed(2)}%`);
-  console.log(`   Branches:      ${metrics.branches.toFixed(2)}%\n`);
+  console.log(`   Statements:    ${metrics.statements.toFixed(2)}% (mínimo: ${COVERAGE_THRESHOLDS.statements}%)`);
+  console.log(`   Branches:      ${metrics.branches.toFixed(2)}% (mínimo: ${COVERAGE_THRESHOLDS.branches}%)`);
+  console.log(`   Functions:     ${metrics.functions.toFixed(2)}% (mínimo: ${COVERAGE_THRESHOLDS.functions}%)`);
+  console.log(`   Lines:         ${metrics.lines.toFixed(2)}% (mínimo: ${COVERAGE_THRESHOLDS.lines}%)\n`);
 
-  const allPassed = Object.values(metrics).every(value => value >= COVERAGE_THRESHOLD);
+  const results = {
+    statements: metrics.statements >= COVERAGE_THRESHOLDS.statements,
+    branches: metrics.branches >= COVERAGE_THRESHOLDS.branches,
+    functions: metrics.functions >= COVERAGE_THRESHOLDS.functions,
+    lines: metrics.lines >= COVERAGE_THRESHOLDS.lines,
+  };
+
+  const allPassed = Object.values(results).every(passed => passed);
 
   if (allPassed) {
-    console.log(`✅ Cobertura acima de ${COVERAGE_THRESHOLD}% em todas as métricas!\n`);
+    console.log('✅ Cobertura acima dos thresholds mínimos em todas as métricas!\n');
     process.exit(0);
   } else {
-    console.log(`❌ Cobertura abaixo de ${COVERAGE_THRESHOLD}% em algumas métricas:\n`);
+    console.log('❌ Cobertura abaixo dos thresholds mínimos em algumas métricas:\n');
     
-    Object.entries(metrics).forEach(([metric, value]) => {
-      if (value < COVERAGE_THRESHOLD) {
-        console.log(`   ⚠️  ${metric}: ${value.toFixed(2)}% (mínimo: ${COVERAGE_THRESHOLD}%)`);
+    Object.entries(results).forEach(([metric, passed]) => {
+      if (!passed) {
+        const value = metrics[metric];
+        const threshold = COVERAGE_THRESHOLDS[metric];
+        console.log(`   ⚠️  ${metric}: ${value.toFixed(2)}% (mínimo: ${threshold}%)`);
+      } else {
+        const value = metrics[metric];
+        console.log(`   ✅ ${metric}: ${value.toFixed(2)}%`);
       }
     });
     

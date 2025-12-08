@@ -1,4 +1,4 @@
-name: Test Coverage
+name: CI - Build and Test
 
 on:
   pull_request:
@@ -12,6 +12,7 @@ on:
 
 jobs:
   test:
+    name: Test and Coverage
     runs-on: ubuntu-latest
     
     steps:
@@ -26,6 +27,10 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
+      
+      - name: Run linter
+        run: npm run lint
+        continue-on-error: true
       
       - name: Run tests with coverage
         run: npm run test:ci
@@ -66,4 +71,35 @@ jobs:
             - **Lines**: 25% ✅
             
             📦 Relatório completo disponível nos artifacts.
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: build-output
+          path: .next
+          retention-days: 7
 
