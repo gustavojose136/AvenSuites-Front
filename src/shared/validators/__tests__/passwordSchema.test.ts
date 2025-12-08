@@ -39,8 +39,8 @@ describe('passwordSchema', () => {
       const result = passwordSchema.safeParse('SenhaTeste');
       expect(result.success).toBe(false);
       if (!result.success) {
-        const messages = result.error.errors.map(e => e.message).join(' ');
-        expect(messages).toContain('pelo menos um número');
+        const errorMessages = result.error.errors.map((e: any) => e.message).join(' ');
+        expect(errorMessages).toContain('pelo menos um número');
       }
     });
   });
@@ -63,8 +63,8 @@ describe('passwordWithConfirmationSchema', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        const messages = result.error.errors.map(e => e.message).join(' ');
-        expect(messages).toContain('não coincidem');
+        const errorMessages = result.error.issues.map((e: any) => e.message).join(' ');
+        expect(errorMessages).toContain('não coincidem');
       }
     });
 
@@ -75,8 +75,8 @@ describe('passwordWithConfirmationSchema', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        const messages = result.error.errors.map(e => e.message).join(' ');
-        expect(messages).toContain('obrigatória');
+        const errorMessages = result.error.issues.map((e: any) => e.message).join(' ');
+        expect(errorMessages).toContain('obrigatória');
       }
     });
   });
