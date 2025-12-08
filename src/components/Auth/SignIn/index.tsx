@@ -22,7 +22,7 @@ const Signin = () => {
 
   const hotelImages = [
     {
-      src: "/images/hero/hero-image.jpg",
+      src: "/images/hero/hero-image.png",
       title: "Gestão Hoteleira Moderna",
       description: "Controle total do seu hotel em uma única plataforma"
     },
@@ -37,7 +37,7 @@ const Signin = () => {
       description: "Sistema inteligente de gestão de reservas"
     },
     {
-      src: "/images/about/modern-hotel-management-dashboard-interface-with-b.jpg",
+      src: "/images/about/modern-hotel-management-dashboard-interface-with-b.png",
       title: "Dashboard Completo",
       description: "Visualize todos os dados importantes do seu hotel"
     }
