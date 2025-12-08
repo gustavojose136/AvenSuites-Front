@@ -1,7 +1,4 @@
-/**
- * DTO: Hotel
- * Data Transfer Object para Hotéis
- */
+
 
 export interface Hotel {
   id: string;

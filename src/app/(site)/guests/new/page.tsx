@@ -1,6 +1,4 @@
-/**
- * Página: Novo Hóspede
- */
+
 
 'use client';
 
@@ -19,7 +17,6 @@ function NewGuestContent() {
   const searchParams = useSearchParams();
   const { createGuest, loading } = useGuest(container.getGuestService());
 
-  // Pega hotelId e returnTo da URL
   const hotelId = searchParams.get('hotelId') || '';
   const returnTo = searchParams.get('returnTo') || '/guests';
 
@@ -30,21 +27,19 @@ function NewGuestContent() {
     }
 
     try {
-      // Adiciona o hotelId aos dados do formulário
+
       const formDataWithHotel = { ...formData, hotelId };
-      
-      // Transforma dados do formulário para o formato da API
+
       const apiRequest = mapFormDataToApiRequest(formDataWithHotel);
-      
+
       const guest = await createGuest(apiRequest);
-      
-      // Extrai nome do fullName para exibir no toast
+
       const guestName = guest.fullName || 'Hóspede';
       showToast.success(`Hóspede "${guestName}" cadastrado com sucesso!`);
-      
-      // Redireciona para a página de origem (returnTo) ou para a lista de hóspedes
+
       router.push(returnTo);
-      router.refresh(); // Força refresh para atualizar a lista
+      router.refresh();
+
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao cadastrar hóspede';
       showToast.error(message);
@@ -55,11 +50,11 @@ function NewGuestContent() {
 
   return (
     <>
-      <Breadcrumb 
+      <Breadcrumb
         pageName="Novo Hóspede"
         pageDescription="Cadastrar um novo hóspede no sistema"
       />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-8">

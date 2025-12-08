@@ -24,7 +24,7 @@ const SingleFaq = (props: { question: string; answer: string }) => {
               </p>
             </div>
           </div>
-    
+
     </>
   );
 };

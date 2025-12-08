@@ -1,7 +1,4 @@
-/**
- * Component: RoleGuard
- * Exibe conteúdo apenas se o usuário tiver as roles necessárias
- */
+
 
 'use client';
 
@@ -12,18 +9,18 @@ interface RoleGuardProps {
   children: ReactNode;
   allowedRoles: string[];
   fallback?: ReactNode;
-  requireAll?: boolean; // Se true, precisa ter todas as roles. Se false, precisa ter pelo menos uma
+  requireAll?: boolean;
+
 }
 
-export const RoleGuard: React.FC<RoleGuardProps> = ({ 
-  children, 
-  allowedRoles, 
+export const RoleGuard: React.FC<RoleGuardProps> = ({
+  children,
+  allowedRoles,
   fallback = null,
   requireAll = false,
 }) => {
   const { hasAnyRole, hasAllRoles, isLoading } = usePermissions();
 
-  // Enquanto carrega, mostra um loading sutil (não deixa tela em branco)
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
@@ -32,8 +29,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
     );
   }
 
-  // Verifica permissões
-  const hasPermission = requireAll 
+  const hasPermission = requireAll
     ? hasAllRoles(allowedRoles)
     : hasAnyRole(allowedRoles);
 

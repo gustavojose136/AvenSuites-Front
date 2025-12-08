@@ -25,14 +25,12 @@ interface FilterState {
   rating: number
 }
 
-// Helper para formatar data no timezone local
 const formatDateLocal = (dateString: string): string => {
   const [year, month, day] = dateString.split("-").map(Number)
   const date = new Date(year, month - 1, day)
   return date.toLocaleDateString("pt-BR")
 }
 
-// Helper para criar data no timezone local a partir de string YYYY-MM-DD
 const createLocalDate = (dateString: string): Date => {
   const [year, month, day] = dateString.split("-").map(Number)
   return new Date(year, month - 1, day)
@@ -85,7 +83,7 @@ export default function GuestSearchPage() {
 
     filtered = filtered.filter((hotel) => {
       if (filters.amenities.length > 0) {
-        // Simulação de filtro de amenidades (adaptar conforme sua estrutura)
+
         return true
       }
       return true
@@ -146,7 +144,7 @@ export default function GuestSearchPage() {
   return (
     <section className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        {}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -170,7 +168,7 @@ export default function GuestSearchPage() {
           <p className="text-muted-foreground">Escolha as datas e encontre as melhores opções</p>
         </div>
 
-        {/* Search Box */}
+        {}
         <div className="mb-8 bg-card rounded-xl border border-border p-6 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -225,7 +223,7 @@ export default function GuestSearchPage() {
 
         <div className="flex gap-6">
 
-          {/* Hotels Grid */}
+          {}
           <div className="flex-1">
             {loading ? (
               <div className="flex items-center justify-center min-h-96">
@@ -274,13 +272,13 @@ export default function GuestSearchPage() {
                       </div>
                     </div>
 
-                    {/* Content */}
+                    {}
                     <div className="p-5">
                       <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                         {hotel.name}
                       </h3>
 
-                      {/* Rating */}
+                      {}
                       <div className="flex items-center gap-2 mb-3">
                         <div className="flex gap-1">
                           {[1, 2, 3, 4, 5].map((star) => (
@@ -292,7 +290,7 @@ export default function GuestSearchPage() {
                         <span className="text-xs text-muted-foreground">(248 avaliações)</span>
                       </div>
 
-                      {/* Info */}
+                      {}
                       <div className="space-y-2 mb-4 text-sm">
                         {hotel.city && hotel.state && (
                           <div className="flex items-center gap-2 text-muted-foreground">
@@ -330,7 +328,7 @@ export default function GuestSearchPage() {
                         <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded">Academia</span>
                       </div>
 
-                      {/* Button */}
+                      {}
                       <button
                         onClick={() => handleHotelSelect(hotel.id)}
                         className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
@@ -348,7 +346,7 @@ export default function GuestSearchPage() {
           </div>
         </div>
 
-        {/* Footer Link */}
+        {}
         <div className="mt-12 text-center">
           <Link
             href="/user-type"

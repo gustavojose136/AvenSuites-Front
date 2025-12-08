@@ -5,7 +5,7 @@
  */
 
 import { AuthService, IAuthService } from '../IAuthService';
-import { IAuthRepository, LoginRequest, LoginResponse, RegisterRequest } from '../../repositories/IAuthRepository';
+import { IAuthRepository, LoginRequest, LoginResponse, RegisterRequest, ForgotPasswordRequest, ResetPasswordRequest } from '../../repositories/IAuthRepository';
 import { User } from '../../entities/User';
 
 describe('AuthService', () => {
@@ -13,11 +13,12 @@ describe('AuthService', () => {
   let mockRepository: jest.Mocked<IAuthRepository>;
 
   beforeEach(() => {
-    // Mock do repositório seguindo SOLID - Dependency Inversion
     mockRepository = {
       login: jest.fn(),
       register: jest.fn(),
       validatePassword: jest.fn(),
+      forgotPassword: jest.fn(),
+      resetPassword: jest.fn(),
     } as unknown as jest.Mocked<IAuthRepository>;
 
     authService = new AuthService(mockRepository);
@@ -103,6 +104,45 @@ describe('AuthService', () => {
   describe('logout', () => {
     it('deve executar logout sem erros', async () => {
       await expect(authService.logout()).resolves.not.toThrow();
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('deve solicitar redefinição de senha com sucesso', async () => {
+      const forgotPasswordRequest: ForgotPasswordRequest = {
+        emailOrCpf: 'test@example.com',
+      };
+
+      const expectedResponse = {
+        message: 'Se o email ou CPF estiver cadastrado, você receberá um código de redefinição de senha por e-mail.',
+      };
+
+      mockRepository.forgotPassword.mockResolvedValue(expectedResponse);
+
+      const result = await authService.forgotPassword(forgotPasswordRequest);
+
+      expect(mockRepository.forgotPassword).toHaveBeenCalledWith(forgotPasswordRequest);
+      expect(result).toEqual(expectedResponse);
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('deve redefinir senha com sucesso', async () => {
+      const resetPasswordRequest: ResetPasswordRequest = {
+        code: '123456',
+        newPassword: 'NewPassword123!',
+      };
+
+      const expectedResponse = {
+        message: 'Senha redefinida com sucesso!',
+      };
+
+      mockRepository.resetPassword.mockResolvedValue(expectedResponse);
+
+      const result = await authService.resetPassword(resetPasswordRequest);
+
+      expect(mockRepository.resetPassword).toHaveBeenCalledWith(resetPasswordRequest);
+      expect(result).toEqual(expectedResponse);
     });
   });
 });

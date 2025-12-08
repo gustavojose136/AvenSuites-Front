@@ -1,7 +1,4 @@
-/**
- * Repository Implementation: BookingRepository
- * Implementação concreta da interface IBookingRepository
- */
+
 
 import { IBookingRepository } from '@/domain/repositories/IBookingRepository';
 import { Booking, BookingCreateRequest, BookingUpdateRequest } from '@/application/dto/Booking.dto';
@@ -26,7 +23,7 @@ export class BookingRepository implements IBookingRepository {
 
   async getByCode(hotelId: string, code: string): Promise<Booking | null> {
     try {
-      // A API espera: GET /Booking/code/{code} com hotelId como query param opcional
+
       return await this.httpClient.get<Booking>(`${this.baseUrl}/code/${code}?hotelId=${hotelId}`);
     } catch {
       return null;
@@ -34,7 +31,7 @@ export class BookingRepository implements IBookingRepository {
   }
 
   async getByHotel(hotelId: string, startDate?: string, endDate?: string): Promise<Booking[]> {
-    // A API espera: GET /Booking/hotel/{hotelId}
+
     const params = new URLSearchParams();
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);

@@ -1,6 +1,4 @@
-/**
- * Página: Detalhes da Reserva
- */
+
 
 'use client';
 
@@ -13,13 +11,13 @@ import Breadcrumb from '@/components/Common/Breadcrumb';
 import Link from 'next/link';
 
 export default function BookingDetailPage({ params }: { params: { id: string } }) {
-  const { 
-    selectedBooking, 
-    loading, 
-    error, 
+  const {
+    selectedBooking,
+    loading,
+    error,
     fetchBookingById,
     cancelBooking,
-    confirmBooking 
+    confirmBooking
   } = useBooking(container.getBookingService());
 
   useEffect(() => {
@@ -116,14 +114,14 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
 
   return (
     <>
-      <Breadcrumb 
+      <Breadcrumb
         pageName={`Reserva #${selectedBooking.code || selectedBooking.id.substring(0, 8)}`}
         pageDescription="Detalhes da reserva"
       />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl space-y-6">
-          {/* Header */}
+          {}
           <div className="flex items-start justify-between">
             <div>
               <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
@@ -151,7 +149,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                   </button>
                 </>
               )}
-              
+
               {selectedBooking.status === 'CONFIRMED' && (
                 <button
                   onClick={handleCancel}
@@ -163,12 +161,12 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             </div>
           </div>
 
-          {/* Informações da Reserva */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
               Informações da Reserva
             </h2>
-            
+
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <p className="text-sm text-body-color dark:text-dark-6">Check-in</p>
@@ -214,12 +212,12 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             )}
           </div>
 
-          {/* Datas Importantes */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
               Datas Importantes
             </h2>
-            
+
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-body-color dark:text-dark-6">Data da Reserva</span>
@@ -227,7 +225,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                   {new Date(selectedBooking.createdAt).toLocaleString('pt-BR')}
                 </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-body-color dark:text-dark-6">Última Atualização</span>
                 <span className="font-medium text-dark dark:text-white">

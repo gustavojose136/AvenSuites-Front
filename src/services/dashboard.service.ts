@@ -1,11 +1,6 @@
-/**
- * Dashboard Service - Atualizado para API AvenSuites v2.0
- * Serviço para buscar estatísticas e dados do dashboard
- */
+
 
 import { httpClient } from '@/infrastructure/http/HttpClient';
-
-// ==================== INTERFACES DA API ====================
 
 export interface Hotel {
   id: string;
@@ -150,12 +145,8 @@ export interface DashboardStats {
   }>;
 }
 
-// ==================== SERVICE CLASS ====================
-
 class DashboardService {
-  /**
-   * Busca todos os hotéis
-   */
+
   async getHotels(): Promise<Hotel[]> {
     try {
       const hotels = await httpClient.get<Hotel[]>('/Hotels');
@@ -166,9 +157,6 @@ class DashboardService {
     }
   }
 
-  /**
-   * Busca todos os quartos
-   */
   async getRooms(hotelId?: string): Promise<Room[]> {
     try {
       const endpoint = hotelId ? `/Rooms?hotelId=${hotelId}` : '/Rooms';
@@ -180,9 +168,6 @@ class DashboardService {
     }
   }
 
-  /**
-   * Busca todos os hóspedes
-   */
   async getGuests(hotelId?: string): Promise<Guest[]> {
     try {
       const endpoint = hotelId ? `/Guests?hotelId=${hotelId}` : '/Guests';
@@ -194,9 +179,6 @@ class DashboardService {
     }
   }
 
-  /**
-   * Busca todas as reservas
-   */
   async getBookings(hotelId?: string): Promise<Booking[]> {
     try {
       const endpoint = hotelId ? `/Bookings?hotelId=${hotelId}` : '/Bookings';
@@ -208,12 +190,9 @@ class DashboardService {
     }
   }
 
-  /**
-   * Busca estatísticas gerais do dashboard
-   */
   async getDashboardStats(): Promise<DashboardStats> {
     try {
-      // Buscar todos os dados em paralelo
+
       const [hotels, rooms, guests, bookings] = await Promise.all([
         this.getHotels(),
         this.getRooms(),
@@ -221,9 +200,6 @@ class DashboardService {
         this.getBookings(),
       ]);
 
-      // ============ CÁLCULOS DE ESTATÍSTICAS ============
-
-      // Status dos quartos
       const roomsByStatus = {
         available: rooms.filter(r => r.status === 'ACTIVE').length,
         occupied: rooms.filter(r => r.status === 'OCCUPIED').length,
@@ -232,56 +208,49 @@ class DashboardService {
         inactive: rooms.filter(r => r.status === 'INACTIVE').length,
       };
 
-      // Taxa de ocupação
       const totalRooms = rooms.length;
       const occupiedRooms = roomsByStatus.occupied;
       const availableRooms = roomsByStatus.available;
-      // Taxa de ocupação considera apenas quartos ativos (exclui inativos)
+
       const activeRooms = totalRooms - roomsByStatus.inactive;
-      const occupancyRate = activeRooms > 0 
-        ? (occupiedRooms / activeRooms) * 100 
+      const occupancyRate = activeRooms > 0
+        ? (occupiedRooms / activeRooms) * 100
         : 0;
 
-      // Reservas ativas (confirmadas e em andamento)
-      const activeBookings = bookings.filter(b => 
+      const activeBookings = bookings.filter(b =>
         b.status === 'CONFIRMED' || b.status === 'CHECKED_IN'
       ).length;
 
-      // Check-ins e check-outs hoje
       const today = new Date().toISOString().split('T')[0];
-      const checkInsToday = bookings.filter(b => 
+      const checkInsToday = bookings.filter(b =>
         b.checkInDate.startsWith(today) && b.status === 'CONFIRMED'
       ).length;
-      const checkOutsToday = bookings.filter(b => 
+      const checkOutsToday = bookings.filter(b =>
         b.checkOutDate.startsWith(today) && b.status === 'CHECKED_IN'
       ).length;
-      const completedCheckOuts = bookings.filter(b => 
+      const completedCheckOuts = bookings.filter(b =>
         b.status === 'CHECKED_OUT'
       ).length;
 
-      // Receita total (baseado no totalAmount das reservas confirmadas e com check-in)
-      // Mesmo cálculo usado na tela de bookings - "Valor Total Confirmado"
-      const confirmedBookings = bookings.filter(b => 
+      const confirmedBookings = bookings.filter(b =>
         b.status === 'CONFIRMED' || b.status === 'CHECKED_IN'
       );
-      
+
       const totalRevenue = confirmedBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-      
-      // Receita mensal (reservas confirmadas criadas nos últimos 30 dias)
+
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
+
       const monthlyRevenue = confirmedBookings
         .filter(b => {
           const bookingDate = new Date(b.createdAt);
           return bookingDate >= thirtyDaysAgo;
         })
         .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-      
-      // Contagem de invoices (para compatibilidade)
+
       let paidInvoicesCount = 0;
       let pendingInvoicesCount = 0;
-      
+
       bookings.forEach(booking => {
         if (booking.payments && booking.payments.length > 0) {
           booking.payments.forEach(payment => {
@@ -298,7 +267,6 @@ class DashboardService {
         }
       });
 
-      // Top hotéis (hotéis com mais reservas)
       const hotelBookingCount: Record<string, number> = {};
       bookings.forEach(booking => {
         hotelBookingCount[booking.hotelId] = (hotelBookingCount[booking.hotelId] || 0) + 1;
@@ -334,7 +302,8 @@ class DashboardService {
         monthlyRevenue,
         pendingInvoices: pendingInvoicesCount,
         paidInvoices: paidInvoicesCount,
-        overdueInvoices: 0, // Não temos informação de vencimento nas reservas
+        overdueInvoices: 0,
+
         checkInsToday,
         checkOutsToday,
         completedCheckOuts,
@@ -347,27 +316,21 @@ class DashboardService {
     }
   }
 
-  /**
-   * Busca todas as notas fiscais
-   * Nota: Por enquanto, vamos simular com base nas reservas
-   */
   async getInvoices(): Promise<Invoice[]> {
     try {
-      // Buscar reservas e hóspedes para simular invoices
+
       const [bookings, guests, hotels] = await Promise.all([
         this.getBookings(),
         this.getGuests(),
         this.getHotels(),
       ]);
 
-      // Mapear reservas para invoices
       const invoices: Invoice[] = bookings
         .filter(b => b.status !== 'CANCELLED')
         .map(booking => {
           const guest = guests.find(g => g.id === booking.mainGuestId);
           const hotel = hotels.find(h => h.id === booking.hotelId);
-          
-          // Determinar status
+
           let status: 'paid' | 'pending' | 'overdue' | 'cancelled' = 'pending';
           if (booking.payments && booking.payments.length > 0) {
             const hasPaidPayment = booking.payments.some(p => p.status === 'PAID');
@@ -398,14 +361,11 @@ class DashboardService {
     }
   }
 
-  /**
-   * Busca uma nota fiscal específica
-   */
   async getInvoiceById(id: string): Promise<Invoice> {
     try {
       const invoices = await this.getInvoices();
       const invoice = invoices.find(inv => inv.id === id || inv.bookingId === id);
-      
+
       if (!invoice) {
         throw new Error('Nota fiscal não encontrada');
       }
@@ -417,31 +377,25 @@ class DashboardService {
     }
   }
 
-  /**
-   * Cria uma nova nota fiscal para uma reserva
-   */
   async createInvoice(bookingId: string): Promise<Invoice> {
     try {
-      // Buscar dados da reserva
+
       const bookings = await this.getBookings();
       const booking = bookings.find(b => b.id === bookingId);
-      
+
       if (!booking) {
         throw new Error('Reserva não encontrada');
       }
 
-      // Verificar se já existe invoice para esta reserva
       const existingInvoices = await this.getInvoices();
       const existingInvoice = existingInvoices.find(inv => inv.bookingId === bookingId);
       if (existingInvoice) {
         throw new Error('Já existe uma nota fiscal para esta reserva');
       }
 
-      // Calcular taxAmount (10% de imposto - exemplo)
       const taxAmount = booking.totalAmount * 0.1;
       const totalAmount = booking.totalAmount + taxAmount;
 
-      // Criar invoice via API
       const invoiceData = {
         bookingId: booking.id,
         guestId: booking.mainGuestId,
@@ -460,8 +414,7 @@ class DashboardService {
       };
 
       const invoice = await httpClient.post<Invoice>('/Invoice', invoiceData);
-      
-      // Se a resposta não tiver todos os campos, completar com dados da reserva
+
       const completeInvoice: Invoice = {
         id: invoice.id || `INV-${booking.id.substring(0, 8)}`,
         number: invoice.number || `NF-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`,
@@ -477,11 +430,11 @@ class DashboardService {
         paymentDate: invoice.paymentDate,
         description: invoice.description || `Hospedagem - Reserva ${booking.code}`,
       };
-      
+
       return completeInvoice;
     } catch (error: any) {
       let errorMessage = 'Erro ao criar nota fiscal';
-      
+
       if (error.response?.data) {
         if (error.response.data.message) {
           errorMessage = error.response.data.message;
@@ -493,14 +446,11 @@ class DashboardService {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       throw new Error(errorMessage);
     }
   }
 
-  /**
-   * Realiza check-in de uma reserva
-   */
   async checkIn(bookingId: string): Promise<Booking> {
     try {
       const booking = await httpClient.post<Booking>(`/Booking/${bookingId}/check-in`, {});
@@ -511,9 +461,6 @@ class DashboardService {
     }
   }
 
-  /**
-   * Realiza check-out de uma reserva
-   */
   async checkOut(bookingId: string): Promise<Booking> {
     try {
       const booking = await httpClient.post<Booking>(`/Booking/${bookingId}/check-out`, {});
@@ -525,5 +472,4 @@ class DashboardService {
   }
 }
 
-// Singleton
 export const dashboardService = new DashboardService();

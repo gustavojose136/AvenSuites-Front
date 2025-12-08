@@ -1,23 +1,64 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { httpClient } from '@/infrastructure/http/HttpClient';
 import { AuthHelper } from '@/shared/utils/authHelper';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import { ForgotPasswordModal } from '@/presentation/components/Auth/ForgotPasswordModal';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [checkingToken, setCheckingToken] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const hotelId = searchParams.get('hotelId') || '';
   const checkIn = searchParams.get('checkIn') || '';
   const checkOut = searchParams.get('checkOut') || '';
   const guests = searchParams.get('guests') || '2';
+
+  useEffect(() => {
+    const checkExistingToken = async () => {
+      if (typeof window === 'undefined') {
+        setCheckingToken(false);
+        return;
+      }
+
+      const guestToken = localStorage.getItem('guestToken');
+
+      if (!guestToken) {
+        setCheckingToken(false);
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(atob(guestToken.split('.')[1]));
+        const isGuest = payload.role === 'Guest' || payload.GuestId;
+        const exp = payload.exp;
+
+        if (isGuest && exp && exp * 1000 > Date.now()) {
+          if (hotelId && checkIn && checkOut) {
+            router.push(`/guest/booking?hotelId=${hotelId}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+          } else {
+            router.push('/guest/portal');
+          }
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem('guestToken');
+        localStorage.removeItem('guestUser');
+      }
+
+      setCheckingToken(false);
+    };
+
+    checkExistingToken();
+  }, [router, hotelId, checkIn, checkOut, guests]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +71,11 @@ function LoginContent() {
     try {
       setLoading(true);
 
-      // IMPORTANTE: Limpa TODOS os tokens anteriores antes de fazer login Guest
       if (typeof window !== 'undefined') {
         localStorage.removeItem('guestToken');
         localStorage.removeItem('guestUser');
-        localStorage.removeItem('authToken'); // Limpa token Admin também
-        // Limpa qualquer cookie de sessão do NextAuth
+        localStorage.removeItem('authToken');
+
         document.cookie.split(";").forEach((c) => {
           if (c.trim().startsWith('next-auth')) {
             document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
@@ -47,32 +87,27 @@ function LoginContent() {
         email,
         password,
       });
-      
-      // Verifica se a resposta tem token (pode estar em response.data ou diretamente)
+
       const token = response?.token || response?.data?.token;
       const user = response?.user || response?.data?.user;
-      
+
       if (!token) {
         toast.error('Erro: Token não recebido do servidor. Verifique as credenciais.');
         return;
       }
-      
-      // Salva o token Guest usando o helper
+
       AuthHelper.saveGuestSession(token, user || { email, name: email });
-      
-      // Verifica se o token foi salvo corretamente
+
       const savedToken = localStorage.getItem('guestToken');
       if (savedToken !== token) {
-        // Força a salvar o token correto
+
         localStorage.setItem('guestToken', token);
       }
-      
+
       toast.success('Login realizado com sucesso!');
 
-      // Pequeno delay para garantir que o token foi salvo
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Redireciona
       if (hotelId && checkIn && checkOut) {
         router.push(`/guest/booking?hotelId=${hotelId}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
       } else {
@@ -80,26 +115,37 @@ function LoginContent() {
       }
     } catch (error: any) {
       let message = 'Email ou senha inválidos';
-      
+
       if (error.response?.data) {
-        message = error.response.data.message || 
-                  error.response.data.title || 
+        message = error.response.data.message ||
+                  error.response.data.title ||
                   error.response.data.error ||
                   JSON.stringify(error.response.data);
       } else if (error.message) {
         message = error.message;
       }
-      
+
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
+  if (checkingToken) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:via-dark-2 dark:to-dark">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p className="text-body-color dark:text-dark-6">Verificando autenticação...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:via-dark-2 dark:to-dark py-20 px-4">
       <div className="w-full max-w-md">
-        {/* Header */}
+        {}
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-black text-dark dark:text-white">
             Bem-vindo de <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Volta</span>
@@ -109,7 +155,7 @@ function LoginContent() {
           </p>
         </div>
 
-        {/* Formulário */}
+        {}
         <form onSubmit={handleSubmit} className="rounded-2xl bg-white p-8 shadow-xl dark:bg-dark-2">
           <div className="space-y-6">
             <div>
@@ -152,6 +198,13 @@ function LoginContent() {
                   placeholder="••••••••"
                 />
               </div>
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="mt-2 text-sm text-primary hover:underline"
+              >
+                Esqueceu sua senha?
+              </button>
             </div>
 
             <button
@@ -183,7 +236,7 @@ function LoginContent() {
           </div>
         </form>
 
-        {/* Link de Volta */}
+        {}
         <div className="mt-8 text-center">
           <Link
             href="/guest/search"
@@ -196,6 +249,11 @@ function LoginContent() {
           </Link>
         </div>
       </div>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </section>
   );
 }

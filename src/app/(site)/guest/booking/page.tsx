@@ -39,9 +39,10 @@ interface Room {
   floor?: number;
   maxOccupancy?: number;
   status?: string;
-  roomTypeId?: string; // ID do tipo de quarto
+  roomTypeId?: string;
+
   roomType?: RoomType;
-  // Campos para quando vier como RoomType diretamente
+
   code?: string;
   name?: string;
   description?: string;
@@ -66,7 +67,7 @@ const formatDateLocal = (dateString: string, options?: Intl.DateTimeFormatOption
 function BookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const hotelId = searchParams.get('hotelId') || '7a326969-3bf6-40d9-96dc-1aecef585000';
   const initialCheckIn = searchParams.get('checkIn') || '';
   const initialCheckOut = searchParams.get('checkOut') || '';
@@ -87,15 +88,43 @@ function BookingContent() {
 
   useEffect(() => {
     checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const checkAuth = () => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('guestToken');
-      
+
       if (!token) {
         toast.error('Faça login para fazer uma reserva');
+        router.push(`/guest/login?hotelId=${hotelId}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isGuest = payload.role === 'Guest' || payload.GuestId;
+        const exp = payload.exp;
+
+        if (!isGuest) {
+          localStorage.removeItem('guestToken');
+          localStorage.removeItem('guestUser');
+          toast.error('Token inválido. Você precisa fazer login como hóspede.');
+          router.push(`/guest/login?hotelId=${hotelId}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+          return;
+        }
+
+        if (exp && exp * 1000 <= Date.now()) {
+          localStorage.removeItem('guestToken');
+          localStorage.removeItem('guestUser');
+          toast.error('Sessão expirada. Faça login novamente.');
+          router.push(`/guest/login?hotelId=${hotelId}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem('guestToken');
+        localStorage.removeItem('guestUser');
+        toast.error('Token inválido. Faça login novamente.');
         router.push(`/guest/login?hotelId=${hotelId}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
         return;
       }
@@ -113,33 +142,33 @@ function BookingContent() {
   const fetchHotelAndRooms = async () => {
     try {
       setLoading(true);
-      
+
       let hotelData: Hotel | null = null;
       try {
         hotelData = await httpClient.get<Hotel>(`/Hotels/${hotelId}`);
       } catch (err) {
         hotelData = await httpClient.get<Hotel>(`/Hotels/${hotelId}`);
       }
-      
+
       setHotel(hotelData);
-      
+
       const roomsData = await httpClient.get<any[]>(
         `/Rooms?hotelId=${hotelId}&checkInDate=${checkIn}&checkOutDate=${checkOut}&guests=${guests}`
       );
-      
+
       const hasRoomNumber = roomsData.length > 0 && 'roomNumber' in roomsData[0];
 
       let availableRooms: Room[] = [];
 
       if (hasRoomNumber) {
         const filteredByStatus = roomsData.filter(r => r.status === 'ACTIVE');
-        
+
         const filteredByCapacity = filteredByStatus.filter(r => {
           const totalCapacity = (r.roomType?.capacityAdults || 0) + (r.roomType?.capacityChildren || 0);
           const hasCapacity = totalCapacity >= guests;
           return hasCapacity;
         });
-        
+
         availableRooms = filteredByCapacity.map(r => ({
           ...r,
           maxOccupancy: (r.roomType?.capacityAdults || 0) + (r.roomType?.capacityChildren || 0),
@@ -153,11 +182,11 @@ function BookingContent() {
         }));
 
         const groupedByType = new Map<string, { roomType: RoomType; rooms: Room[] }>();
-        
+
         availableRooms.forEach(room => {
           const typeId = room.roomTypeId || room.roomType?.id || '';
           if (!typeId) return;
-          
+
           if (!groupedByType.has(typeId)) {
             groupedByType.set(typeId, {
               roomType: room.roomType || {
@@ -173,10 +202,10 @@ function BookingContent() {
               rooms: []
             });
           }
-          
+
           groupedByType.get(typeId)!.rooms.push(room);
         });
-        
+
         setRoomTypes(groupedByType);
       } else {
         availableRooms = roomsData
@@ -209,7 +238,7 @@ function BookingContent() {
               active: rt.active
             }
           }));
-        
+
         const groupedByType = new Map<string, { roomType: RoomType; rooms: Room[] }>();
         availableRooms.forEach(room => {
           const typeId = room.roomType?.id || room.id;
@@ -231,10 +260,10 @@ function BookingContent() {
             groupedByType.get(typeId)!.rooms.push(room);
           }
         });
-        
+
         setRoomTypes(groupedByType);
       }
-      
+
       setRooms(availableRooms);
 
       if (availableRooms.length === 0) {
@@ -258,23 +287,23 @@ function BookingContent() {
     if (room.pricePerNight) {
       return room.pricePerNight;
     }
-    
+
     if (room.basePrice) {
       return room.basePrice;
     }
-    
+
     if (room.roomType) {
     const occupancyPrice = room.roomType.occupancyPrices?.find(
       op => op.occupancy === guests
     );
-    
+
       if (occupancyPrice) {
         return occupancyPrice.pricePerNight;
       }
-      
+
       return room.roomType.basePrice || 0;
     }
-    
+
     return 0;
   };
 
@@ -282,26 +311,25 @@ function BookingContent() {
     if (!selectedRoomId) return 0;
     const selectedRoom = rooms.find(r => r.id === selectedRoomId);
     if (!selectedRoom) return 0;
-    
+
     const pricePerNight = calculatePricePerNight(selectedRoom);
     return pricePerNight * calculateNights();
   };
 
   const handleRoomTypeSelect = (roomTypeId: string) => {
     setSelectedRoomTypeId(roomTypeId);
-    
+
     const typeGroup = roomTypes.get(roomTypeId);
     if (!typeGroup || typeGroup.rooms.length === 0) {
       toast.error('Nenhum quarto disponível deste tipo');
       return;
     }
-    
+
     const randomIndex = Math.floor(Math.random() * typeGroup.rooms.length);
     const randomRoom = typeGroup.rooms[randomIndex];
     setSelectedRoomId(randomRoom.id);
   };
 
-  // Obtém o quarto selecionado
   const getSelectedRoom = (): Room | null => {
     if (!selectedRoomId) return null;
     return rooms.find(r => r.id === selectedRoomId) || null;
@@ -327,17 +355,17 @@ function BookingContent() {
 
   const validateDates = (newCheckIn: string, newCheckOut: string): boolean => {
     const today = getToday();
-    
+
     if (newCheckIn < today) {
       toast.error('A data de check-in não pode ser no passado');
       return false;
     }
-    
+
     if (newCheckOut <= newCheckIn) {
       toast.error('A data de check-out deve ser posterior à data de check-in');
       return false;
     }
-    
+
     return true;
   };
 
@@ -350,7 +378,7 @@ function BookingContent() {
       const day = String(checkInDate.getDate()).padStart(2, '0');
       setCheckOut(`${year}-${month}-${day}`);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [checkIn]);
 
   const handleUpdateDates = async () => {
@@ -358,11 +386,9 @@ function BookingContent() {
       return;
     }
 
-    // Limpa a seleção de quarto
     setSelectedRoomId('');
     setSelectedRoomTypeId('');
 
-    // Atualiza a URL
     const params = new URLSearchParams();
     params.set('hotelId', hotelId);
     params.set('checkIn', checkIn);
@@ -370,9 +396,8 @@ function BookingContent() {
     params.set('guests', guests.toString());
     router.replace(`/guest/booking?${params.toString()}`);
 
-    // Recarrega os quartos
     await fetchHotelAndRooms();
-    
+
     setIsEditingDates(false);
     toast.success('Datas atualizadas com sucesso');
   };
@@ -383,11 +408,9 @@ function BookingContent() {
       return;
     }
 
-    // Limpa a seleção de quarto
     setSelectedRoomId('');
     setSelectedRoomTypeId('');
 
-    // Atualiza a URL
     const params = new URLSearchParams();
     params.set('hotelId', hotelId);
     params.set('checkIn', checkIn);
@@ -395,9 +418,8 @@ function BookingContent() {
     params.set('guests', guests.toString());
     router.replace(`/guest/booking?${params.toString()}`);
 
-    // Recarrega os quartos
     await fetchHotelAndRooms();
-    
+
     toast.success('Quantidade de hóspedes atualizada');
   };
 
@@ -411,7 +433,7 @@ function BookingContent() {
 
     try {
       setSubmitting(true);
-      
+
       const user = JSON.parse(localStorage.getItem('guestUser') || '{}');
       const guestId = user.id;
 
@@ -453,7 +475,6 @@ function BookingContent() {
         additionalGuestIds: []
       };
 
-
       await httpClient.post('/Bookings', bookingData);
 
       toast.success('Reserva criada com sucesso!');
@@ -469,7 +490,7 @@ function BookingContent() {
     <section className="min-h-screen bg-slate-50 py-8 dark:bg-slate-950">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-7xl">
-          {/* Header Simplificado */}
+          {}
           <div className="mb-6">
             <h1 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
               Finalizar Reserva
@@ -489,9 +510,9 @@ function BookingContent() {
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="grid gap-8 lg:grid-cols-3">
-                {/* Coluna Principal - Quartos */}
+                {}
                 <div className="lg:col-span-2 space-y-6">
-                  {/* Resumo da Reserva Compacto */}
+                  {}
               {hotel && (
                     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                       <div className="mb-4 flex items-start justify-between">
@@ -518,7 +539,7 @@ function BookingContent() {
                           </button>
                         )}
                       </div>
-                      
+
                       {isEditingDates ? (
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -649,7 +670,7 @@ function BookingContent() {
                 </div>
               )}
 
-                  {/* Tipos de Quartos Disponíveis */}
+                  {}
                   <div>
                     <div className="mb-4 flex items-center justify-between">
                       <div>
@@ -771,7 +792,7 @@ function BookingContent() {
                           })}
                               </div>
 
-                        {/* Mostra o quarto selecionado após escolher o tipo */}
+                        {}
                         {selectedRoomId && getSelectedRoom() && (
                           <div className="mt-6 rounded-xl border-2 border-primary bg-gradient-to-br from-primary/10 to-primary/5 p-6 shadow-lg ring-2 ring-primary/20">
                             <div className="mb-4 flex items-start justify-between">
@@ -816,7 +837,7 @@ function BookingContent() {
                 )}
               </div>
 
-              {/* Observações */}
+              {}
                   {selectedRoomId && (
                     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                       <h2 className="mb-3 text-base font-bold text-slate-900 dark:text-white">
@@ -836,14 +857,14 @@ function BookingContent() {
               )}
                 </div>
 
-                {/* Sidebar - Resumo e Total */}
+                {}
                 {roomTypes.size > 0 && (
                   <div className="lg:col-span-1">
                     <div className="sticky top-6 rounded-xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-800 dark:bg-slate-900">
                       <h2 className="mb-6 text-lg font-bold text-slate-900 dark:text-white">
                         Resumo da Reserva
                       </h2>
-                      
+
                       {selectedRoomId && getSelectedRoom() ? (
                         <>
                           <div className="mb-6 space-y-4 border-b border-slate-200 pb-6 dark:border-slate-700">

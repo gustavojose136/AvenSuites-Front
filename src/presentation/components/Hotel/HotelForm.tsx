@@ -1,7 +1,4 @@
-/**
- * Component: HotelForm
- * Formulário completo de hotel com validação
- */
+
 
 'use client';
 
@@ -17,16 +14,16 @@ interface HotelFormProps {
   isEdit?: boolean;
 }
 
-export const HotelForm: React.FC<HotelFormProps> = ({ 
-  onSubmit, 
+export const HotelForm: React.FC<HotelFormProps> = ({
+  onSubmit,
   initialData,
   loading = false,
   isEdit = false,
 }) => {
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors, isSubmitting } 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting }
   } = useForm<HotelFormData>({
     resolver: zodResolver(hotelCreateSchema),
     defaultValues: initialData,
@@ -36,14 +33,14 @@ export const HotelForm: React.FC<HotelFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Informações Básicas */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Informações Básicas
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Nome */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Nome do Hotel <span className="text-red-500">*</span>
@@ -60,7 +57,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
             )}
           </div>
 
-          {/* Nome Fantasia */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Nome Fantasia
@@ -77,7 +74,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
             )}
           </div>
 
-          {/* CNPJ */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               CNPJ <span className="text-red-500">*</span>
@@ -94,7 +91,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
             )}
           </div>
 
-          {/* Timezone */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Fuso Horário <span className="text-red-500">*</span>
@@ -115,14 +112,14 @@ export const HotelForm: React.FC<HotelFormProps> = ({
         </div>
       </div>
 
-      {/* Contato */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Informações de Contato
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Email */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               E-mail <span className="text-red-500">*</span>
@@ -139,7 +136,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
             )}
           </div>
 
-          {/* Telefone */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Telefone <span className="text-red-500">*</span>
@@ -161,14 +158,14 @@ export const HotelForm: React.FC<HotelFormProps> = ({
         </div>
       </div>
 
-      {/* Endereço */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Endereço
         </h3>
-        
+
         <div className="space-y-4">
-          {/* Endereço Linha 1 */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Endereço <span className="text-red-500">*</span>
@@ -185,7 +182,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
             )}
           </div>
 
-          {/* Endereço Linha 2 */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Complemento
@@ -203,7 +200,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {/* Cidade */}
+            {}
             <div>
               <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                 Cidade <span className="text-red-500">*</span>
@@ -220,7 +217,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
               )}
             </div>
 
-            {/* Estado */}
+            {}
             <div>
               <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                 Estado (UF) <span className="text-red-500">*</span>
@@ -238,7 +235,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
               )}
             </div>
 
-            {/* CEP */}
+            {}
             <div>
               <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                 CEP <span className="text-red-500">*</span>
@@ -256,7 +253,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
             </div>
           </div>
 
-          {/* País */}
+          {}
           <div className="md:w-1/3">
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               País
@@ -276,7 +273,7 @@ export const HotelForm: React.FC<HotelFormProps> = ({
         </div>
       </div>
 
-      {/* Botões */}
+      {}
       <div className="flex gap-4">
         <button
           type="submit"

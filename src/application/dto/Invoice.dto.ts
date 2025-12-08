@@ -1,7 +1,4 @@
-/**
- * DTO: Invoice
- * Data Transfer Object para Notas Fiscais
- */
+
 
 export type InvoiceStatus = 'Pending' | 'Paid' | 'Overdue' | 'Cancelled';
 
@@ -33,7 +30,7 @@ export interface Invoice {
   notes?: string;
   createdAt: string;
   updatedAt: string;
-  // Relacionamentos (opcionais)
+
   guestName?: string;
   hotelName?: string;
   bookingCode?: string;

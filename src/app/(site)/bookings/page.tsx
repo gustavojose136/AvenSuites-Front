@@ -1,8 +1,4 @@
-/**
- * Página: Lista de Reservas
- * Gestão completa de reservas com filtros, busca e estatísticas
- * Seguindo princípios SOLID
- */
+
 
 'use client';
 
@@ -33,15 +29,15 @@ interface Hotel {
 export default function BookingsPage() {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
-  
-  const { 
-    bookings, 
-    loading, 
-    error, 
+
+  const {
+    bookings,
+    loading,
+    error,
     fetchBookings,
     fetchBookingsByHotel,
     cancelBooking,
-    confirmBooking 
+    confirmBooking
   } = useBooking(container.getBookingService());
 
   const [hotels, setHotels] = useState<Hotel[]>([]);
@@ -50,7 +46,6 @@ export default function BookingsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
-  // Carrega dados iniciais
   useEffect(() => {
     if (sessionStatus === 'authenticated') {
       fetchHotels();
@@ -58,7 +53,6 @@ export default function BookingsPage() {
     }
   }, [sessionStatus, fetchBookings]);
 
-  // Atualiza reservas quando hotel é alterado
   useEffect(() => {
     if (selectedHotelId && selectedHotelId !== 'all') {
       fetchBookingsByHotel(selectedHotelId);
@@ -67,9 +61,6 @@ export default function BookingsPage() {
     }
   }, [selectedHotelId, fetchBookings, fetchBookingsByHotel]);
 
-  /**
-   * Busca hotéis (SOLID - Single Responsibility)
-   */
   const fetchHotels = async () => {
     try {
       const data = await httpClient.get<Hotel[]>('/Hotels');
@@ -80,23 +71,18 @@ export default function BookingsPage() {
     }
   };
 
-  /**
-   * Filtra reservas (SOLID - Single Responsibility)
-   */
   const filteredBookings = useMemo(() => {
     let result = bookings;
 
-    // Filtro por status
     if (statusFilter !== 'all') {
-      result = result.filter(booking => 
+      result = result.filter(booking =>
         booking.status.toUpperCase() === statusFilter.toUpperCase()
       );
     }
 
-    // Filtro por busca
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(booking => 
+      result = result.filter(booking =>
         booking.code?.toLowerCase().includes(term) ||
         booking.mainGuest?.fullName?.toLowerCase().includes(term) ||
         booking.mainGuest?.email?.toLowerCase().includes(term) ||
@@ -107,9 +93,6 @@ export default function BookingsPage() {
     return result;
   }, [bookings, statusFilter, searchTerm]);
 
-  /**
-   * Paginação das reservas filtradas
-   */
   const {
     items: paginatedBookings,
     currentPage,
@@ -127,14 +110,10 @@ export default function BookingsPage() {
     itemsPerPage: 5,
   });
 
-  // Resetar para primeira página quando filtros mudarem
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter, searchTerm, selectedHotelId, setCurrentPage]);
 
-  /**
-   * Handlers de ações (SOLID - Single Responsibility)
-   */
   const handleCancel = async (id: string) => {
     if (!confirm('Deseja realmente cancelar esta reserva?')) {
       return;
@@ -143,7 +122,7 @@ export default function BookingsPage() {
     try {
       await cancelBooking(id, 'Cancelado pelo usuário');
       showToast.success('Reserva cancelada com sucesso!');
-      // Recarrega a lista
+
       if (selectedHotelId !== 'all') {
         fetchBookingsByHotel(selectedHotelId);
       } else {
@@ -163,7 +142,7 @@ export default function BookingsPage() {
     try {
       await confirmBooking(id);
       showToast.success('Reserva confirmada com sucesso!');
-      // Recarrega a lista
+
       if (selectedHotelId !== 'all') {
         fetchBookingsByHotel(selectedHotelId);
       } else {
@@ -179,7 +158,6 @@ export default function BookingsPage() {
     router.push(`/bookings/${id}`);
   };
 
-  // Estados de loading e erro
   if (sessionStatus === 'loading') {
     return (
       <>
@@ -203,10 +181,10 @@ export default function BookingsPage() {
   return (
     <>
       <Breadcrumb pageName="Reservas" />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto">
-          {/* Cabeçalho */}
+          {}
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
@@ -224,10 +202,10 @@ export default function BookingsPage() {
             </Link>
           </div>
 
-          {/* Estatísticas */}
+          {}
           <BookingStats bookings={bookings} />
 
-          {/* Filtros */}
+          {}
           <BookingFilters
             hotels={hotels}
             selectedHotelId={selectedHotelId}
@@ -240,7 +218,7 @@ export default function BookingsPage() {
             onViewModeChange={setViewMode}
           />
 
-          {/* Conteúdo */}
+          {}
           {loading ? (
             <div className="flex min-h-[400px] items-center justify-center rounded-lg border border-stroke bg-white dark:border-dark-3 dark:bg-dark-2">
               <div className="text-center">
@@ -313,8 +291,8 @@ export default function BookingsPage() {
                   />
                 ))}
               </div>
-              
-              {/* Paginação */}
+
+              {}
               {totalPages > 1 && (
                 <div className="mt-8 flex flex-col items-center gap-4">
                   <div className="text-sm text-body-color dark:text-dark-6">
@@ -328,7 +306,7 @@ export default function BookingsPage() {
                       {totalItems}
                     </span> reservas
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Pagination
                       currentPage={currentPage}
@@ -336,8 +314,8 @@ export default function BookingsPage() {
                       onPageChange={goToPage}
                     />
                   </div>
-                  
-                  {/* Navegação rápida */}
+
+                  {}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCurrentPage(1)}
@@ -382,8 +360,8 @@ export default function BookingsPage() {
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
               />
-              
-              {/* Paginação */}
+
+              {}
               {totalPages > 1 && (
                 <div className="mt-8 flex flex-col items-center gap-4">
                   <div className="text-sm text-body-color dark:text-dark-6">
@@ -397,7 +375,7 @@ export default function BookingsPage() {
                       {totalItems}
                     </span> reservas
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Pagination
                       currentPage={currentPage}
@@ -405,8 +383,8 @@ export default function BookingsPage() {
                       onPageChange={goToPage}
                     />
                   </div>
-                  
-                  {/* Navegação rápida */}
+
+                  {}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCurrentPage(1)}

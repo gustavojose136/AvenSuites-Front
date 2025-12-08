@@ -1,7 +1,4 @@
-/**
- * Component: Pagination
- * Componente de paginação reutilizável
- */
+
 
 'use client';
 
@@ -14,9 +11,9 @@ interface PaginationProps {
   className?: string;
 }
 
-export const Pagination: React.FC<PaginationProps> = ({ 
-  currentPage, 
-  totalPages, 
+export const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
   onPageChange,
   className = '',
 }) => {
@@ -55,7 +52,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className={`flex items-center justify-center gap-2 ${className}`}>
-      {/* Botão Anterior */}
+      {}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -66,7 +63,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         </svg>
       </button>
 
-      {/* Números das páginas */}
+      {}
       {pages.map((page, index) => (
         typeof page === 'number' ? (
           <button
@@ -87,7 +84,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         )
       ))}
 
-      {/* Botão Próximo */}
+      {}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}

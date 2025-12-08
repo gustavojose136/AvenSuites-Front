@@ -1,6 +1,4 @@
-/**
- * Página: Detalhes do Hóspede
- */
+
 
 'use client';
 
@@ -52,14 +50,14 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
 
   return (
     <>
-      <Breadcrumb 
+      <Breadcrumb
         pageName={selectedGuest.fullName}
         pageDescription="Detalhes do hóspede"
       />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl space-y-6">
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-dark dark:text-white">
               {selectedGuest.fullName}
@@ -75,12 +73,12 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
             </RoleGuard>
           </div>
 
-          {/* Dados Pessoais */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
               Dados Pessoais
             </h2>
-            
+
             <div className="grid gap-4 md:grid-cols-2">
               {selectedGuest.birthDate && (
                 <div>
@@ -102,12 +100,12 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
-          {/* Documentação */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
               Documentação
             </h2>
-            
+
             <div className="grid gap-4 md:grid-cols-2">
               {selectedGuest.documentType && (
                 <div>
@@ -129,12 +127,12 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
-          {/* Contato */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
               Informações de Contato
             </h2>
-            
+
             <div className="grid gap-4 md:grid-cols-2">
               {selectedGuest.email && (
                 <div>
@@ -160,13 +158,13 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
-          {/* Endereço */}
+          {}
           {(selectedGuest.addressLine1 || selectedGuest.addressLine2 || selectedGuest.city || selectedGuest.state) && (
             <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
               <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
                 Endereço
               </h2>
-              
+
               <div className="space-y-2">
                 {selectedGuest.addressLine1 && (
                   <p className="text-dark dark:text-white">{selectedGuest.addressLine1}</p>
@@ -195,12 +193,12 @@ export default function GuestDetailPage({ params }: { params: { id: string } }) 
             </div>
           )}
 
-          {/* Ações Rápidas */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
               Ações Rápidas
             </h2>
-            
+
             <div className="flex gap-4">
               <Link
                 href={`/bookings/new?guestId=${params.id}`}

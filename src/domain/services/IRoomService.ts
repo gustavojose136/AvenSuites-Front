@@ -1,15 +1,12 @@
-/**
- * Service Interface: IRoomService
- * Define a lógica de negócio para quartos
- */
+
 
 import { IRoomRepository } from '../repositories/IRoomRepository';
-import { 
-  Room, 
-  RoomCreateRequest, 
-  RoomUpdateRequest, 
-  RoomAvailabilityRequest, 
-  RoomAvailabilityResponse 
+import {
+  Room,
+  RoomCreateRequest,
+  RoomUpdateRequest,
+  RoomAvailabilityRequest,
+  RoomAvailabilityResponse
 } from '@/application/dto/Room.dto';
 
 export interface IRoomService {

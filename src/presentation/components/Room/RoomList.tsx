@@ -1,7 +1,4 @@
-/**
- * Component: RoomList
- * Lista de quartos com filtros
- */
+
 
 'use client';
 

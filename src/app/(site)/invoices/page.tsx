@@ -1,8 +1,4 @@
-/**
- * Página de Notas Fiscais
- * Acompanhamento e gestão de notas fiscais
- * Integrado com API externa
- */
+
 
 'use client';
 
@@ -14,21 +10,20 @@ import { useInvoices } from '@/hooks/useDashboard';
 export default function InvoicesPage() {
   const { data: session } = useSession();
   const { invoices, loading, error, refetch } = useInvoices();
-  const [filter, setFilter] = useState('all'); // all, pending, paid, overdue
+  const [filter, setFilter] = useState('all');
+
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredInvoices = useMemo(() => {
     let result = invoices;
 
-    // Filtro por status
     if (filter !== 'all') {
       result = result.filter(invoice => invoice.status === filter);
     }
 
-    // Filtro por busca
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(invoice => 
+      result = result.filter(invoice =>
         invoice.number.toLowerCase().includes(term) ||
         invoice.guestName.toLowerCase().includes(term) ||
         invoice.hotelName.toLowerCase().includes(term)
@@ -119,7 +114,7 @@ export default function InvoicesPage() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 py-20">
       <div className="container mx-auto px-4">
-        {/* Breadcrumb */}
+        {}
         <div className="mb-8">
           <div className="mb-2 flex items-center gap-2 text-sm text-body-color dark:text-dark-6">
             <Link href="/" className="hover:text-primary">Home</Link>
@@ -160,9 +155,9 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        {/* Stats Cards - Estilo Moderno com Gradientes */}
+        {}
         <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Total de NFs */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -181,7 +176,7 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          {/* Pagas */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -200,7 +195,7 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          {/* Pendentes */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -219,7 +214,7 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          {/* Vencidas */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-500 to-pink-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -239,9 +234,9 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        {/* Filtros e Tabela */}
+        {}
         <div className="rounded-2xl border border-stroke bg-white shadow-lg dark:border-dark-3 dark:bg-dark-2">
-          {/* Header com Filtros */}
+          {}
           <div className="border-b border-stroke p-6 dark:border-dark-3">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap gap-2">
@@ -301,7 +296,7 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          {/* Tabela */}
+          {}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -352,7 +347,7 @@ export default function InvoicesPage() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-medium text-dark dark:text-white">{invoice.guestName}</p>
-                      <Link 
+                      <Link
                         href={`/bookings/${invoice.bookingId}`}
                         className="text-xs text-primary hover:underline"
                       >
@@ -394,7 +389,7 @@ export default function InvoicesPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
                         </Link>
-                        <button 
+                        <button
                           className="rounded-lg bg-green-100 p-2 text-green-600 transition hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30"
                           title="Baixar PDF"
                         >

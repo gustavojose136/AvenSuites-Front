@@ -1,7 +1,4 @@
-/**
- * Component: EmptyState
- * Estado vazio reutilizável
- */
+
 
 import React from 'react';
 
@@ -12,11 +9,11 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({ 
-  message, 
-  actionLabel, 
+export const EmptyState: React.FC<EmptyStateProps> = ({
+  message,
+  actionLabel,
   onAction,
-  className = '' 
+  className = ''
 }) => {
   return (
     <div className={`rounded-lg border border-stroke bg-white p-8 text-center dark:border-dark-3 dark:bg-dark-2 ${className}`}>

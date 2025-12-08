@@ -1,7 +1,4 @@
-/**
- * DTO: Room
- * Data Transfer Object para Quartos
- */
+
 
 export interface Room {
   id: string;

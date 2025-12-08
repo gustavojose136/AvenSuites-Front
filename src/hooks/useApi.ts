@@ -2,7 +2,6 @@ import { useSession } from "next-auth/react";
 import { apiClient } from "@/utils/apiClient";
 import { useState, useCallback } from "react";
 
-// Hook personalizado para usar sua API externa
 export const useApi = () => {
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
@@ -27,22 +26,21 @@ export const useApi = () => {
     }
   }, []);
 
-  // Métodos específicos para diferentes operações
   const getUserProfile = useCallback(async () => {
     if (!session?.accessToken) return null;
-    
+
     return makeRequest(() => apiClient.get('/user/profile'));
   }, [session, makeRequest]);
 
   const updateUserProfile = useCallback(async (data: any) => {
     if (!session?.accessToken) return null;
-    
+
     return makeRequest(() => apiClient.put('/user/profile', data));
   }, [session, makeRequest]);
 
   const getProtectedData = useCallback(async (endpoint: string) => {
     if (!session?.accessToken) return null;
-    
+
     return makeRequest(() => apiClient.get(endpoint));
   }, [session, makeRequest]);
 

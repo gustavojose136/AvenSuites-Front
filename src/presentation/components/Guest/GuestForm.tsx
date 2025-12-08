@@ -1,7 +1,4 @@
-/**
- * Component: GuestForm
- * Formulário completo de hóspede com validação
- */
+
 
 'use client';
 
@@ -18,18 +15,18 @@ interface GuestFormProps {
   isEdit?: boolean;
 }
 
-export const GuestForm: React.FC<GuestFormProps> = ({ 
+export const GuestForm: React.FC<GuestFormProps> = ({
   hotelId,
-  onSubmit, 
+  onSubmit,
   initialData,
   loading = false,
   isEdit = false,
 }) => {
-  const { 
-    register, 
-    handleSubmit, 
+  const {
+    register,
+    handleSubmit,
     watch,
-    formState: { errors, isSubmitting } 
+    formState: { errors, isSubmitting }
   } = useForm<GuestFormData>({
     resolver: zodResolver(guestCreateSchema),
     defaultValues: {
@@ -46,14 +43,14 @@ export const GuestForm: React.FC<GuestFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Dados Pessoais */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Dados Pessoais
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Nome */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Nome <span className="text-red-500">*</span>
@@ -70,7 +67,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             )}
           </div>
 
-          {/* Sobrenome */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Sobrenome <span className="text-red-500">*</span>
@@ -87,7 +84,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             )}
           </div>
 
-          {/* Data de Nascimento */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Data de Nascimento <span className="text-red-500">*</span>
@@ -106,7 +103,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             </p>
           </div>
 
-          {/* País */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               País
@@ -132,14 +129,14 @@ export const GuestForm: React.FC<GuestFormProps> = ({
         </div>
       </div>
 
-      {/* Documentação */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Documentação
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Tipo de Documento */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Tipo de Documento <span className="text-red-500">*</span>
@@ -159,7 +156,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             )}
           </div>
 
-          {/* Número do Documento */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Número do Documento <span className="text-red-500">*</span>
@@ -178,14 +175,14 @@ export const GuestForm: React.FC<GuestFormProps> = ({
         </div>
       </div>
 
-      {/* Contato */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Informações de Contato
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Email */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               E-mail <span className="text-red-500">*</span>
@@ -202,7 +199,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             )}
           </div>
 
-          {/* Telefone */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Telefone <span className="text-red-500">*</span>
@@ -224,12 +221,12 @@ export const GuestForm: React.FC<GuestFormProps> = ({
         </div>
       </div>
 
-      {/* Endereço (Opcional) */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Endereço <span className="text-sm font-normal text-body-color">(Opcional)</span>
         </h3>
-        
+
         <div className="space-y-4">
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
@@ -300,12 +297,12 @@ export const GuestForm: React.FC<GuestFormProps> = ({
         </div>
       </div>
 
-      {/* Consentimentos */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Consentimentos
         </h3>
-        
+
         <div className="flex items-start gap-3">
           <input
             {...register('marketingConsent')}
@@ -324,7 +321,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
         </div>
       </div>
 
-      {/* Botões */}
+      {}
       <div className="flex gap-4">
         <button
           type="submit"

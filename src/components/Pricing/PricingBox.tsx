@@ -4,7 +4,7 @@ import OfferList from "./OfferList";
 import { Price } from "@/types/price";
 
 const PricingBox = ({ product }: { product: Price }) => {
-  // POST request
+
   const handleSubscription = async (e: any) => {
     e.preventDefault();
     const { data } = await axios.post(

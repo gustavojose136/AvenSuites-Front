@@ -1,7 +1,4 @@
-/**
- * Service Interface: IGuestService
- * Define a lógica de negócio para hóspedes
- */
+
 
 import { IGuestRepository } from '../repositories/IGuestRepository';
 import { Guest, GuestCreateRequest, GuestUpdateRequest } from '@/application/dto/Guest.dto';

@@ -1,7 +1,4 @@
-/**
- * Service Interface: IHotelService
- * Define a lógica de negócio para hotéis
- */
+
 
 import { IHotelRepository } from '../repositories/IHotelRepository';
 import { Hotel, HotelCreateRequest, HotelUpdateRequest } from '@/application/dto/Hotel.dto';

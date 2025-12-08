@@ -1,7 +1,4 @@
-/**
- * Component: ErrorMessage
- * Mensagem de erro reutilizável
- */
+
 
 import React from 'react';
 
@@ -10,9 +7,9 @@ interface ErrorMessageProps {
   className?: string;
 }
 
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({ 
-  message, 
-  className = '' 
+export const ErrorMessage: React.FC<ErrorMessageProps> = ({
+  message,
+  className = ''
 }) => {
   return (
     <div className={`rounded-lg bg-red-50 p-4 dark:bg-red-900/20 ${className}`}>

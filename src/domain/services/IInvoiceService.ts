@@ -1,7 +1,4 @@
-/**
- * Service Interface: IInvoiceService
- * Define a lógica de negócio para notas fiscais
- */
+
 
 import { IInvoiceRepository } from '../repositories/IInvoiceRepository';
 import { Invoice, InvoiceCreateRequest, InvoiceUpdateRequest, InvoicePayRequest } from '@/application/dto/Invoice.dto';
@@ -46,16 +43,14 @@ export class InvoiceService implements IInvoiceService {
   }
 
   async createInvoice(data: InvoiceCreateRequest): Promise<Invoice> {
-    // Validações de negócio
+
     if (data.amount <= 0) {
       throw new Error('O valor da nota fiscal deve ser maior que zero');
     }
-    
-    // Calcular totalAmount se não fornecido
+
     const taxAmount = data.taxAmount || 0;
     const totalAmount = data.amount + taxAmount;
-    
-    // Calcular totalPrice dos items se fornecido
+
     if (data.items && data.items.length > 0) {
       const itemsTotal = data.items.reduce((sum, item) => sum + item.totalPrice, 0);
       if (Math.abs(itemsTotal - data.amount) > 0.01) {

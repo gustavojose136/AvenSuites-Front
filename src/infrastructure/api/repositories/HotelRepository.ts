@@ -1,7 +1,4 @@
-/**
- * Repository Implementation: HotelRepository
- * Implementação concreta da interface IHotelRepository
- */
+
 
 import { IHotelRepository } from '@/domain/repositories/IHotelRepository';
 import { Hotel, HotelCreateRequest, HotelUpdateRequest } from '@/application/dto/Hotel.dto';

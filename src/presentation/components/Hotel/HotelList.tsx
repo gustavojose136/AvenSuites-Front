@@ -1,7 +1,4 @@
-/**
- * Component: HotelList
- * Lista de hotéis com ações
- */
+
 
 'use client';
 
@@ -51,8 +48,8 @@ export const HotelList: React.FC = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-dark dark:text-white">Hotéis</h2>
-        
-        {/* Botão visível apenas para Manager e Admin */}
+
+        {}
         <RoleGuard allowedRoles={['Manager', 'Admin']}>
           <Link
             href="/hotels/new"
@@ -122,8 +119,8 @@ export const HotelList: React.FC = () => {
                 >
                   Ver Detalhes
                 </Link>
-                
-                {/* Botão visível apenas para Admin */}
+
+                {}
                 <RoleGuard allowedRoles={['Admin']}>
                   <button
                     onClick={() => handleDelete(hotel.id, hotel.name)}

@@ -1,7 +1,4 @@
-/**
- * Component: BookingForm
- * Formulário completo de reserva com validação
- */
+
 
 'use client';
 
@@ -23,19 +20,19 @@ interface BookingFormProps {
   isEdit?: boolean;
 }
 
-export const BookingForm: React.FC<BookingFormProps> = ({ 
+export const BookingForm: React.FC<BookingFormProps> = ({
   hotelId,
-  onSubmit, 
+  onSubmit,
   initialData,
   loading = false,
   isEdit = false,
 }) => {
-  const { 
-    register, 
-    handleSubmit, 
+  const {
+    register,
+    handleSubmit,
     watch,
     setValue,
-    formState: { errors, isSubmitting } 
+    formState: { errors, isSubmitting }
   } = useForm<BookingFormData>({
     resolver: zodResolver(bookingCreateSchema),
     defaultValues: {
@@ -49,10 +46,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   const checkOutDate = watch('checkOutDate');
   const guestCount = watch('guestCount');
 
-  const { availableRooms, checkAvailability, loading: loadingRooms } = 
+  const { availableRooms, checkAvailability, loading: loadingRooms } =
     useRoom(container.getRoomService());
-  
-  const { guests, fetchGuestsByHotel } = 
+
+  const { guests, fetchGuestsByHotel } =
     useGuest(container.getGuestService());
 
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
@@ -65,7 +62,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
   useEffect(() => {
     if (checkInDate && checkOutDate && guestCount) {
-      // Converte guestCount para adults (assumindo que todos são adultos por padrão)
+
       checkAvailability({
         hotelId,
         checkInDate,
@@ -88,7 +85,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
   const handleFormSubmit = (data: BookingFormData) => {
     const roomsData = selectedRooms.map(roomId => ({ roomId }));
-    // Converte rooms para roomIds e mapeia guestCount para adults/children
+
     return onSubmit({
       hotelId: data.hotelId,
       mainGuestId: data.primaryGuestId,
@@ -105,35 +102,34 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
   const calculateTotalPrice = () => {
     if (!checkInDate || !checkOutDate || selectedRooms.length === 0) return 0;
-    
+
     const nights = Math.ceil(
       (new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / (1000 * 60 * 60 * 24)
     );
-    
+
     const totalGuests = guestCount || 1;
-    
+
     const roomsTotal = selectedRooms.reduce((total, roomId) => {
       const room = availableRooms.find(r => r.roomId === roomId);
       if (!room || !room.roomType) {
         return total;
       }
-      
-      // Calcula preço baseado na ocupação
+
       const roomPrice = calculateRoomPrice(room.roomType, totalGuests, nights);
       return total + roomPrice;
     }, 0);
-    
+
     return roomsTotal;
   };
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      {/* Hóspede Principal */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Hóspede Principal
         </h3>
-        
+
         <div>
           <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
             Selecione o Hóspede <span className="text-red-500">*</span>
@@ -159,14 +155,14 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         </div>
       </div>
 
-      {/* Datas e Hóspedes */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Período da Reserva
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-3">
-          {/* Check-in */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Check-in <span className="text-red-500">*</span>
@@ -183,7 +179,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             )}
           </div>
 
-          {/* Check-out */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Check-out <span className="text-red-500">*</span>
@@ -200,7 +196,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             )}
           </div>
 
-          {/* Número de Hóspedes */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Número de Hóspedes <span className="text-red-500">*</span>
@@ -220,13 +216,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         </div>
       </div>
 
-      {/* Quartos Disponíveis */}
+      {}
       {checkInDate && checkOutDate && (
         <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
           <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Quartos Disponíveis
           </h3>
-          
+
           {loadingRooms ? (
             <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -296,7 +292,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                   </div>
                 </label>
               ))}
-              
+
               {selectedRooms.length === 0 && (
                 <p className="text-sm text-body-color dark:text-dark-6">
                   Selecione pelo menos um quarto para continuar.
@@ -307,12 +303,12 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         </div>
       )}
 
-      {/* Solicitações Especiais */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Solicitações Especiais <span className="text-sm font-normal text-body-color">(Opcional)</span>
         </h3>
-        
+
         <textarea
           {...register('specialRequests')}
           rows={4}
@@ -325,13 +321,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         )}
       </div>
 
-      {/* Resumo */}
+      {}
       {selectedRooms.length > 0 && (
         <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
           <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Resumo da Reserva
           </h3>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between text-body-color dark:text-dark-6">
               <span>Quartos selecionados:</span>
@@ -361,7 +357,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         </div>
       )}
 
-      {/* Botões */}
+      {}
       <div className="flex gap-4">
         <button
           type="submit"

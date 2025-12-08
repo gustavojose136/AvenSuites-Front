@@ -3,11 +3,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
-// Removido PrismaAdapter pois não é necessário com JWT strategy
-// import { PrismaAdapter } from "@auth/prisma-adapter";
-// import { PrismaClient } from "@prisma/client";
-// import { prisma } from "./prismaDB";
-// import type { Adapter } from "next-auth/adapters";
 import axios from "axios";
 import https from "https";
 
@@ -15,8 +10,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/signin",
   },
-  // Não usa adapter quando usa JWT strategy - remove PrismaAdapter para evitar erros
-  // adapter: PrismaAdapter(prisma) as Adapter,
   secret: process.env.NEXTAUTH_SECRET || process.env.SECRET,
   session: {
     strategy: "jwt",
@@ -32,26 +25,22 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
-        // Validação dos campos obrigatórios
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Por favor, insira seu e-mail e senha");
         }
 
         try {
-          // Remove barra final da API URL se existir
           const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api-avensuits.azurewebsites.net/api').replace(/\/$/, '');
           const loginEndpoint = '/Auth/login';
           const fullUrl = `${apiUrl}${loginEndpoint}`;
-          
-          // Configuração do axios para produção e desenvolvimento
+
           const axiosConfig: any = {
             headers: {
               'Content-Type': 'application/json',
             },
-            timeout: 10000, // Timeout de 10 segundos
+            timeout: 10000,
           };
 
-          // Apenas ignora SSL em desenvolvimento (não em produção)
           if (process.env.NODE_ENV === 'development') {
             const httpsAgent = new https.Agent({
               rejectUnauthorized: false
@@ -59,28 +48,13 @@ export const authOptions: NextAuthOptions = {
             axiosConfig.httpsAgent = httpsAgent;
           }
 
-          // Faz a requisição usando Axios
           const response = await axios.post(fullUrl, {
             email: credentials.email,
             password: credentials.password,
           }, axiosConfig);
-          
+
           const userData = response.data;
-          
-          // Estrutura da resposta esperada da API:
-          // {
-          //   token: "JWT_TOKEN",
-          //   user: {
-          //     id: "user_id",
-          //     email: "user@email.com",
-          //     name: "User Name",
-          //     roles: ["ADMIN", "USER"],
-          //     image?: "url"
-          //   },
-          //   expiresAt?: "2024-12-31T23:59:59Z"
-          // }
-          
-          // Retorna o usuário no formato esperado pelo NextAuth
+
           const user = {
             id: userData.user?.id || userData.id || "unknown",
             email: userData.user?.email || userData.email || credentials.email,
@@ -91,48 +65,44 @@ export const authOptions: NextAuthOptions = {
             roles: userData.user?.roles || userData.roles || [],
             expiresAt: userData.expiresAt || null,
           };
-          
+
           return user;
-          
+
         } catch (error: any) {
           console.error("❌ ============================================");
           console.error("❌ ERRO NA AUTENTICAÇÃO");
           console.error("❌ ============================================");
-          
-          // Erros do Axios
+
           if (error.response) {
-            // A API respondeu com um status de erro
             console.error("📡 Status:", error.response.status);
             console.error("📡 Dados:", error.response.data);
             console.error("📡 Headers:", error.response.headers);
-            
-            const errorMessage = error.response.data?.message 
-              || error.response.data?.error 
+
+            const errorMessage = error.response.data?.message
+              || error.response.data?.error
               || error.response.data?.title
               || "E-mail ou senha inválidos";
-            
+
             throw new Error(errorMessage);
-            
+
           } else if (error.request) {
-            // A requisição foi feita mas não houve resposta
             console.error("📡 Request feito mas sem resposta");
             console.error("📡 Request:", error.request);
             throw new Error("Erro de conexão com o servidor. Verifique se a API está rodando em: " + (process.env.NEXT_PUBLIC_API_URL || 'https://api-avensuits.azurewebsites.net/api'));
-            
+
           } else if (error.code === 'ECONNREFUSED') {
             console.error("📡 Conexão recusada");
             throw new Error("Não foi possível conectar ao servidor. Verifique se a API está ativa.");
-            
+
           } else if (error.code === 'ENOTFOUND') {
             console.error("📡 Host não encontrado");
             throw new Error("Servidor não encontrado. Verifique a URL da API.");
-            
+
           } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
             console.error("📡 Timeout");
             throw new Error("Tempo de conexão esgotado. A API demorou muito para responder.");
-            
+
           } else {
-            // Outro erro
             console.error("📡 Erro desconhecido:", error.message);
             console.error("📡 Stack:", error.stack);
             throw new Error(error.message || "Erro ao fazer login. Tente novamente.");
@@ -141,7 +111,6 @@ export const authOptions: NextAuthOptions = {
       },
     }),
 
-    // Providers opcionais - apenas adiciona se as variáveis estiverem configuradas
     ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
       ? [
           GitHubProvider({
@@ -217,5 +186,4 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  // debug: process.env.NODE_ENV === "developement",
 };

@@ -1,7 +1,4 @@
-/**
- * Component: BookingList
- * Lista de reservas com filtros
- */
+
 
 'use client';
 
@@ -18,15 +15,15 @@ interface BookingListProps {
 
 export const BookingList: React.FC<BookingListProps> = ({ hotelId, guestId }) => {
   const router = useRouter();
-  const { 
-    bookings, 
-    loading, 
-    error, 
-    fetchBookings, 
+  const {
+    bookings,
+    loading,
+    error,
+    fetchBookings,
     fetchBookingsByHotel,
     fetchBookingsByGuest,
     cancelBooking,
-    confirmBooking 
+    confirmBooking
   } = useBooking(container.getBookingService());
 
   useEffect(() => {

@@ -1,7 +1,4 @@
-/**
- * Nova Reserva - AvenSuites
- * Design moderno e funcional
- */
+
 
 'use client';
 
@@ -58,15 +55,13 @@ interface Guest {
 export default function NewBookingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  
-  // State
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [rooms, setRooms] = useState<RoomWithType[]>([]);
   const [guests, setGuests] = useState<Guest[]>([]);
-  
-  // Form data
+
   const [selectedHotelId, setSelectedHotelId] = useState('');
   const [selectedGuestId, setSelectedGuestId] = useState('');
   const [checkInDate, setCheckInDate] = useState('');
@@ -75,14 +70,12 @@ export default function NewBookingPage() {
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [specialRequests, setSpecialRequests] = useState('');
 
-  // Buscar hotéis
   useEffect(() => {
     if (status === 'authenticated') {
       fetchHotels();
     }
   }, [status]);
 
-  // Buscar hóspedes quando selecionar hotel
   useEffect(() => {
     if (selectedHotelId) {
       fetchGuests(selectedHotelId);
@@ -96,7 +89,7 @@ export default function NewBookingPage() {
     } catch (error) {
       console.error('❌ Erro ao buscar hotéis:', error);
       toast.error('Erro ao carregar hotéis');
-      // Dados de exemplo para desenvolvimento
+
       setHotels([
         { id: '1', name: 'Hotel Exemplo 1', address: 'Rua A, 123', city: 'São Paulo' },
         { id: '2', name: 'Hotel Exemplo 2', address: 'Av. B, 456', city: 'Rio de Janeiro' },
@@ -108,8 +101,7 @@ export default function NewBookingPage() {
     try {
       const endpoint = hotelId ? `/Guests?hotelId=${hotelId}` : '/Guests';
       const data = await httpClient.get<any[]>(endpoint);
-      
-      // Mapear para o formato esperado
+
       const mappedGuests: Guest[] = data.map(g => ({
         id: g.id,
         firstName: g.fullName?.split(' ')[0] || g.fullName || 'N/A',
@@ -117,7 +109,7 @@ export default function NewBookingPage() {
         email: g.email || '',
         phone: g.phone || ''
       }));
-      
+
       setGuests(mappedGuests);
     } catch (error) {
       console.error('❌ Erro ao buscar hóspedes:', error);
@@ -131,29 +123,28 @@ export default function NewBookingPage() {
       setRooms([]);
       return;
     }
-    
+
     try {
-      // Busca quartos disponíveis para as datas selecionadas e quantidade de hóspedes
+
       const [roomsData, typesData] = await Promise.all([
         httpClient.get<Room[]>(
           `/Rooms?hotelId=${selectedHotelId}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&guests=${guestCount}`
         ),
         httpClient.get<RoomType[]>(`/RoomType`)
       ]);
-      
-      // Filtra tipos do hotel atual
+
       const hotelTypes = typesData.filter(rt => rt.hotelId === selectedHotelId);
-      
-      // Filtra apenas quartos disponíveis (status ACTIVE) e associa os tipos
+
       const availableRooms = roomsData
         .filter(r => r.status === 'ACTIVE')
         .map((room, index) => ({
           ...room,
-          roomType: hotelTypes[index % hotelTypes.length] // Distribui os tipos ciclicamente
+          roomType: hotelTypes[index % hotelTypes.length]
+
         }));
-      
+
       setRooms(availableRooms);
-      
+
       if (availableRooms.length === 0) {
         toast('Nenhum quarto disponível para as datas selecionadas', {
           icon: 'ℹ️',
@@ -166,7 +157,6 @@ export default function NewBookingPage() {
     }
   }, [selectedHotelId, checkInDate, checkOutDate, guestCount]);
 
-  // Buscar quartos disponíveis quando tiver todas as informações
   useEffect(() => {
     fetchAvailableRooms();
   }, [fetchAvailableRooms]);
@@ -203,14 +193,15 @@ export default function NewBookingPage() {
         rooms: selectedRooms.map(id => ({ roomId: id })),
         specialRequests: specialRequests || undefined,
         totalAmount: calculateTotal(),
-        status: 'Confirmed', // ou o status padrão que sua API espera
+        status: 'Confirmed',
+
       };
 
       const booking = await httpClient.post('/Bookings', bookingData);
-      
+
       toast.success('Reserva criada com sucesso!');
       router.push('/bookings');
-      
+
     } catch (error: any) {
       console.error('❌ Erro ao criar reserva:', error);
       const message = error.response?.data?.message || error.message || 'Erro ao criar reserva';
@@ -246,8 +237,8 @@ export default function NewBookingPage() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 py-20">
       <div className="container mx-auto px-4">
-        
-        {/* Header */}
+
+        {}
           <div className="mb-8">
           <div className="mb-4 flex items-center gap-2 text-sm text-body-color dark:text-dark-6">
             <Link href="/" className="hover:text-primary">Home</Link>
@@ -258,7 +249,7 @@ export default function NewBookingPage() {
             <span>/</span>
             <span>Nova Reserva</span>
           </div>
-          
+
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
@@ -271,7 +262,7 @@ export default function NewBookingPage() {
           </div>
         </div>
 
-        {/* Progress Steps */}
+        {}
         <div className="mb-8">
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-2">
@@ -279,8 +270,8 @@ export default function NewBookingPage() {
                 <div key={s} className="flex items-center">
                   <div className={`
                     flex h-10 w-10 items-center justify-center rounded-full font-bold transition-all
-                    ${step >= s 
-                      ? 'bg-primary text-white shadow-lg scale-110' 
+                    ${step >= s
+                      ? 'bg-primary text-white shadow-lg scale-110'
                       : 'bg-gray-300 text-gray-600 dark:bg-dark-3 dark:text-gray-400'
                     }
                   `}>
@@ -305,11 +296,11 @@ export default function NewBookingPage() {
         </div>
 
         <div className="mx-auto max-w-4xl">
-          
-          {/* Step 1: Hotel e Hóspede */}
+
+          {}
           {step === 1 && (
             <div className="space-y-6">
-              {/* Hotel */}
+              {}
               <div className="rounded-2xl bg-white p-8 shadow-xl dark:bg-dark-2">
                 <div className="mb-6 flex items-center gap-3">
                   <div className="rounded-lg bg-primary/10 p-3">
@@ -322,7 +313,7 @@ export default function NewBookingPage() {
                     <p className="text-sm text-body-color dark:text-dark-6">Escolha onde será a reserva</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   {hotels.map((hotel) => (
                     <label
@@ -361,7 +352,7 @@ export default function NewBookingPage() {
                 </div>
               </div>
 
-              {/* Hóspede */}
+              {}
               {selectedHotelId && (
                 <div className="rounded-2xl bg-white p-8 shadow-xl dark:bg-dark-2">
                   <div className="mb-6 flex items-center gap-3">
@@ -375,7 +366,7 @@ export default function NewBookingPage() {
                       <p className="text-sm text-body-color dark:text-dark-6">Quem fará o check-in</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {guests.length > 0 ? (
                       <>
@@ -415,8 +406,8 @@ export default function NewBookingPage() {
                             )}
                           </label>
                         ))}
-                        
-                        {/* Botão para adicionar novo hóspede */}
+
+                        {}
                         <Link
                           href={`/guests/new?hotelId=${selectedHotelId}&returnTo=/bookings/new`}
                           className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary bg-primary/5 p-4 text-primary transition-all hover:bg-primary/10 dark:border-primary/50"
@@ -455,7 +446,7 @@ export default function NewBookingPage() {
                 </div>
               )}
 
-              {/* Botões */}
+              {}
               <div className="flex justify-end gap-4">
                 <button
                   onClick={() => router.back()}
@@ -474,7 +465,7 @@ export default function NewBookingPage() {
             </div>
           )}
 
-          {/* Step 2: Datas */}
+          {}
           {step === 2 && (
             <div className="space-y-6">
               <div className="rounded-2xl bg-white p-8 shadow-xl dark:bg-dark-2">
@@ -489,9 +480,9 @@ export default function NewBookingPage() {
                     <p className="text-sm text-body-color dark:text-dark-6">Escolha as datas de entrada e saída</p>
                   </div>
                 </div>
-                
+
                 <div className="grid gap-6 md:grid-cols-3">
-                  {/* Check-in */}
+                  {}
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
                       Check-in <span className="text-red-500">*</span>
@@ -505,7 +496,7 @@ export default function NewBookingPage() {
                     />
                   </div>
 
-                  {/* Check-out */}
+                  {}
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
                       Check-out <span className="text-red-500">*</span>
@@ -519,7 +510,7 @@ export default function NewBookingPage() {
                     />
                   </div>
 
-                  {/* Hóspedes */}
+                  {}
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
                       Hóspedes <span className="text-red-500">*</span>
@@ -535,7 +526,7 @@ export default function NewBookingPage() {
                   </div>
                 </div>
 
-                {/* Info das datas */}
+                {}
                 {checkInDate && checkOutDate && (
                   <div className="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/10">
                     <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300">
@@ -550,7 +541,7 @@ export default function NewBookingPage() {
                 )}
               </div>
 
-              {/* Botões */}
+              {}
               <div className="flex justify-between gap-4">
                 <button
                   onClick={() => setStep(1)}
@@ -569,7 +560,7 @@ export default function NewBookingPage() {
             </div>
           )}
 
-          {/* Step 3: Quartos */}
+          {}
           {step === 3 && (
             <div className="space-y-6">
               <div className="rounded-2xl bg-white p-8 shadow-xl dark:bg-dark-2">
@@ -584,7 +575,7 @@ export default function NewBookingPage() {
                     <p className="text-sm text-body-color dark:text-dark-6">Selecione um ou mais quartos</p>
                   </div>
                 </div>
-                
+
                 <div className="grid gap-4 md:grid-cols-2">
                   {rooms.map((room) => (
                     <label
@@ -597,7 +588,7 @@ export default function NewBookingPage() {
                         }
                       `}
                     >
-                      {/* Badge de Selecionado */}
+                      {}
                       {selectedRooms.includes(room.id) && (
                         <div className="absolute right-4 top-4 z-10 flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-bold text-white shadow-lg">
                           <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -607,7 +598,7 @@ export default function NewBookingPage() {
                         </div>
                       )}
 
-                      {/* Header com Gradiente */}
+                      {}
                       <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-5">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
@@ -642,18 +633,18 @@ export default function NewBookingPage() {
                         </div>
                       </div>
 
-                      {/* Conteúdo */}
+                      {}
                       <div className="p-5">
-                        {/* Descrição do Tipo */}
+                        {}
                         {room.roomType && (
                           <p className="mb-4 text-sm text-body-color dark:text-dark-6 line-clamp-2">
                             {room.roomType.description}
                           </p>
                         )}
 
-                        {/* Info Grid */}
+                        {}
                         <div className="mb-4 grid grid-cols-2 gap-3">
-                          {/* Capacidade */}
+                          {}
                           <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
                             <div className="flex items-center gap-2">
                               <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -666,7 +657,7 @@ export default function NewBookingPage() {
                             </div>
                           </div>
 
-                          {/* Preço */}
+                          {}
                           <div className="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
                             <div className="flex items-center gap-2">
                               <svg className="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -682,7 +673,7 @@ export default function NewBookingPage() {
                           </div>
                         </div>
 
-                        {/* Amenidades */}
+                        {}
                         {room.roomType?.amenities && room.roomType.amenities.length > 0 && (
                           <div className="rounded-lg border-2 border-dashed border-purple-200 bg-purple-50/50 p-3 dark:border-purple-800 dark:bg-purple-900/10">
                             <p className="mb-2 flex items-center gap-1 text-xs font-bold text-purple-700 dark:text-purple-400">
@@ -709,7 +700,7 @@ export default function NewBookingPage() {
                           </div>
                         )}
 
-                        {/* Status Badge */}
+                        {}
                         <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-green-50 py-2 dark:bg-green-900/20">
                           <svg className="h-4 w-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -732,7 +723,7 @@ export default function NewBookingPage() {
                 </div>
               </div>
 
-              {/* Solicitações Especiais */}
+              {}
               <div className="rounded-2xl bg-white p-8 shadow-xl dark:bg-dark-2">
                 <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
                   Solicitações Especiais <span className="text-sm font-normal text-body-color">(Opcional)</span>
@@ -746,7 +737,7 @@ export default function NewBookingPage() {
                 />
               </div>
 
-              {/* Botões */}
+              {}
               <div className="flex justify-between gap-4">
                 <button
                   onClick={() => setStep(2)}
@@ -765,22 +756,22 @@ export default function NewBookingPage() {
             </div>
           )}
 
-          {/* Step 4: Confirmação */}
+          {}
           {step === 4 && (
             <div className="space-y-6">
-              {/* Resumo */}
+              {}
               <div className="rounded-2xl bg-gradient-to-br from-primary to-indigo-600 p-8 text-white shadow-2xl">
                 <h3 className="mb-6 text-2xl font-bold">Resumo da Reserva</h3>
-                
+
                 <div className="space-y-4">
-                  {/* Hotel */}
+                  {}
                   <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
                     <p className="text-sm text-blue-100">Hotel</p>
                     <p className="text-lg font-semibold">{selectedHotel?.name}</p>
                     <p className="text-sm text-blue-100">{selectedHotel?.city}</p>
                   </div>
 
-                  {/* Hóspede */}
+                  {}
                   <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
                     <p className="text-sm text-blue-100">Hóspede</p>
                     <p className="text-lg font-semibold">
@@ -789,7 +780,7 @@ export default function NewBookingPage() {
                     <p className="text-sm text-blue-100">{selectedGuest?.email}</p>
                   </div>
 
-                  {/* Período */}
+                  {}
                   <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
                     <p className="text-sm text-blue-100">Período</p>
                     <p className="text-lg font-semibold">
@@ -800,7 +791,7 @@ export default function NewBookingPage() {
                     </p>
                   </div>
 
-                  {/* Quartos */}
+                  {}
                   <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
                     <p className="mb-2 text-sm text-blue-100">Quartos Selecionados</p>
                     {selectedRooms.map(roomId => {
@@ -815,7 +806,7 @@ export default function NewBookingPage() {
                     })}
                   </div>
 
-                  {/* Total */}
+                  {}
                   <div className="rounded-lg bg-white/20 p-4 backdrop-blur-sm">
                     <div className="flex items-center justify-between">
                       <p className="text-xl font-bold">TOTAL</p>
@@ -825,7 +816,7 @@ export default function NewBookingPage() {
                 </div>
               </div>
 
-              {/* Botões */}
+              {}
               <div className="flex justify-between gap-4">
                 <button
                   onClick={() => setStep(3)}

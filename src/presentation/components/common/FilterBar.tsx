@@ -1,7 +1,4 @@
-/**
- * Component: FilterBar
- * Barra de filtros reutilizável
- */
+
 
 'use client';
 
@@ -24,8 +21,8 @@ interface FilterBarProps {
   className?: string;
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ 
-  filters, 
+export const FilterBar: React.FC<FilterBarProps> = ({
+  filters,
   onFilterChange,
   onClearFilters,
   className = '',

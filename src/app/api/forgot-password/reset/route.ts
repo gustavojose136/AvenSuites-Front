@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 		await sendEmail({
 			to: formatedEmail,
 			subject: "Reset your password",
-			html: ` 
+			html: `
       <div>
         <h1>You requested a password reset</h1>
         <p>Click the link below to reset your password</p>

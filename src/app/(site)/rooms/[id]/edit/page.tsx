@@ -1,6 +1,4 @@
-/**
- * Página: Editar Quarto
- */
+
 
 'use client';
 
@@ -14,23 +12,18 @@ import Breadcrumb from '@/components/Common/Breadcrumb';
 import type { RoomFormData } from '@/shared/validators/roomSchema';
 import type { RoomUpdateRequest } from '@/application/dto/Room.dto';
 
-/**
- * Mapeia o status da API para o formato do formulário
- */
 const mapStatusToForm = (status: string): 'Available' | 'Occupied' | 'Maintenance' | 'OutOfOrder' => {
   const statusMap: Record<string, 'Available' | 'Occupied' | 'Maintenance' | 'OutOfOrder'> = {
     'ACTIVE': 'Available',
     'OCCUPIED': 'Occupied',
     'MAINTENANCE': 'Maintenance',
-    'CLEANING': 'Maintenance', // Cleaning não existe no form, usa Maintenance
+    'CLEANING': 'Maintenance',
+
     'INACTIVE': 'OutOfOrder',
   };
   return statusMap[status] || 'Available';
 };
 
-/**
- * Mapeia o status do formulário para o formato da API
- */
 const mapStatusToApi = (status: string): string => {
   const statusMap: Record<string, string> = {
     'Available': 'ACTIVE',
@@ -41,9 +34,6 @@ const mapStatusToApi = (status: string): string => {
   return statusMap[status] || 'ACTIVE';
 };
 
-/**
- * Converte Room DTO para RoomFormData
- */
 const mapRoomToFormData = (room: any): Partial<RoomFormData> => {
   return {
     roomNumber: room.roomNumber,
@@ -53,28 +43,25 @@ const mapRoomToFormData = (room: any): Partial<RoomFormData> => {
   };
 };
 
-/**
- * Converte RoomFormData para RoomUpdateRequest
- */
 const mapFormDataToUpdateRequest = (formData: RoomFormData): RoomUpdateRequest => {
   const updateRequest: RoomUpdateRequest = {};
-  
+
   if (formData.roomNumber) {
     updateRequest.roomNumber = formData.roomNumber;
   }
-  
+
   if (formData.floor !== null && formData.floor !== undefined) {
     updateRequest.floor = String(formData.floor);
   }
-  
+
   if (formData.roomTypeId) {
     updateRequest.roomTypeId = formData.roomTypeId;
   }
-  
+
   if (formData.status) {
     updateRequest.status = mapStatusToApi(formData.status);
   }
-  
+
   return updateRequest;
 };
 
@@ -90,7 +77,6 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     }
   }, [params.id, fetchRoomById]);
 
-  // Mapeia os dados do quarto para o formato do formulário
   const initialFormData = useMemo(() => {
     if (!selectedRoom) {
       return undefined;
@@ -99,13 +85,9 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     return formData;
   }, [selectedRoom]);
 
-  /**
-   * Extrai mensagem de erro da resposta da API
-   * Seguindo SOLID: responsabilidade única de extração de mensagens
-   */
   const extractErrorMessage = (error: unknown): string => {
     if (error instanceof Error) {
-      // Verifica se é um erro de permissão (403) ou não autorizado (401)
+
       const errorMessage = error.message.toLowerCase();
       if (errorMessage.includes('forbidden') || errorMessage.includes('403')) {
         return 'Você não tem permissão para editar este quarto';
@@ -115,8 +97,7 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
       }
       return error.message;
     }
-    
-    // Tenta extrair mensagem de erro da resposta HTTP
+
     if (typeof error === 'object' && error !== null) {
       const httpError = error as any;
       if (httpError.response?.data?.message) {
@@ -126,14 +107,10 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
         return httpError.response.data;
       }
     }
-    
+
     return 'Erro ao atualizar quarto. Tente novamente';
   };
 
-  /**
-   * Handler de submissão do formulário
-   * Seguindo SOLID: responsabilidade única de orquestração
-   */
   const handleSubmit = async (formData: RoomFormData) => {
     if (!selectedRoom) {
       showToast.error('Quarto não encontrado');
@@ -141,33 +118,29 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     }
 
     try {
-      // Converte os dados do formulário para o formato da API
+
       const updateRequest = mapFormDataToUpdateRequest(formData);
-      
-      // Valida se há pelo menos um campo para atualizar
+
       if (Object.keys(updateRequest).length === 0) {
         showToast.error('Nenhuma alteração foi feita');
         return;
       }
-      
-      // Deixa o backend validar permissões e retornar erro se necessário
+
       await updateRoom(params.id, updateRequest);
-      
+
       showToast.success(`Quarto "${formData.roomNumber || selectedRoom.roomNumber}" atualizado com sucesso!`);
-      
-      // Redireciona para a página de detalhes do quarto
+
       router.push(`/rooms/${params.id}`);
       router.refresh();
     } catch (error) {
-      // Extrai mensagem de erro (backend pode retornar erro de permissão)
+
       const errorMessage = extractErrorMessage(error);
       showToast.error(errorMessage);
       console.error('❌ Erro ao atualizar quarto:', error);
-      // Não faz throw para não quebrar o formulário
+
     }
   };
 
-  // Mostra loading apenas na primeira carga (quando não tem selectedRoom ainda)
   if (loading && !selectedRoom && !error) {
     return (
       <>
@@ -184,7 +157,6 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     );
   }
 
-  // Mostra erro apenas se realmente houver erro E não estiver carregando
   if (error && !loading) {
     return (
       <>
@@ -216,7 +188,6 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     );
   }
 
-  // Se não tem selectedRoom mas também não tem erro nem está carregando, mostra mensagem
   if (!selectedRoom && !loading && !error) {
     return (
       <>
@@ -248,7 +219,6 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
     );
   }
 
-  // Garante que selectedRoom existe antes de renderizar
   if (!selectedRoom) {
     return (
       <>
@@ -266,11 +236,11 @@ export default function EditRoomPage({ params }: { params: { id: string } }) {
 
   return (
     <>
-      <Breadcrumb 
+      <Breadcrumb
         pageName={`Editar Quarto ${selectedRoom.roomNumber}`}
         pageDescription="Editar informações do quarto"
       />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-8">

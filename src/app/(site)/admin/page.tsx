@@ -1,7 +1,4 @@
-/**
- * Página: Dashboard Administrativo
- * Apenas Admin tem acesso
- */
+
 
 'use client';
 
@@ -29,16 +26,17 @@ export default function AdminDashboardPage() {
   }
 
   if (!canAccessAdmin()) {
-    return null; // Redirecionará via useEffect
+    return null;
+
   }
 
   return (
     <>
       <Breadcrumb pageName="Administração" />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto space-y-8">
-          {/* Header */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
               Painel Administrativo
@@ -48,9 +46,9 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          {/* Grid de Cards de Acesso Rápido */}
+          {}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Card: Gestão de Usuários */}
+            {}
             <div className="rounded-lg border border-stroke bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-dark-3 dark:bg-dark-2">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                 <svg
@@ -78,7 +76,7 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            {/* Card: Relatórios */}
+            {}
             <div className="rounded-lg border border-stroke bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-dark-3 dark:bg-dark-2">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
                 <svg
@@ -106,7 +104,7 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            {/* Card: Configurações */}
+            {}
             <div className="rounded-lg border border-stroke bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-dark-3 dark:bg-dark-2">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
                 <svg
@@ -140,7 +138,7 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            {/* Card: Logs do Sistema */}
+            {}
             <div className="rounded-lg border border-stroke bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-dark-3 dark:bg-dark-2">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/20">
                 <svg
@@ -168,7 +166,7 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            {/* Card: Backup */}
+            {}
             <div className="rounded-lg border border-stroke bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-dark-3 dark:bg-dark-2">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20">
                 <svg
@@ -196,7 +194,7 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            {/* Card: Integrações */}
+            {}
             <div className="rounded-lg border border-stroke bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:border-dark-3 dark:bg-dark-2">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
                 <svg
@@ -225,7 +223,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* Aviso */}
+          {}
           <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900/20 dark:bg-yellow-900/10">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
               ⚠️ <strong>Em Desenvolvimento:</strong> As funcionalidades administrativas

@@ -1,7 +1,4 @@
-/**
- * Hook: usePagination
- * Hook para gerenciar paginação
- */
+
 
 'use client';
 
@@ -49,19 +46,17 @@ export function usePagination<T>({ items, itemsPerPage = 10 }: UsePaginationProp
   const hasPreviousPage = currentPage > 1;
 
   return {
-    // Dados
+
     items: paginatedItems,
     allItems: items,
-    
-    // Estado
+
     currentPage,
     totalPages,
     totalItems: items.length,
     itemsPerPage,
     hasNextPage,
     hasPreviousPage,
-    
-    // Ações
+
     goToPage,
     goToNextPage,
     goToPreviousPage,

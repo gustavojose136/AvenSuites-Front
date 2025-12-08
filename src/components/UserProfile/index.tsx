@@ -8,7 +8,7 @@ interface UserProfile {
   name: string;
   email: string;
   image?: string;
-  // Adicione outros campos conforme sua API
+
 }
 
 const UserProfile = () => {
@@ -50,7 +50,7 @@ const UserProfile = () => {
     return (
       <div className="p-4">
         <p className="text-red-500">Erro: {error}</p>
-        <button 
+        <button
           onClick={loadProfile}
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >

@@ -1,10 +1,11 @@
 "use client"
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import toast from "react-hot-toast"
 import Image from "next/image"
+import { ForgotPasswordModal } from "@/presentation/components/Auth/ForgotPasswordModal"
 
 const Signin = () => {
   const router = useRouter()
@@ -15,7 +16,9 @@ const Signin = () => {
   })
 
   const [loading, setLoading] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
 
   const hotelImages = [
     {
@@ -40,10 +43,28 @@ const Signin = () => {
     }
   ]
 
-  // Carousel automático
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      try {
+        const session = await getSession()
+
+        if (session) {
+          router.push("/dashboard")
+          return
+        }
+      } catch (error) {
+
+      } finally {
+        setCheckingSession(false)
+      }
+    }
+
+    checkExistingSession()
+  }, [router])
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
+      setCurrentImageIndex((prevIndex) =>
         prevIndex === hotelImages.length - 1 ? 0 : prevIndex + 1
       )
     }, 5000)
@@ -55,15 +76,14 @@ const Signin = () => {
     e.preventDefault()
 
     setLoading(true)
-    
+
     try {
-      // Limpa tokens antigos
+
       localStorage.removeItem('guestToken')
       localStorage.removeItem('guestUser')
-      
-      // Faz login via NextAuth
+
       const callback = await signIn("credentials", { ...loginData, redirect: false })
-      
+
       if (callback?.error) {
         toast.error(callback?.error)
         setLoading(false)
@@ -71,18 +91,6 @@ const Signin = () => {
       }
 
       if (callback?.ok && !callback?.error) {
-        // Busca a sessão e salva o token no localStorage
-        const { getSession } = await import('next-auth/react')
-        const session = await getSession()
-        
-        if (session?.accessToken) {
-          localStorage.setItem('guestToken', session.accessToken as string)
-          localStorage.setItem('guestUser', JSON.stringify({
-            name: session.user?.name,
-            email: session.user?.email,
-          }))
-        }
-        
         toast.success("Login realizado com sucesso!")
         setLoading(false)
         router.push("/dashboard")
@@ -93,14 +101,25 @@ const Signin = () => {
     }
   }
 
+  if (checkingSession) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-dark">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p className="text-body-color dark:text-dark-6">Verificando autenticação...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <section className="min-h-screen flex">
-      {/* Lado Esquerdo - Imagens do Hotel */}
+      {}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 overflow-hidden">
-        {/* Overlay de gradiente */}
+        {}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent z-10" />
-        
-        {/* Imagens do Carousel */}
+
+        {}
         {hotelImages.map((image, index) => (
           <div
             key={index}
@@ -118,9 +137,9 @@ const Signin = () => {
           </div>
         ))}
 
-        {/* Conteúdo sobre a imagem */}
+        {}
         <div className="relative z-20 flex flex-col justify-between p-12 w-full">
-          {/* Logo */}
+          {}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +152,7 @@ const Signin = () => {
             </div>
           </Link>
 
-          {/* Texto Principal */}
+          {}
           <div className="space-y-6">
             <div className="space-y-4">
               <h2 className="text-4xl font-bold text-white leading-tight">
@@ -144,15 +163,15 @@ const Signin = () => {
               </p>
             </div>
 
-            {/* Indicadores do Carousel */}
+            {}
             <div className="flex gap-2">
               {hotelImages.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    index === currentImageIndex 
-                      ? 'w-12 bg-white' 
+                    index === currentImageIndex
+                      ? 'w-12 bg-white'
                       : 'w-6 bg-white/40 hover:bg-white/60'
                   }`}
                   aria-label={`Ir para slide ${index + 1}`}
@@ -160,7 +179,7 @@ const Signin = () => {
               ))}
             </div>
 
-            {/* Stats */}
+            {}
             <div className="grid grid-cols-3 gap-6 pt-8">
               <div className="space-y-1">
                 <div className="text-3xl font-bold text-white">500+</div>
@@ -179,10 +198,10 @@ const Signin = () => {
         </div>
       </div>
 
-      {/* Lado Direito - Formulário de Login */}
+      {}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white dark:bg-dark">
         <div className="w-full max-w-md space-y-8">
-          {/* Logo Mobile */}
+          {}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg">
@@ -197,7 +216,7 @@ const Signin = () => {
             </Link>
           </div>
 
-          {/* Header */}
+          {}
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-dark dark:text-white">
               Bem-vindo de volta!
@@ -207,9 +226,9 @@ const Signin = () => {
             </p>
           </div>
 
-          {/* Formulário */}
+          {}
           <form onSubmit={loginUser} className="space-y-6">
-            {/* Email */}
+            {}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-dark dark:text-white">
                 E-mail
@@ -231,7 +250,7 @@ const Signin = () => {
               </div>
             </div>
 
-            {/* Password */}
+            {}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-dark dark:text-white">
                 Senha
@@ -251,11 +270,16 @@ const Signin = () => {
                   required
                 />
               </div>
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="text-sm text-primary hover:underline"
+              >
+                Esqueceu sua senha?
+              </button>
             </div>
 
-          
-
-            {/* Submit Button */}
+            {}
             <button
               type="submit"
               disabled={loading}
@@ -277,9 +301,13 @@ const Signin = () => {
             </button>
           </form>
 
-          
         </div>
       </div>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </section>
   )
 }

@@ -1,17 +1,16 @@
-/**
- * Hook: useResponsiveItemsPerPage
- * Calcula quantos items mostrar por página baseado no tamanho da tela
- * SOLID - Single Responsibility: Apenas cálculo responsivo
- */
+
 
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 
 interface ResponsiveConfig {
-  mobile?: number;    // < 768px (sm)
-  tablet?: number;    // 768px - 1024px (md)
-  desktop?: number;   // > 1024px (lg+)
+  mobile?: number;
+
+  tablet?: number;
+
+  desktop?: number;
+
 }
 
 const defaultConfig: Required<ResponsiveConfig> = {
@@ -22,7 +21,7 @@ const defaultConfig: Required<ResponsiveConfig> = {
 
 export function useResponsiveItemsPerPage(config: ResponsiveConfig = {}) {
   const finalConfig = useMemo(() => ({ ...defaultConfig, ...config }), [config.mobile, config.tablet, config.desktop]);
-  
+
   const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       return getItemsPerPage(window.innerWidth, finalConfig);
@@ -37,7 +36,6 @@ export function useResponsiveItemsPerPage(config: ResponsiveConfig = {}) {
       setItemsPerPage(getItemsPerPage(window.innerWidth, finalConfig));
     };
 
-    // Atualiza na montagem para garantir o valor correto
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -47,10 +45,6 @@ export function useResponsiveItemsPerPage(config: ResponsiveConfig = {}) {
   return itemsPerPage;
 }
 
-/**
- * Calcula quantos items mostrar baseado na largura da tela
- * SOLID - Single Responsibility: Apenas cálculo
- */
 function getItemsPerPage(width: number, config: Required<ResponsiveConfig>): number {
   if (width < 768) {
     return config.mobile;

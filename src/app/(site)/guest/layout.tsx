@@ -1,7 +1,4 @@
-/**
- * Layout específico para rotas Guest
- * Não usa SessionProvider para evitar chamadas para /api/auth/session
- */
+
 
 'use client';
 
@@ -18,14 +15,5 @@ export default function GuestLayout({
     </ThemeProvider>
   );
 }
-
-
-
-
-
-
-
-
-
 
 

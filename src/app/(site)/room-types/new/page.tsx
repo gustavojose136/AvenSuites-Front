@@ -35,11 +35,11 @@ function NewRoomTypePageContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  
+
   const [formData, setFormData] = useState<RoomTypeFormData>({
     hotelId: searchParams.get('hotelId') || '',
     code: '',
@@ -62,7 +62,7 @@ function NewRoomTypePageContent() {
     try {
       const data = await httpClient.get<Hotel[]>('/Hotels');
       setHotels(data);
-      
+
       if (data.length > 0 && !formData.hotelId) {
         setFormData(prev => ({ ...prev, hotelId: data[0].id }));
       }
@@ -75,7 +75,7 @@ function NewRoomTypePageContent() {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
               type === 'number' ? (value === '' ? 0 : parseFloat(value)) :
               value
     }));
@@ -101,7 +101,7 @@ function NewRoomTypePageContent() {
   const handleOccupancyPriceChange = (index: number, field: 'occupancy' | 'pricePerNight', value: number) => {
     setFormData(prev => ({
       ...prev,
-      occupancyPrices: prev.occupancyPrices.map((price, i) => 
+      occupancyPrices: prev.occupancyPrices.map((price, i) =>
         i === index ? { ...price, [field]: value } : price
       )
     }));
@@ -132,7 +132,7 @@ function NewRoomTypePageContent() {
       toast.error('O preço base deve ser maior ou igual a zero');
       return false;
     }
-    
+
     for (const price of formData.occupancyPrices) {
       if (price.occupancy < 1 || price.occupancy > 20) {
         toast.error('A ocupação deve estar entre 1 e 20 pessoas');
@@ -155,7 +155,7 @@ function NewRoomTypePageContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -219,7 +219,7 @@ function NewRoomTypePageContent() {
             <span>/</span>
             <span>Novo</span>
           </div>
-          
+
           <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
             Novo Tipo de Quarto
           </h1>
@@ -233,7 +233,7 @@ function NewRoomTypePageContent() {
             <h2 className="mb-6 text-xl font-bold text-dark dark:text-white">
               Informações Básicas
             </h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">

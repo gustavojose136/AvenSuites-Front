@@ -1,7 +1,4 @@
-/**
- * Component: SearchBar
- * Barra de busca reutilizável
- */
+
 
 'use client';
 
@@ -13,8 +10,8 @@ interface SearchBarProps {
   className?: string;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ 
-  onSearch, 
+export const SearchBar: React.FC<SearchBarProps> = ({
+  onSearch,
   placeholder = 'Buscar...',
   className = '',
 }) => {
@@ -40,8 +37,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder}
           className="w-full rounded-lg border border-stroke bg-white py-3 pl-12 pr-12 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
         />
-        
-        {/* Ícone de busca */}
+
+        {}
         <button
           type="submit"
           className="absolute left-4 top-1/2 -translate-y-1/2 text-body-color hover:text-primary dark:text-dark-6"
@@ -51,7 +48,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           </svg>
         </button>
 
-        {/* Botão de limpar */}
+        {}
         {query && (
           <button
             type="button"

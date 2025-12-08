@@ -1,8 +1,4 @@
-/**
- * Component: BookingTable
- * Tabela de reservas
- * SOLID - Single Responsibility: Apenas exibição em tabela
- */
+
 
 'use client';
 

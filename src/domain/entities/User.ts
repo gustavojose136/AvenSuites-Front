@@ -1,8 +1,4 @@
-/**
- * Entity: User
- * Representa um usuário no sistema
- * Princípio: Single Responsibility - Responsável apenas pela estrutura do usuário
- */
+
 
 export interface User {
   id: string;

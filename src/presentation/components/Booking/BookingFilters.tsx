@@ -1,8 +1,4 @@
-/**
- * Component: BookingFilters
- * Filtros e busca para reservas
- * SOLID - Single Responsibility: Apenas filtros e busca
- */
+
 
 'use client';
 
@@ -41,7 +37,7 @@ export const BookingFilters: React.FC<BookingFiltersProps> = ({
   return (
     <div className="mb-6 rounded-lg border border-stroke bg-white p-6 shadow-sm dark:border-dark-3 dark:bg-dark-2">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        {/* Busca */}
+        {}
         <div className="flex-1">
           <div className="relative">
             <input
@@ -67,7 +63,7 @@ export const BookingFilters: React.FC<BookingFiltersProps> = ({
           </div>
         </div>
 
-        {/* Filtro de Hotel */}
+        {}
         <div>
           <select
             value={selectedHotelId}
@@ -83,7 +79,7 @@ export const BookingFilters: React.FC<BookingFiltersProps> = ({
           </select>
         </div>
 
-        {/* Filtro de Status */}
+        {}
         <div>
           <select
             value={statusFilter}
@@ -100,7 +96,7 @@ export const BookingFilters: React.FC<BookingFiltersProps> = ({
           </select>
         </div>
 
-        {/* Toggle de Visualização */}
+        {}
         <div className="flex gap-2 rounded-lg border-2 border-gray-300 p-1 dark:border-dark-3">
           <button
             onClick={() => onViewModeChange('cards')}
@@ -127,14 +123,5 @@ export const BookingFilters: React.FC<BookingFiltersProps> = ({
     </div>
   );
 };
-
-
-
-
-
-
-
-
-
 
 

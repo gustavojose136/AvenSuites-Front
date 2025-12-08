@@ -1,7 +1,4 @@
-/**
- * Component: InvoiceForm
- * Formulário completo de nota fiscal com validação
- */
+
 
 'use client';
 
@@ -22,19 +19,19 @@ interface InvoiceFormProps {
   isEdit?: boolean;
 }
 
-export const InvoiceForm: React.FC<InvoiceFormProps> = ({ 
-  onSubmit, 
+export const InvoiceForm: React.FC<InvoiceFormProps> = ({
+  onSubmit,
   initialData,
   loading = false,
   isEdit = false,
 }) => {
-  const { 
-    register, 
-    handleSubmit, 
+  const {
+    register,
+    handleSubmit,
     watch,
     control,
     setValue,
-    formState: { errors, isSubmitting } 
+    formState: { errors, isSubmitting }
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceCreateSchema),
     defaultValues: {
@@ -77,9 +74,9 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
       const booking = bookings.find(b => b.id === bookingId);
       setSelectedBooking(booking);
       if (booking) {
-        // Preencher automaticamente guestId e hotelId se não estiverem preenchidos
+
         if (!watch('guestId') && booking.mainGuestId) {
-          // Não podemos usar setValue aqui diretamente, mas podemos sugerir
+
         }
       }
     }
@@ -107,18 +104,16 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   const handleItemChange = (index: number, field: 'quantity' | 'unitPrice', value: number) => {
     const currentItems = watch('items') || [];
     if (!currentItems[index]) return;
-    
+
     const item = currentItems[index];
     const qty = field === 'quantity' ? value : (item.quantity || 1);
     const price = field === 'unitPrice' ? value : (item.unitPrice || 0);
     const totalPrice = qty * price;
-    
-    // Atualizar o item usando setValue
+
     setValue(`items.${index}.quantity`, qty);
     setValue(`items.${index}.unitPrice`, price);
     setValue(`items.${index}.totalPrice`, totalPrice);
-    
-    // Atualizar o valor total se houver itens
+
     if (currentItems.length > 0) {
       const updatedItems = [...currentItems];
       updatedItems[index] = {
@@ -151,20 +146,20 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
       })),
       notes: data.notes,
     };
-    
+
     return onSubmit(request);
   };
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      {/* Informações Básicas */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Informações Básicas
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Hotel */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Hotel <span className="text-red-500">*</span>
@@ -186,7 +181,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
             )}
           </div>
 
-          {/* Reserva */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Reserva <span className="text-red-500">*</span>
@@ -208,7 +203,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
             )}
           </div>
 
-          {/* Hóspede */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Hóspede <span className="text-red-500">*</span>
@@ -230,7 +225,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
             )}
           </div>
 
-          {/* Data de Vencimento */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Data de Vencimento <span className="text-red-500">*</span>
@@ -249,14 +244,14 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
         </div>
       </div>
 
-      {/* Valores */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Valores
         </h3>
-        
+
         <div className="grid gap-4 md:grid-cols-3">
-          {/* Valor */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Valor (R$) <span className="text-red-500">*</span>
@@ -281,7 +276,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
             )}
           </div>
 
-          {/* Imposto */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Imposto (R$)
@@ -301,7 +296,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
             )}
           </div>
 
-          {/* Total */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Total (R$)
@@ -313,7 +308,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
         </div>
       </div>
 
-      {/* Itens da Nota Fiscal */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-dark dark:text-white">
@@ -348,7 +343,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
                     Remover
                   </button>
                 </div>
-                
+
                 <div className="grid gap-4 md:grid-cols-4">
                   <div className="md:col-span-2">
                     <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
@@ -431,14 +426,14 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
         )}
       </div>
 
-      {/* Descrição e Notas */}
+      {}
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
         <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
           Informações Adicionais
         </h3>
-        
+
         <div className="space-y-4">
-          {/* Descrição */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Descrição
@@ -455,7 +450,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
             )}
           </div>
 
-          {/* Notas */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
               Notas
@@ -474,7 +469,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
         </div>
       </div>
 
-      {/* Botões */}
+      {}
       <div className="flex justify-end gap-4">
         <button
           type="button"

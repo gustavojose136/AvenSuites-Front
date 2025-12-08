@@ -1,8 +1,4 @@
-/**
- * Dependency Injection Container
- * Gerencia a inversão de dependências
- * Princípio: Dependency Inversion - Dependências de abstrações
- */
+
 
 import { IAuthRepository } from '@/domain/repositories/IAuthRepository';
 import { IAuthService, AuthService } from '@/domain/services/IAuthService';
@@ -27,16 +23,14 @@ import { httpClient } from '@/infrastructure/http/HttpClient';
 
 class Container {
   private static instance: Container;
-  
-  // Repositories
+
   private authRepository: IAuthRepository;
   private hotelRepository: IHotelRepository;
   private roomRepository: IRoomRepository;
   private bookingRepository: IBookingRepository;
   private guestRepository: IGuestRepository;
   private invoiceRepository: IInvoiceRepository;
-  
-  // Services
+
   private authService: IAuthService;
   private hotelService: IHotelService;
   private roomService: IRoomService;
@@ -45,15 +39,14 @@ class Container {
   private invoiceService: IInvoiceService;
 
   private constructor() {
-    // Configuração de repositórios
+
     this.authRepository = new AuthRepository(httpClient);
     this.hotelRepository = new HotelRepository(httpClient);
     this.roomRepository = new RoomRepository(httpClient);
     this.bookingRepository = new BookingRepository(httpClient);
     this.guestRepository = new GuestRepository(httpClient);
     this.invoiceRepository = new InvoiceRepository(httpClient);
-    
-    // Configuração de serviços
+
     this.authService = new AuthService(this.authRepository);
     this.hotelService = new HotelService(this.hotelRepository);
     this.roomService = new RoomService(this.roomRepository);
@@ -69,7 +62,6 @@ class Container {
     return Container.instance;
   }
 
-  // Auth
   getAuthService(): IAuthService {
     return this.authService;
   }
@@ -78,7 +70,6 @@ class Container {
     return this.authRepository;
   }
 
-  // Hotel
   getHotelService(): IHotelService {
     return this.hotelService;
   }
@@ -87,7 +78,6 @@ class Container {
     return this.hotelRepository;
   }
 
-  // Room
   getRoomService(): IRoomService {
     return this.roomService;
   }
@@ -96,7 +86,6 @@ class Container {
     return this.roomRepository;
   }
 
-  // Booking
   getBookingService(): IBookingService {
     return this.bookingService;
   }
@@ -105,7 +94,6 @@ class Container {
     return this.bookingRepository;
   }
 
-  // Guest
   getGuestService(): IGuestService {
     return this.guestService;
   }
@@ -114,7 +102,6 @@ class Container {
     return this.guestRepository;
   }
 
-  // Invoice
   getInvoiceService(): IInvoiceService {
     return this.invoiceService;
   }

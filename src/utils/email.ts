@@ -6,7 +6,6 @@ type EmailPayload = {
   html: string;
 };
 
-// Replace with your SMTP credentials
 const smtpOptions = {
   host: process.env.EMAIL_SERVER_HOST,
   port: parseInt(process.env.EMAIL_SERVER_PORT || "2525"),

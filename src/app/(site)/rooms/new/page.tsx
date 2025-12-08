@@ -34,13 +34,13 @@ function NewRoomPageContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [selectedRoomType, setSelectedRoomType] = useState<RoomType | null>(null);
   const [showRoomTypeInfo, setShowRoomTypeInfo] = useState(false);
-  
+
   const [formData, setFormData] = useState<RoomFormData>({
     hotelId: searchParams.get('hotelId') || '',
     roomTypeId: '',
@@ -110,7 +110,7 @@ function NewRoomPageContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -168,7 +168,7 @@ function NewRoomPageContent() {
             <span>/</span>
             <span>Novo</span>
           </div>
-          
+
           <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
             Novo Quarto
           </h1>
@@ -182,7 +182,7 @@ function NewRoomPageContent() {
             <h2 className="mb-6 text-xl font-bold text-dark dark:text-white">
               Informações do Quarto
             </h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">

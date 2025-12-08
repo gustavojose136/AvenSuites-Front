@@ -1,15 +1,12 @@
-/**
- * Repository Implementation: RoomRepository
- * Implementação concreta da interface IRoomRepository
- */
+
 
 import { IRoomRepository } from '@/domain/repositories/IRoomRepository';
-import { 
-  Room, 
-  RoomCreateRequest, 
-  RoomUpdateRequest, 
-  RoomAvailabilityRequest, 
-  RoomAvailabilityResponse 
+import {
+  Room,
+  RoomCreateRequest,
+  RoomUpdateRequest,
+  RoomAvailabilityRequest,
+  RoomAvailabilityResponse
 } from '@/application/dto/Room.dto';
 import { HttpClient } from '@/infrastructure/http/HttpClient';
 

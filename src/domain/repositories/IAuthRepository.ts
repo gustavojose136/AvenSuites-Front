@@ -1,9 +1,4 @@
-/**
- * Repository Interface: IAuthRepository
- * Define o contrato para operações de autenticação
- * Princípio: Interface Segregation - Interface específica para auth
- * Princípio: Dependency Inversion - Dependência de abstração
- */
+
 
 import { User } from '../entities/User';
 
@@ -25,9 +20,28 @@ export interface RegisterRequest {
   role?: string;
 }
 
+export interface ForgotPasswordRequest {
+  emailOrCpf: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  code: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
 export interface IAuthRepository {
   login(data: LoginRequest): Promise<LoginResponse>;
   register(data: RegisterRequest): Promise<User>;
   validatePassword(data: LoginRequest): Promise<boolean>;
+  forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse>;
+  resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse>;
 }
 

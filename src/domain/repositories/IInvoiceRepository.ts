@@ -1,7 +1,4 @@
-/**
- * Repository Interface: IInvoiceRepository
- * Define o contrato para operações de notas fiscais
- */
+
 
 import { Invoice, InvoiceCreateRequest, InvoiceUpdateRequest, InvoicePayRequest } from '@/application/dto/Invoice.dto';
 

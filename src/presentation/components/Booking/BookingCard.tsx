@@ -1,8 +1,4 @@
-/**
- * Component: BookingCard
- * Card de reserva com ações
- * SOLID - Single Responsibility: Apenas exibição de card
- */
+
 
 'use client';
 
@@ -17,11 +13,11 @@ interface BookingCardProps {
   onViewDetails?: (id: string) => void;
 }
 
-export const BookingCard: React.FC<BookingCardProps> = ({ 
-  booking, 
-  onCancel, 
+export const BookingCard: React.FC<BookingCardProps> = ({
+  booking,
+  onCancel,
   onConfirm,
-  onViewDetails 
+  onViewDetails
 }) => {
 
   return (
@@ -34,7 +30,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           <p className="text-sm text-body-color dark:text-dark-6">
             ID: {booking.id.substring(0, 8)}...
           </p>
-          {/* Informações do Hóspede */}
+          {}
           {booking.mainGuest && (
             <div className="mt-2 space-y-1 border-t border-stroke pt-2 dark:border-dark-3">
               <div className="text-sm font-medium text-dark dark:text-white">
@@ -107,7 +103,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             Ver Detalhes
           </button>
         )}
-        
+
         {booking.status.toUpperCase() === 'PENDING' && onConfirm && (
           <button
             onClick={() => onConfirm(booking.id)}
@@ -116,7 +112,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             Confirmar
           </button>
         )}
-        
+
         {['PENDING', 'CONFIRMED'].includes(booking.status.toUpperCase()) && onCancel && (
           <button
             onClick={() => onCancel(booking.id)}

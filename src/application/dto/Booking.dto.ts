@@ -1,7 +1,4 @@
-/**
- * DTO: Booking
- * Data Transfer Object para Reservas
- */
+
 
 export interface GuestSummary {
   id: string;

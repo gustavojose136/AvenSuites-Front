@@ -1,7 +1,4 @@
-/**
- * Calendário de Reservas - AvenSuites
- * Visualização mensal de todas as reservas
- */
+
 
 'use client';
 
@@ -14,8 +11,7 @@ export default function BookingsCalendarPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
-  
-  // Função para obter dias do mês
+
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -23,13 +19,12 @@ export default function BookingsCalendarPage() {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     return { daysInMonth, startingDayOfWeek };
   };
 
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
 
-  // Navegação do calendário
   const goToPreviousMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
   };
@@ -42,7 +37,6 @@ export default function BookingsCalendarPage() {
     setCurrentDate(new Date());
   };
 
-  // Simulação de reservas (em produção, viria da API)
   const bookings = Array.from({ length: Math.floor(Math.random() * 20) + 10 }).map((_, i) => ({
     id: `booking-${i}`,
     day: Math.floor(Math.random() * daysInMonth) + 1,
@@ -86,8 +80,8 @@ export default function BookingsCalendarPage() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 py-20">
       <div className="container mx-auto px-4">
-        
-        {/* Header */}
+
+        {}
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-2 text-sm text-body-color dark:text-dark-6">
             <Link href="/" className="hover:text-primary">Home</Link>
@@ -96,7 +90,7 @@ export default function BookingsCalendarPage() {
             <span>/</span>
             <span>Calendário de Reservas</span>
           </div>
-          
+
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
@@ -106,7 +100,7 @@ export default function BookingsCalendarPage() {
                 Visualize todas as reservas do mês
               </p>
             </div>
-            
+
             <div className="flex gap-3">
               <Link
                 href="/bookings/new"
@@ -121,10 +115,10 @@ export default function BookingsCalendarPage() {
           </div>
         </div>
 
-        {/* Calendário */}
+        {}
         <div className="rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-2 lg:p-8">
-          
-          {/* Controles do Calendário */}
+
+          {}
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -135,11 +129,11 @@ export default function BookingsCalendarPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              
+
               <h2 className="text-2xl font-bold text-dark dark:text-white">
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </h2>
-              
+
               <button
                 onClick={goToNextMonth}
                 className="rounded-lg border border-gray-300 p-2 transition hover:bg-gray-100 dark:border-dark-3 dark:hover:bg-dark-3"
@@ -149,7 +143,7 @@ export default function BookingsCalendarPage() {
                 </svg>
               </button>
             </div>
-            
+
             <button
               onClick={goToToday}
               className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-dark transition hover:bg-gray-200 dark:bg-dark-3 dark:text-white dark:hover:bg-dark-4"
@@ -158,7 +152,7 @@ export default function BookingsCalendarPage() {
             </button>
           </div>
 
-          {/* Legenda */}
+          {}
           <div className="mb-6 flex flex-wrap gap-4 text-sm">
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-blue-500"></div>
@@ -174,10 +168,10 @@ export default function BookingsCalendarPage() {
             </div>
           </div>
 
-          {/* Grid do Calendário */}
+          {}
           <div className="overflow-x-auto">
             <div className="min-w-[700px]">
-              {/* Cabeçalho dos dias da semana */}
+              {}
               <div className="mb-2 grid grid-cols-7 gap-2">
                 {dayNames.map((day) => (
                   <div
@@ -189,18 +183,18 @@ export default function BookingsCalendarPage() {
                 ))}
               </div>
 
-              {/* Dias do mês */}
+              {}
               <div className="grid grid-cols-7 gap-2">
-                {/* Células vazias antes do primeiro dia do mês */}
+                {}
                 {Array.from({ length: startingDayOfWeek }).map((_, i) => (
                   <div key={`empty-${i}`} className="aspect-square rounded-lg"></div>
                 ))}
 
-                {/* Dias do mês */}
+                {}
                 {Array.from({ length: daysInMonth }).map((_, i) => {
                   const day = i + 1;
                   const dayBookings = getBookingsForDay(day);
-                  const isToday = 
+                  const isToday =
                     day === new Date().getDate() &&
                     currentDate.getMonth() === new Date().getMonth() &&
                     currentDate.getFullYear() === new Date().getFullYear();
@@ -221,8 +215,8 @@ export default function BookingsCalendarPage() {
                         `}>
                           {day}
                         </div>
-                        
-                        {/* Indicadores de reservas */}
+
+                        {}
                         <div className="flex flex-1 flex-col gap-1 overflow-hidden">
                           {dayBookings.slice(0, 3).map((booking, idx) => (
                             <div
@@ -246,7 +240,7 @@ export default function BookingsCalendarPage() {
                         </div>
                       </div>
 
-                      {/* Tooltip ao passar o mouse */}
+                      {}
                       {dayBookings.length > 0 && (
                         <div className="absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 rounded-lg bg-dark p-3 text-xs text-white shadow-xl group-hover:block dark:bg-white dark:text-dark">
                           <div className="font-bold mb-1">{dayBookings.length} reserva(s)</div>
@@ -269,7 +263,7 @@ export default function BookingsCalendarPage() {
             </div>
           </div>
 
-          {/* Resumo do mês */}
+          {}
           <div className="mt-8 grid grid-cols-1 gap-4 border-t border-gray-200 pt-6 dark:border-dark-3 md:grid-cols-3">
             <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/10">
               <div className="flex items-center gap-3">
@@ -325,5 +319,4 @@ export default function BookingsCalendarPage() {
     </section>
   );
 }
-
 

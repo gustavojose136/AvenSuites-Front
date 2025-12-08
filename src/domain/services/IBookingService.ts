@@ -1,7 +1,4 @@
-/**
- * Service Interface: IBookingService
- * Define a lógica de negócio para reservas
- */
+
 
 import { IBookingRepository } from '../repositories/IBookingRepository';
 import { Booking, BookingCreateRequest, BookingUpdateRequest } from '@/application/dto/Booking.dto';

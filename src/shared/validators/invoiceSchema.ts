@@ -1,6 +1,4 @@
-/**
- * Schemas de Validação: Invoice
- */
+
 
 import { z } from 'zod';
 
@@ -15,27 +13,27 @@ export const invoiceCreateSchema = z.object({
   bookingId: z
     .string()
     .uuid('ID da reserva inválido'),
-  
+
   guestId: z
     .string()
     .uuid('ID do hóspede inválido'),
-  
+
   hotelId: z
     .string()
     .uuid('ID do hotel inválido'),
-  
+
   amount: z
     .number()
     .min(0.01, 'Valor deve ser maior que zero')
     .max(999999, 'Valor máximo é 999999'),
-  
+
   taxAmount: z
     .number()
     .min(0, 'Valor de imposto deve ser maior ou igual a zero')
     .max(999999, 'Valor de imposto máximo é 999999')
     .default(0)
     .optional(),
-  
+
   dueDate: z
     .string()
     .refine((date) => {
@@ -44,16 +42,16 @@ export const invoiceCreateSchema = z.object({
       today.setHours(0, 0, 0, 0);
       return due >= today;
     }, 'Data de vencimento não pode ser no passado'),
-  
+
   description: z
     .string()
     .max(500, 'Descrição deve ter no máximo 500 caracteres')
     .optional(),
-  
+
   items: z
     .array(invoiceItemSchema)
     .optional(),
-  
+
   notes: z
     .string()
     .max(1000, 'Notas devem ter no máximo 1000 caracteres')

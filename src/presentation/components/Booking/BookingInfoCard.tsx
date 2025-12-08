@@ -1,8 +1,4 @@
-/**
- * Component: BookingInfoCard
- * Exibe informações resumidas da reserva
- * SOLID - Single Responsibility: Apenas exibição de informações
- */
+
 
 'use client';
 
@@ -27,9 +23,9 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
       <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">
         Informações da Reserva
       </h3>
-      
+
       <div className="space-y-4">
-        {/* Código e Status */}
+        {}
         <div className="flex items-center justify-between border-b border-stroke pb-4 dark:border-dark-3">
           <div>
             <p className="text-sm text-body-color dark:text-dark-6">Código da Reserva</p>
@@ -39,7 +35,7 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
           </div>
         </div>
 
-        {/* Datas */}
+        {}
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <p className="text-sm text-body-color dark:text-dark-6">Check-in</p>
@@ -55,7 +51,7 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
           </div>
         </div>
 
-        {/* Noites */}
+        {}
         <div>
           <p className="text-sm text-body-color dark:text-dark-6">Período</p>
           <p className="text-base font-medium text-dark dark:text-white">
@@ -63,7 +59,7 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
           </p>
         </div>
 
-        {/* Hóspedes */}
+        {}
         <div>
           <p className="text-sm text-body-color dark:text-dark-6">Hóspedes</p>
           <p className="text-base font-medium text-dark dark:text-white">
@@ -76,7 +72,7 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
           </p>
         </div>
 
-        {/* Hóspede Principal */}
+        {}
         {booking.mainGuest && (
           <div>
             <p className="text-sm text-body-color dark:text-dark-6">Hóspede Principal</p>
@@ -91,7 +87,7 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
           </div>
         )}
 
-        {/* Quartos */}
+        {}
         {booking.bookingRooms && booking.bookingRooms.length > 0 && (
           <div>
             <p className="mb-2 text-sm text-body-color dark:text-dark-6">Quartos</p>
@@ -108,7 +104,7 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
           </div>
         )}
 
-        {/* Valor Total */}
+        {}
         {booking.totalAmount && (
           <div className="rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 p-4 dark:from-green-900/10 dark:to-emerald-900/10">
             <p className="text-sm text-body-color dark:text-dark-6">Valor Total</p>
@@ -118,7 +114,7 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
           </div>
         )}
 
-        {/* Observações */}
+        {}
         {booking.notes && (
           <div className="rounded-lg border border-stroke bg-gray-50 p-4 dark:border-dark-3 dark:bg-dark-3">
             <p className="mb-2 text-sm font-medium text-body-color dark:text-dark-6">
@@ -131,14 +127,5 @@ export const BookingInfoCard: React.FC<BookingInfoCardProps> = ({ booking }) => 
     </div>
   );
 };
-
-
-
-
-
-
-
-
-
 
 
