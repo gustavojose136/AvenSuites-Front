@@ -1,16 +1,11 @@
-/**
- * Repository Implementation: AuthRepository
- * Implementação concreta da interface IAuthRepository
- * Princípio: Liskov Substitution - Implementa a interface sem quebrar o contrato
- * Princípio: Dependency Inversion - Implementa abstração do domínio
- */
 
-import { IAuthRepository, LoginRequest, LoginResponse, RegisterRequest } from '@/domain/repositories/IAuthRepository';
+
+import { IAuthRepository, LoginRequest, LoginResponse, RegisterRequest, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse } from '@/domain/repositories/IAuthRepository';
 import { User } from '@/domain/entities/User';
 import { HttpClient } from '@/infrastructure/http/HttpClient';
 
 export class AuthRepository implements IAuthRepository {
-  private baseUrl = '/api/Auth';
+  private baseUrl = '/Auth';
 
   constructor(private httpClient: HttpClient) {}
 
@@ -31,6 +26,16 @@ export class AuthRepository implements IAuthRepository {
     } catch {
       return false;
     }
+  }
+
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    const response = await this.httpClient.post<ForgotPasswordResponse>(`${this.baseUrl}/forgot-password`, data);
+    return response;
+  }
+
+  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    const response = await this.httpClient.post<ResetPasswordResponse>(`${this.baseUrl}/reset-password`, data);
+    return response;
   }
 }
 

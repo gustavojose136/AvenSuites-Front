@@ -1,18 +1,15 @@
-/**
- * Hook: useRoom
- * Custom hook para gerenciar quartos
- */
+
 
 'use client';
 
 import { useState, useCallback } from 'react';
 import { IRoomService } from '@/domain/services/IRoomService';
-import { 
-  Room, 
-  RoomCreateRequest, 
-  RoomUpdateRequest, 
-  RoomAvailabilityRequest, 
-  RoomAvailabilityResponse 
+import {
+  Room,
+  RoomCreateRequest,
+  RoomUpdateRequest,
+  RoomAvailabilityRequest,
+  RoomAvailabilityResponse
 } from '@/application/dto/Room.dto';
 
 export const useRoom = (roomService: IRoomService) => {

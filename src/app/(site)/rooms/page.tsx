@@ -41,7 +41,7 @@ interface Room {
 export default function RoomsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  
+
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedHotelId, setSelectedHotelId] = useState<string>('');
@@ -57,7 +57,7 @@ export default function RoomsPage() {
     try {
       const data = await httpClient.get<Hotel[]>('/Hotels');
       setHotels(data);
-      
+
       if (data.length > 0 && !selectedHotelId) {
         setSelectedHotelId(data[0].id);
       }
@@ -91,10 +91,9 @@ export default function RoomsPage() {
   const fetchRooms = async (hotelId: string) => {
     setLoading(true);
     try {
-      // O backend já retorna os quartos com roomType incluído
+
       const roomsData = await httpClient.get<Room[]>(`/Rooms?hotelId=${hotelId}`);
-      
-      // Os quartos já vêm com roomType do backend, não precisa associar manualmente
+
       setRooms(roomsData);
     } catch (error) {
       console.error('❌ Erro ao buscar quartos:', error);
@@ -134,7 +133,7 @@ export default function RoomsPage() {
   };
 
   const filteredRooms = rooms.filter(room => {
-    const matchesSearch = 
+    const matchesSearch =
       room.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       room.roomType?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       room.roomType?.code.toLowerCase().includes(searchTerm.toLowerCase());
@@ -191,8 +190,8 @@ export default function RoomsPage() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 py-20">
       <div className="container mx-auto px-4">
-        
-        {/* Header */}
+
+        {}
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-2 text-sm text-body-color dark:text-dark-6">
             <Link href="/" className="hover:text-primary">Home</Link>
@@ -201,7 +200,7 @@ export default function RoomsPage() {
             <span>/</span>
             <span>Quartos</span>
           </div>
-          
+
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
@@ -211,7 +210,7 @@ export default function RoomsPage() {
                 Gerencie todos os quartos dos seus hotéis
               </p>
             </div>
-            
+
             <div className="flex items-center gap-3">
             {selectedHotelId && (
               <Link
@@ -224,7 +223,7 @@ export default function RoomsPage() {
                 Novo Quarto
               </Link>
             )}
-              
+
               <div className="relative">
                 <button
                   onClick={() => setShowOptionsMenu(!showOptionsMenu)}
@@ -234,7 +233,7 @@ export default function RoomsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                   </svg>
                 </button>
-                
+
                 {showOptionsMenu && (
                   <>
                     <div
@@ -262,7 +261,7 @@ export default function RoomsPage() {
           </div>
         </div>
 
-        {/* Seletor de Hotel */}
+        {}
         <div className="mb-8 rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-2">
           <label className="mb-3 block text-sm font-semibold text-dark dark:text-white">
             Selecione o Hotel
@@ -283,7 +282,7 @@ export default function RoomsPage() {
 
         {selectedHotelId && (
           <>
-            {/* Estatísticas */}
+            {}
             <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
               <div className="rounded-xl bg-white p-4 shadow-lg dark:bg-dark-2">
                 <p className="text-sm text-body-color dark:text-dark-6">Total</p>
@@ -307,11 +306,11 @@ export default function RoomsPage() {
               </div>
             </div>
 
-            {/* Filtros */}
+            {}
             <div className="mb-6 rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-2">
               <h3 className="mb-4 text-lg font-semibold text-dark dark:text-white">Filtros</h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {/* Busca */}
+                {}
                 <div className="lg:col-span-2">
                   <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                     Buscar
@@ -330,7 +329,7 @@ export default function RoomsPage() {
                   </div>
                 </div>
 
-                {/* Filtro de Status */}
+                {}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                     Status
@@ -349,7 +348,7 @@ export default function RoomsPage() {
                   </select>
                 </div>
 
-                {/* Filtro de Tipo de Quarto */}
+                {}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                     Tipo de Quarto
@@ -368,7 +367,7 @@ export default function RoomsPage() {
                   </select>
                 </div>
 
-                {/* Filtro de Andar */}
+                {}
                 {uniqueFloors.length > 0 && (
                   <div>
                     <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
@@ -391,7 +390,7 @@ export default function RoomsPage() {
               </div>
             </div>
 
-            {/* Lista de Quartos */}
+            {}
             {loading ? (
               <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-white shadow-xl dark:bg-dark-2">
                 <div className="text-center">
@@ -410,8 +409,8 @@ export default function RoomsPage() {
                   Nenhum quarto encontrado
                 </h3>
                 <p className="mb-6 text-body-color dark:text-dark-6">
-                  {searchTerm || statusFilter !== 'all' 
-                    ? 'Tente ajustar os filtros de busca' 
+                  {searchTerm || statusFilter !== 'all'
+                    ? 'Tente ajustar os filtros de busca'
                     : 'Comece criando o primeiro quarto deste hotel'}
                 </p>
                 {!searchTerm && statusFilter === 'all' && (
@@ -439,11 +438,11 @@ export default function RoomsPage() {
                     key={room.id}
                     className="group overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-dark-2"
                   >
-                    {/* Header do Card com Gradiente Animado */}
+                    {}
                     <div className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 p-6">
-                      {/* Efeito de brilho animado */}
+                      {}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
-                      
+
                       <div className="relative flex items-start justify-between">
                         <div>
                           <h3 className="text-3xl font-black text-white">
@@ -468,9 +467,9 @@ export default function RoomsPage() {
                       </div>
                     </div>
 
-                    {/* Conteúdo do Card */}
+                    {}
                     <div className="p-6">
-                      {/* Tipo e Descrição */}
+                      {}
                       {room.roomType && (
                         <div className="mb-4">
                           <p className="text-sm text-body-color dark:text-dark-6 line-clamp-2">
@@ -480,9 +479,9 @@ export default function RoomsPage() {
                       )}
 
                       <div className="space-y-4">
-                        {/* Informações em Grid */}
+                        {}
                         <div className="grid grid-cols-2 gap-4">
-                          {/* Capacidade */}
+                          {}
                           {room.roomType && (
                             <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-3 dark:from-blue-900/20 dark:to-blue-800/20">
                               <div className="flex items-center gap-2">
@@ -502,7 +501,7 @@ export default function RoomsPage() {
                             </div>
                           )}
 
-                          {/* Preço */}
+                          {}
                           {room.roomType && (
                             <div className="rounded-lg bg-gradient-to-br from-green-50 to-green-100 p-3 dark:from-green-900/20 dark:to-green-800/20">
                               <div className="flex items-center gap-2">
@@ -522,7 +521,7 @@ export default function RoomsPage() {
 
                       </div>
 
-                      {/* Ações com Animações */}
+                      {}
                       <div className="mt-6 flex gap-3">
                         <Link
                           href={`/rooms/${room.id}`}
@@ -549,7 +548,7 @@ export default function RoomsPage() {
                 ))}
               </div>
 
-                {/* Paginação */}
+                {}
                 {totalPages > 1 && (
                   <div className="mt-8 flex items-center justify-center gap-2">
                     <button

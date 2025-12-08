@@ -7,14 +7,14 @@ export default function UserTypePage() {
   const router = useRouter();
 
   const handleGuestClick = () => {
-    // Redireciona para a página de busca de hotéis
+
     router.push('/guest/search');
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-900 dark:via-blue-900 dark:to-slate-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl w-full space-y-8">
-        {/* Header */}
+        {}
         <div className="text-center">
           <h1 className="text-4xl font-bold text-dark dark:text-white mb-3">
             Bem-vindo ao <span className="text-primary">AvenSuites</span>
@@ -24,12 +24,12 @@ export default function UserTypePage() {
           </p>
         </div>
 
-        {/* Cards de Seleção */}
+        {}
         <div className="grid md:grid-cols-2 gap-6 mt-12">
-          {/* Card Hóspede */}
+          {}
           <div className="group relative rounded-2xl border-2 border-stroke bg-white p-8 transition-all duration-300 hover:border-primary hover:shadow-xl dark:border-dark-3 dark:bg-dark-2">
             <div className="text-center">
-              {/* Ícone */}
+              {}
               <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-200 transition-all duration-300 group-hover:scale-110 dark:from-blue-900/30 dark:to-blue-800/30">
                 <svg
                   className="h-10 w-10 text-blue-600 dark:text-blue-400"
@@ -46,17 +46,17 @@ export default function UserTypePage() {
                 </svg>
               </div>
 
-              {/* Título */}
+              {}
               <h2 className="mb-3 text-2xl font-bold text-dark dark:text-white">
                 Sou Hóspede
               </h2>
 
-              {/* Descrição */}
+              {}
               <p className="mb-6 text-body-color dark:text-dark-6">
                 Quero fazer uma reserva em um hotel
               </p>
 
-              {/* Lista de Benefícios */}
+              {}
               <ul className="mb-8 space-y-3 text-left">
                 <li className="flex items-start gap-2">
                   <svg
@@ -114,7 +114,7 @@ export default function UserTypePage() {
                 </li>
               </ul>
 
-              {/* Botão */}
+              {}
               <button
                 onClick={handleGuestClick}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-base font-semibold text-white transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg"
@@ -137,10 +137,10 @@ export default function UserTypePage() {
             </div>
           </div>
 
-          {/* Card Dono do Hotel */}
+          {}
           <div className="group relative rounded-2xl border-2 border-stroke bg-white p-8 transition-all duration-300 hover:border-primary hover:shadow-xl dark:border-dark-3 dark:bg-dark-2">
             <div className="text-center">
-              {/* Ícone */}
+              {}
               <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/20 transition-all duration-300 group-hover:scale-110">
                 <svg
                   className="h-10 w-10 text-primary"
@@ -157,17 +157,17 @@ export default function UserTypePage() {
                 </svg>
               </div>
 
-              {/* Título */}
+              {}
               <h2 className="mb-3 text-2xl font-bold text-dark dark:text-white">
                 Sou Dono de Hotel
               </h2>
 
-              {/* Descrição */}
+              {}
               <p className="mb-6 text-body-color dark:text-dark-6">
                 Quero gerenciar meu hotel e suas operações
               </p>
 
-              {/* Lista de Benefícios */}
+              {}
               <ul className="mb-8 space-y-3 text-left">
                 <li className="flex items-start gap-2">
                   <svg
@@ -225,7 +225,7 @@ export default function UserTypePage() {
                 </li>
               </ul>
 
-              {/* Botão */}
+              {}
               <Link
                 href="/signin"
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-base font-semibold text-white transition-all duration-300 hover:bg-primary/90 hover:shadow-lg"
@@ -249,7 +249,7 @@ export default function UserTypePage() {
           </div>
         </div>
 
-        {/* Link de Volta */}
+        {}
         <div className="text-center mt-8">
           <Link
             href="/"

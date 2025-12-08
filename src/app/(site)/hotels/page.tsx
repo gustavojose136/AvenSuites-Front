@@ -1,6 +1,4 @@
-/**
- * Página: Lista de Hotéis
- */
+
 
 import { Metadata } from "next";
 import { HotelList } from "@/presentation/components/Hotel/HotelList";
@@ -15,7 +13,7 @@ export default function HotelsPage() {
   return (
     <>
       <Breadcrumb pageName="Hotéis" />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto">
           <HotelList />

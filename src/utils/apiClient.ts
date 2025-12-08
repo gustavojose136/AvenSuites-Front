@@ -1,6 +1,5 @@
 import { getSession } from "next-auth/react";
 
-// Cliente para fazer requisições autenticadas para sua API externa
 export class ApiClient {
   private baseURL: string;
 
@@ -8,10 +7,9 @@ export class ApiClient {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
   }
 
-  // Método para fazer requisições autenticadas
   async request(endpoint: string, options: RequestInit = {}) {
     const session = await getSession();
-    
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -24,7 +22,7 @@ export class ApiClient {
     };
 
     const response = await fetch(`${this.baseURL}${endpoint}`, config);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP ${response.status}`);
@@ -33,7 +31,6 @@ export class ApiClient {
     return response.json();
   }
 
-  // Métodos específicos para diferentes endpoints
   async get(endpoint: string) {
     return this.request(endpoint, { method: 'GET' });
   }
@@ -56,7 +53,6 @@ export class ApiClient {
     return this.request(endpoint, { method: 'DELETE' });
   }
 
-  // Método para refresh token se necessário
   async refreshToken() {
     const session = await getSession();
     if (!session?.refreshToken) {
@@ -81,5 +77,4 @@ export class ApiClient {
   }
 }
 
-// Instância singleton
 export const apiClient = new ApiClient();

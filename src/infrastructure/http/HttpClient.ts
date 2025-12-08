@@ -1,11 +1,6 @@
-/**
- * HttpClient
- * Cliente HTTP centralizado com configuração SSL
- * Princípio: Single Responsibility - Responsável apenas por requisições HTTP
- */
-
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import https from 'https';
+import { getSession } from 'next-auth/react';
 
 export class HttpClient {
   private client: AxiosInstance;
@@ -21,23 +16,19 @@ export class HttpClient {
       },
     });
 
-    // Interceptor para adicionar token de autenticação
     this.client.interceptors.request.use(async (config) => {
-      // Verifica se já tem Authorization no header (manual override)
       if (config.headers?.Authorization) {
         return config;
       }
 
-      // Para rotas guest (especialmente /guest/portal), usa APENAS localStorage
-      // NÃO usa Next Auth session
       if (typeof window !== 'undefined') {
-        const isGuestRoute = window.location.pathname.startsWith('/guest') || config.url?.includes('GuestPortal');
+        const currentPath = window.location.pathname;
+        const isGuestRoute = currentPath.startsWith('/guest') || config.url?.includes('GuestPortal');
+        const isRegisterPage = currentPath === '/guest/register';
         
-        if (isGuestRoute) {
-          // Rotas guest usam APENAS localStorage - nunca Next Auth
+        if (isGuestRoute && !isRegisterPage) {
           const guestToken = localStorage.getItem('guestToken');
-          
-          // Debug: verifica se há múltiplos tokens
+
           const authToken = localStorage.getItem('authToken');
           if (authToken && authToken !== guestToken) {
             console.warn('⚠️ ATENÇÃO: Há um authToken diferente do guestToken no localStorage!');
@@ -46,50 +37,57 @@ export class HttpClient {
             console.warn('🧹 Removendo authToken para evitar conflito...');
             localStorage.removeItem('authToken');
           }
-          
+
           if (guestToken) {
             try {
               const payload = JSON.parse(atob(guestToken.split('.')[1]));
-              
-              // Validação mais flexível: verifica diferentes formatos de token Guest
+
               const role = payload.role || payload.Role || payload.roles?.[0];
               const guestId = payload.GuestId || payload.guestId || payload.sub || payload.userId;
               const hasGuestClaim = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] === 'Guest';
-              
-              const isGuestToken = 
-                role === 'Guest' || 
-                role === 'guest' || 
+
+              const isGuestToken =
+                role === 'Guest' ||
+                role === 'guest' ||
                 role?.toLowerCase() === 'guest' ||
                 !!guestId ||
                 hasGuestClaim ||
-                payload.email || // Se tem email, provavelmente é guest
-                (payload.name && !payload.roles); // Guest geralmente não tem array de roles
-              
-              // Validação: token DEVE ser Guest
+                payload.email ||
+                (payload.name && !payload.roles);
+
               if (!isGuestToken) {
                 console.error('❌ BLOQUEADO: Token não é Guest!');
                 console.error('📋 Payload:', payload);
                 console.error('🧹 Limpando token inválido...');
                 localStorage.removeItem('guestToken');
                 localStorage.removeItem('guestUser');
-                return config; // Não adiciona header
+                return config;
               }
-              
+
               config.headers.Authorization = `Bearer ${guestToken}`;
             } catch (e) {
               console.error('❌ Erro ao decodificar token:', e);
-              // Em caso de erro ao decodificar, ainda tenta usar o token
-              // (pode ser um formato diferente ou token válido mas com estrutura diferente)
               config.headers.Authorization = `Bearer ${guestToken}`;
             }
           } else {
             console.warn('⚠️ Nenhum guestToken encontrado no localStorage para rota guest');
           }
         } else {
-          // Outras rotas podem usar localStorage ou Next Auth
-          const token = localStorage.getItem('authToken') || localStorage.getItem('guestToken');
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+          try {
+            const session = await getSession();
+            if (session?.accessToken) {
+              config.headers.Authorization = `Bearer ${session.accessToken}`;
+            } else {
+              const token = localStorage.getItem('authToken');
+              if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+              }
+            }
+          } catch (error) {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
           }
         }
       }
@@ -97,10 +95,35 @@ export class HttpClient {
       return config;
     });
 
-    // Interceptor para tratamento de erros
     this.client.interceptors.response.use(
       (response) => response.data,
-      (error) => {
+      async (error) => {
+        if (error.response?.status === 401) {
+          if (typeof window !== 'undefined') {
+            const currentPath = window.location.pathname;
+            const isGuestRoute = currentPath.startsWith('/guest');
+            const isRegisterPage = currentPath === '/guest/register';
+            const isLoginPage = currentPath === '/guest/login';
+
+            if (!isGuestRoute) {
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('guestToken');
+              localStorage.removeItem('guestUser');
+
+              if (!currentPath.includes('/signin')) {
+                window.location.href = '/signin';
+              }
+            } else if (!isRegisterPage && !isLoginPage) {
+              localStorage.removeItem('guestToken');
+              localStorage.removeItem('guestUser');
+
+              if (!isLoginPage) {
+                window.location.href = '/guest/login';
+              }
+            }
+          }
+        }
+
         throw error;
       }
     );
@@ -123,6 +146,5 @@ export class HttpClient {
   }
 }
 
-// Singleton instance
 export const httpClient = new HttpClient();
 

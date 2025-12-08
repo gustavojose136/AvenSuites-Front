@@ -1,8 +1,4 @@
-/**
- * Hook: useHotel
- * Custom hook para gerenciar hotéis
- * Princípio: Single Responsibility - Responsável apenas por lógica de hotéis
- */
+
 
 'use client';
 

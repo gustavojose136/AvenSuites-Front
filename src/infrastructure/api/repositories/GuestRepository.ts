@@ -1,7 +1,4 @@
-/**
- * Repository Implementation: GuestRepository
- * Implementação concreta da interface IGuestRepository
- */
+
 
 import { IGuestRepository } from '@/domain/repositories/IGuestRepository';
 import { Guest, GuestCreateRequest, GuestUpdateRequest } from '@/application/dto/Guest.dto';

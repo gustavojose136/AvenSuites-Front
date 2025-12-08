@@ -1,11 +1,7 @@
-/**
- * Utilidade: Toast Notifications
- * Sistema centralizado de notificações
- */
+
 
 import toast, { Toaster } from 'react-hot-toast';
 
-// Configurações padrão
 const defaultOptions = {
   duration: 4000,
   position: 'top-right' as const,

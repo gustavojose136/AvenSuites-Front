@@ -1,7 +1,4 @@
-/**
- * Hook: useBooking
- * Custom hook para gerenciar reservas
- */
+
 
 'use client';
 
@@ -129,8 +126,8 @@ export const useBooking = (bookingService: IBookingService) => {
     setError(null);
     try {
       await bookingService.cancelBooking(id, reason);
-      // Atualizar status local
-      setBookings(prev => prev.map(b => 
+
+      setBookings(prev => prev.map(b =>
         b.id === id ? { ...b, status: 'CANCELLED' } : b
       ));
       if (selectedBooking?.id === id) {
@@ -150,8 +147,8 @@ export const useBooking = (bookingService: IBookingService) => {
     setError(null);
     try {
       await bookingService.confirmBooking(id);
-      // Atualizar status local
-      setBookings(prev => prev.map(b => 
+
+      setBookings(prev => prev.map(b =>
         b.id === id ? { ...b, status: 'CONFIRMED' } : b
       ));
       if (selectedBooking?.id === id) {
@@ -171,8 +168,8 @@ export const useBooking = (bookingService: IBookingService) => {
     setError(null);
     try {
       const updatedBooking = await bookingService.checkIn(id);
-      // Atualizar status local
-      setBookings(prev => prev.map(b => 
+
+      setBookings(prev => prev.map(b =>
         b.id === id ? updatedBooking : b
       ));
       if (selectedBooking?.id === id) {
@@ -193,8 +190,8 @@ export const useBooking = (bookingService: IBookingService) => {
     setError(null);
     try {
       const updatedBooking = await bookingService.checkOut(id);
-      // Atualizar status local
-      setBookings(prev => prev.map(b => 
+
+      setBookings(prev => prev.map(b =>
         b.id === id ? updatedBooking : b
       ));
       if (selectedBooking?.id === id) {

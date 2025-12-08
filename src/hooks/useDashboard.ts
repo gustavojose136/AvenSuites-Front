@@ -1,6 +1,4 @@
-/**
- * Hook para gerenciar dados do Dashboard
- */
+
 
 import { useState, useEffect, useCallback } from 'react';
 import { dashboardService, DashboardStats, Invoice, Booking } from '@/services/dashboard.service';
@@ -15,7 +13,7 @@ export function useDashboard() {
   const fetchStats = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const data = await dashboardService.getDashboardStats();
       setStats(data);
@@ -32,37 +30,37 @@ export function useDashboard() {
   const fetchWeekBookings = useCallback(async (hotelId?: string) => {
     try {
       const bookings = await dashboardService.getBookings(hotelId);
-      
-      // Filtrar reservas da semana atual
+
       const today = new Date();
       const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay()); // Domingo
+      startOfWeek.setDate(today.getDate() - today.getDay());
+
       startOfWeek.setHours(0, 0, 0, 0);
-      
+
       const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+
       endOfWeek.setHours(23, 59, 59, 999);
-      
+
       const weekBookings = bookings
         .filter(booking => {
-          // Filtrar reservas canceladas
+
           if (booking.status === 'CANCELLED') {
             return false;
           }
-          
+
           const checkIn = new Date(booking.checkInDate);
           const checkOut = new Date(booking.checkOutDate);
-          
-          // Reservas que têm check-in ou check-out na semana
+
           return (checkIn >= startOfWeek && checkIn <= endOfWeek) ||
                  (checkOut >= startOfWeek && checkOut <= endOfWeek) ||
                  (checkIn <= startOfWeek && checkOut >= endOfWeek);
         })
         .sort((a, b) => {
-          // Ordenar por data de check-in
+
           return new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime();
         });
-      
+
       setWeekBookings(weekBookings);
     } catch (err: any) {
       console.error('❌ Erro ao buscar reservas da semana:', err);
@@ -91,7 +89,7 @@ export function useInvoices() {
   const fetchInvoices = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const data = await dashboardService.getInvoices();
       setInvoices(data);
@@ -109,16 +107,15 @@ export function useInvoices() {
     try {
       const invoice = await dashboardService.createInvoice(bookingId);
       toast.success('Nota fiscal criada com sucesso!');
-      
-      // Atualizar lista de invoices
+
       await fetchInvoices();
-      
+
       return invoice;
     } catch (err: any) {
       console.error('❌ [useInvoices] Erro ao criar nota fiscal:', err);
-      
+
       let errorMessage = 'Erro ao criar nota fiscal';
-      
+
       if (err.message) {
         errorMessage = err.message;
       } else if (err.response?.data?.message) {
@@ -126,7 +123,7 @@ export function useInvoices() {
       } else if (typeof err.response?.data === 'string') {
         errorMessage = err.response.data;
       }
-      
+
       toast.error(errorMessage);
       throw err;
     }

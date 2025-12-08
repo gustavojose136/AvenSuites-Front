@@ -27,14 +27,14 @@ export const WeekBookingsPagination: React.FC<WeekBookingsPaginationProps> = ({
 
   return (
     <div className={`flex flex-col items-center gap-4 ${className}`}>
-      {/* Informação de paginação */}
+      {}
       <div className="text-sm text-body-color dark:text-dark-6">
         Mostrando <span className="font-semibold text-dark dark:text-white">{startItem}</span> até{' '}
         <span className="font-semibold text-dark dark:text-white">{endItem}</span> de{' '}
         <span className="font-semibold text-dark dark:text-white">{totalItems}</span> reservas
       </div>
 
-      {/* Componente de paginação */}
+      {}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -43,14 +43,4 @@ export const WeekBookingsPagination: React.FC<WeekBookingsPaginationProps> = ({
     </div>
   );
 };
-
-
-
-
-
-
-
-
-
-
 

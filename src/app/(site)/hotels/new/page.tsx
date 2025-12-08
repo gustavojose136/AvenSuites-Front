@@ -1,6 +1,4 @@
-/**
- * Página: Novo Hotel
- */
+
 
 'use client';
 
@@ -19,7 +17,7 @@ export default function NewHotelPage() {
 
   const handleSubmit = async (formData: HotelFormData) => {
     try {
-      // Converte HotelFormData para HotelCreateRequest
+
       const apiRequest: HotelCreateRequest = {
         name: formData.name,
         tradeName: formData.tradeName || undefined,
@@ -35,7 +33,7 @@ export default function NewHotelPage() {
         countryCode: formData.countryCode || 'BR',
         status: 'ACTIVE',
       };
-      
+
       const hotel = await createHotel(apiRequest);
       showToast.success(`Hotel "${hotel.name}" criado com sucesso!`);
       router.push(`/hotels/${hotel.id}`);
@@ -48,11 +46,11 @@ export default function NewHotelPage() {
 
   return (
     <>
-      <Breadcrumb 
+      <Breadcrumb
         pageName="Novo Hotel"
         pageDescription="Cadastrar um novo hotel no sistema"
       />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-8">

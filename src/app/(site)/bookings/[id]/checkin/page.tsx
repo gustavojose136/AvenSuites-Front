@@ -1,8 +1,4 @@
-/**
- * Página: Check-in de Reserva
- * Realiza o check-in de uma reserva confirmada
- * Seguindo princípios SOLID
- */
+
 
 'use client';
 
@@ -29,7 +25,6 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
 
-  // Garantir que params.id seja uma string e carregar dados
   useEffect(() => {
     const id = typeof params.id === 'string' ? params.id : params.id?.[0] || null;
     if (id) {
@@ -40,13 +35,9 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
     }
   }, [params, fetchBookingById]);
 
-  /**
-   * Realiza o check-in (SOLID - Single Responsibility)
-   */
   const handleCheckIn = async () => {
     if (!selectedBooking) return;
 
-    // Validações
     if (selectedBooking.status !== 'CONFIRMED') {
       showToast.error('Apenas reservas confirmadas podem realizar check-in');
       return;
@@ -85,7 +76,6 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
     }
   };
 
-  // Estados de loading e erro - renderizar antes do RoleGuard
   if (!bookingId) {
     return (
       <>
@@ -165,7 +155,6 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
     );
   }
 
-  // Verificar se pode fazer check-in
   const canCheckIn = selectedBooking.status === 'CONFIRMED';
   const isAlreadyCheckedIn = selectedBooking.status === 'CHECKED_IN';
   const finalBookingId = bookingId || (typeof params.id === 'string' ? params.id : params.id?.[0] || '');
@@ -179,7 +168,7 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
 
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl">
-            {/* Header */}
+            {}
             <div className="mb-6 flex items-start justify-between">
               <div>
                 <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
@@ -200,7 +189,7 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
               </Link>
             </div>
 
-            {/* Status da Reserva */}
+            {}
             <div className="mb-6 rounded-lg border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-dark-2">
               <div className="flex items-center justify-between">
                 <div>
@@ -230,12 +219,12 @@ export default function CheckInPage({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            {/* Informações da Reserva */}
+            {}
             <div className="mb-6">
               <BookingInfoCard booking={selectedBooking} />
             </div>
 
-            {/* Ações */}
+            {}
             <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
               <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
                 Ações

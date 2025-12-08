@@ -1,8 +1,4 @@
-/**
- * Repository Interface: IHotelRepository
- * Define o contrato para operações de hotéis
- * Princípio: Interface Segregation - Interface específica para hotéis
- */
+
 
 import { Hotel, HotelCreateRequest, HotelUpdateRequest } from '@/application/dto/Hotel.dto';
 

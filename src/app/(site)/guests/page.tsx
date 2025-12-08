@@ -1,7 +1,4 @@
-/**
- * Gerenciador de Hóspedes - AvenSuites
- * Lista, visualiza, edita e cria hóspedes
- */
+
 
 'use client';
 
@@ -41,11 +38,11 @@ interface Guest {
 
 export default function GuestsPage() {
   const sessionResult = useSession();
-  // Garante que sempre temos valores padrão mesmo durante build estático
+
   const status = sessionResult?.status || 'loading';
   const session = sessionResult?.data || null;
   const router = useRouter();
-  
+
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [selectedHotelId, setSelectedHotelId] = useState<string>('all');
@@ -143,8 +140,8 @@ export default function GuestsPage() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 py-20">
       <div className="container mx-auto px-4">
-        
-        {/* Header */}
+
+        {}
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-2 text-sm text-body-color dark:text-dark-6">
             <Link href="/" className="hover:text-primary">Home</Link>
@@ -153,7 +150,7 @@ export default function GuestsPage() {
             <span>/</span>
             <span>Hóspedes</span>
           </div>
-          
+
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
@@ -163,7 +160,7 @@ export default function GuestsPage() {
                 Gerencie todos os hóspedes cadastrados
               </p>
             </div>
-            
+
             <Link
               href="/guests/new"
               className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl hover:scale-105"
@@ -176,7 +173,7 @@ export default function GuestsPage() {
           </div>
         </div>
 
-        {/* Estatísticas */}
+        {}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
             <div className="flex items-center gap-4">
@@ -235,10 +232,10 @@ export default function GuestsPage() {
           </div>
         </div>
 
-        {/* Filtros */}
+        {}
         <div className="mb-6 rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-2">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Busca */}
+            {}
             <div className="flex-1">
               <div className="relative">
                 <input
@@ -254,7 +251,7 @@ export default function GuestsPage() {
               </div>
             </div>
 
-            {/* Filtro de Hotel */}
+            {}
             <div>
               <select
                 value={selectedHotelId}
@@ -272,7 +269,7 @@ export default function GuestsPage() {
           </div>
         </div>
 
-        {/* Lista de Hóspedes */}
+        {}
         {loading ? (
           <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-white shadow-xl dark:bg-dark-2">
             <div className="text-center">
@@ -291,8 +288,8 @@ export default function GuestsPage() {
               Nenhum hóspede encontrado
             </h3>
             <p className="mb-6 text-body-color dark:text-dark-6">
-              {searchTerm 
-                ? 'Tente ajustar os filtros de busca' 
+              {searchTerm
+                ? 'Tente ajustar os filtros de busca'
                 : 'Comece cadastrando o primeiro hóspede'}
             </p>
             {!searchTerm && (
@@ -314,7 +311,7 @@ export default function GuestsPage() {
                 key={guest.id}
                 className="group overflow-hidden rounded-2xl bg-white shadow-lg transition-all hover:shadow-2xl dark:bg-dark-2"
               >
-                {/* Header do Card */}
+                {}
                 <div className="border-b border-gray-200 bg-gradient-to-r from-purple-500 to-pink-600 p-6 dark:border-dark-3">
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
@@ -333,10 +330,10 @@ export default function GuestsPage() {
                   </div>
                 </div>
 
-                {/* Conteúdo do Card */}
+                {}
                 <div className="p-6">
                   <div className="space-y-3">
-                    {/* E-mail */}
+                    {}
                     {guest.email && (
                       <div className="flex items-center gap-2 text-sm">
                         <svg className="h-5 w-5 flex-shrink-0 text-body-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,7 +343,7 @@ export default function GuestsPage() {
                       </div>
                     )}
 
-                    {/* Telefone */}
+                    {}
                     {guest.phone && (
                       <div className="flex items-center gap-2 text-sm">
                         <svg className="h-5 w-5 flex-shrink-0 text-body-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,7 +353,7 @@ export default function GuestsPage() {
                       </div>
                     )}
 
-                    {/* Documento */}
+                    {}
                     <div className="flex items-center gap-2 text-sm">
                       <svg className="h-5 w-5 flex-shrink-0 text-body-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
@@ -366,7 +363,7 @@ export default function GuestsPage() {
                       </span>
                     </div>
 
-                    {/* Data de Nascimento */}
+                    {}
                     {guest.dateOfBirth && (
                       <div className="flex items-center gap-2 text-sm">
                         <svg className="h-5 w-5 flex-shrink-0 text-body-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,7 +375,7 @@ export default function GuestsPage() {
                       </div>
                     )}
 
-                    {/* Endereço */}
+                    {}
                     {guest.city && guest.state && (
                       <div className="flex items-center gap-2 text-sm">
                         <svg className="h-5 w-5 flex-shrink-0 text-body-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +388,7 @@ export default function GuestsPage() {
                       </div>
                     )}
 
-                    {/* Cadastro */}
+                    {}
                     <div className="mt-4 rounded-lg bg-gray-50 p-3 dark:bg-dark-3">
                       <p className="text-xs text-body-color dark:text-dark-6">
                         Cadastrado em: {formatDate(guest.createdAt)}
@@ -399,7 +396,7 @@ export default function GuestsPage() {
                     </div>
                   </div>
 
-                  {/* Ações */}
+                  {}
                   <div className="mt-6 flex gap-2">
                     <Link
                       href={`/guests/${guest.id}`}

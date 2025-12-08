@@ -1,6 +1,4 @@
-/**
- * Página: Nova Nota Fiscal
- */
+
 
 'use client';
 
@@ -31,11 +29,11 @@ export default function NewInvoicePage() {
 
   return (
     <>
-      <Breadcrumb 
+      <Breadcrumb
         pageName="Nova Nota Fiscal"
         pageDescription="Emitir uma nova nota fiscal no sistema"
       />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-8">

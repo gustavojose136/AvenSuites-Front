@@ -57,28 +57,39 @@ export default function GuestPortalPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const guestToken = localStorage.getItem('guestToken');
-      
+
       if (!guestToken) {
         toast.error('Faça login para acessar o portal');
         router.push('/guest/login');
         return;
       }
-      
+
       try {
         const payload = JSON.parse(atob(guestToken.split('.')[1]));
         const isGuest = payload.role === 'Guest' || payload.GuestId;
-        
+        const exp = payload.exp;
+
         if (!isGuest) {
           localStorage.removeItem('guestToken');
           localStorage.removeItem('guestUser');
-          
+
           toast.error('Token inválido. Você precisa fazer login como hóspede.');
           router.push('/guest/login');
           setIsValidated(true);
           setIsGuestToken(false);
           return;
         }
-        
+
+        if (exp && exp * 1000 <= Date.now()) {
+          localStorage.removeItem('guestToken');
+          localStorage.removeItem('guestUser');
+          toast.error('Sessão expirada. Faça login novamente.');
+          router.push('/guest/login');
+          setIsValidated(true);
+          setIsGuestToken(false);
+          return;
+        }
+
         setIsValidated(true);
         setIsGuestToken(true);
       } catch (e) {
@@ -105,7 +116,7 @@ export default function GuestPortalPage() {
         router.push('/guest/login');
         return;
       }
-      
+
       toast.error('Erro ao carregar perfil. Tente novamente.');
     }
   }, [router]);
@@ -123,7 +134,7 @@ export default function GuestPortalPage() {
         router.push('/guest/login');
         return;
       }
-      
+
       toast.error('Erro ao carregar reservas. Tente novamente.');
     } finally {
       setLoading(false);
@@ -134,14 +145,14 @@ export default function GuestPortalPage() {
     if (!isGuestToken) {
       return;
     }
-    
+
     const token = localStorage.getItem('guestToken');
     if (!token) {
       toast.error('Faça login para acessar o portal');
       router.push('/guest/login');
       return;
     }
-    
+
     fetchProfile();
     fetchBookings();
   }, [isGuestToken, router, fetchProfile, fetchBookings]);
@@ -161,7 +172,7 @@ export default function GuestPortalPage() {
         `/GuestPortal/bookings/${selectedBooking.id}/cancel`,
         JSON.stringify(cancelReason)
       );
-      
+
       toast.success('Reserva cancelada com sucesso!');
       setShowCancelModal(false);
       setSelectedBooking(null);
@@ -224,17 +235,17 @@ export default function GuestPortalPage() {
 
   const formatPhone = (phone: string): string => {
     if (!phone) return '';
-    
+
     const cleaned = phone.replace(/\D/g, '');
-    
+
     if (cleaned.length === 10) {
       return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
     }
-    
+
     if (cleaned.length === 11) {
       return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
     }
-    
+
     if (cleaned.length > 11 && cleaned.startsWith('55')) {
       const ddd = cleaned.slice(2, 4);
       const number = cleaned.slice(4);
@@ -245,7 +256,7 @@ export default function GuestPortalPage() {
         return `(${ddd}) ${number.slice(0, 4)}-${number.slice(4)}`;
       }
     }
-    
+
     return phone;
   };
 

@@ -23,7 +23,7 @@ const ResetPassword = ({ token }: { token: string }) => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        const res = await axios.post(`/api/forgot-password/verify-token`, {
+        const res = await axios.post(`/forgot-password/verify-token`, {
           token,
         });
 
@@ -39,7 +39,7 @@ const ResetPassword = ({ token }: { token: string }) => {
     };
 
     verifyToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +59,7 @@ const ResetPassword = ({ token }: { token: string }) => {
     }
 
     try {
-      const res = await axios.post(`/api/forgot-password/update`, {
+      const res = await axios.post(`/forgot-password/update`, {
         email: user?.email,
         password: data.newPassword,
       });

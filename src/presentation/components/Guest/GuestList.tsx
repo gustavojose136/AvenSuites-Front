@@ -1,7 +1,4 @@
-/**
- * Component: GuestList
- * Lista de hóspedes com ações
- */
+
 
 'use client';
 
@@ -16,7 +13,7 @@ interface GuestListProps {
 }
 
 export const GuestList: React.FC<GuestListProps> = ({ hotelId }) => {
-  const { guests, loading, error, fetchGuests, fetchGuestsByHotel, deleteGuest } = 
+  const { guests, loading, error, fetchGuests, fetchGuestsByHotel, deleteGuest } =
     useGuest(container.getGuestService());
 
   useEffect(() => {
@@ -60,7 +57,7 @@ export const GuestList: React.FC<GuestListProps> = ({ hotelId }) => {
         <h2 className="text-2xl font-bold text-dark dark:text-white">
           Hóspedes {guests.length > 0 && `(${guests.length})`}
         </h2>
-        
+
         <RoleGuard allowedRoles={['Manager', 'Admin']}>
           <Link
             href="/guests/new"
@@ -114,7 +111,7 @@ export const GuestList: React.FC<GuestListProps> = ({ hotelId }) => {
                 >
                   Ver Detalhes
                 </Link>
-                
+
                 <RoleGuard allowedRoles={['Admin']}>
                   <button
                     onClick={() => handleDelete(guest.id, guest.fullName)}

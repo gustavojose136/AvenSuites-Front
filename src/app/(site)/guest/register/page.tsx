@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { httpClient } from "@/infrastructure/http/HttpClient"
 import toast from "react-hot-toast"
 import Link from "next/link"
+import { passwordSchema } from "@/shared/validators/passwordSchema"
 
 interface RegisterFormData {
   name: string
@@ -58,12 +59,16 @@ const isStepValid = (step: number, formData: RegisterFormData, birthDay?: string
         formData.postalCode.trim() !== ""
       )
     case 4:
-      return (
-        formData.password !== "" &&
-        formData.confirmPassword !== "" &&
-        formData.password === formData.confirmPassword &&
-        formData.password.length >= 6
-      )
+      try {
+        passwordSchema.parse(formData.password);
+        return (
+          formData.password !== "" &&
+          formData.confirmPassword !== "" &&
+          formData.password === formData.confirmPassword
+        );
+      } catch {
+        return false;
+      }
     default:
       return false
   }
@@ -105,8 +110,8 @@ function RegisterContent() {
   const [birthYear, setBirthYear] = useState("")
 
   useEffect(() => {
-      fetchHotelName(hotelId)
-  }, [hotelId])
+    fetchHotelName(hotelId);
+  }, [hotelId]);
 
   useEffect(() => {
     if (birthDay && birthMonth && birthYear) {
@@ -124,7 +129,7 @@ function RegisterContent() {
       setBirthMonth(month || "")
       setBirthDay(day || "")
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [formData.birthDate])
 
   const fetchHotelName = async (id: string) => {
@@ -132,7 +137,7 @@ function RegisterContent() {
       const hotel = await httpClient.get<any>(`/Hotels/${id}`)
       setHotelName(hotel.name)
     } catch (error) {
-      // Erro silencioso - hotel não é crítico para o cadastro
+
     }
   }
 
@@ -161,6 +166,13 @@ function RegisterContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    try {
+      passwordSchema.parse(formData.password);
+    } catch (error: any) {
+      toast.error(error.errors?.[0]?.message || "Senha inválida. Verifique os requisitos.");
+      return;
+    }
 
     if (!isStepValid(4, formData, birthDay, birthMonth, birthYear)) {
       toast.error("Por favor, verifique os dados de segurança")
@@ -230,16 +242,16 @@ function RegisterContent() {
     <section className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 md:py-12">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+          {}
           <div className="mb-8 text-center">
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">Completar Cadastro</h1>
             <p className="text-slate-600 dark:text-slate-400">Finalize seu registro em {steps.length} passos simples</p>
             </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
-            {/* Left Column - Progress and Summary */}
+            {}
             <div className="lg:col-span-1 space-y-6">
-              {/* Step Indicator */}
+              {}
               <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 sticky top-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Etapas do Cadastro</h3>
                 <div className="space-y-3">
@@ -283,7 +295,7 @@ function RegisterContent() {
                 </div>
               </div>
 
-              {/* Reservation Summary */}
+              {}
               {hotelName && checkIn && checkOut && (
                 <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800">
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Sua Reserva</h3>
@@ -314,7 +326,7 @@ function RegisterContent() {
                 </div>
               )}
 
-              {/* Login Link */}
+              {}
               <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 text-center">
                 <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">Já tem uma conta?</p>
                 <Link
@@ -326,13 +338,13 @@ function RegisterContent() {
               </div>
             </div>
 
-            {/* Right Column - Form */}
+            {}
             <div className="lg:col-span-2">
               <form
                 onSubmit={handleSubmit}
                 className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6 md:p-8"
               >
-                {/* Step 1: Personal Info */}
+                {}
                 {currentStep === 1 && (
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div>
@@ -502,7 +514,7 @@ function RegisterContent() {
                   </div>
                 )}
 
-                {/* Step 2: Contact */}
+                {}
                 {currentStep === 2 && (
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div>
@@ -545,7 +557,7 @@ function RegisterContent() {
                   </div>
                 )}
 
-                {/* Step 3: Address */}
+                {}
                 {currentStep === 3 && (
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div>
@@ -655,7 +667,7 @@ function RegisterContent() {
                   </div>
                 )}
 
-                {/* Step 4: Security */}
+                {}
                 {currentStep === 4 && (
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div>
@@ -665,7 +677,7 @@ function RegisterContent() {
                       </p>
                 </div>
 
-                <div>
+                    <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Senha *
                       </label>
@@ -676,10 +688,31 @@ function RegisterContent() {
                         onChange={handleChange}
                         required
                         minLength={6}
+                        maxLength={100}
                         placeholder="••••••••"
                         className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
-                      <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400">Mínimo 6 caracteres</p>
+                      <div className="mt-1.5 space-y-1">
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                          Mínimo 6 caracteres, máximo 100 caracteres
+                        </p>
+                        {formData.password && (() => {
+                          try {
+                            passwordSchema.parse(formData.password);
+                            return (
+                              <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                                ✓ Senha válida
+                              </p>
+                            );
+                          } catch (error: any) {
+                            return (
+                              <p className="text-xs text-red-600 dark:text-red-400">
+                                {error.errors?.[0]?.message || 'Senha inválida'}
+                              </p>
+                            );
+                          }
+                        })()}
+                      </div>
                     </div>
 
                     <div>
@@ -693,16 +726,21 @@ function RegisterContent() {
                         onChange={handleChange}
                         required
                         minLength={6}
+                        maxLength={100}
                         placeholder="••••••••"
                         className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
+                      {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                          As senhas não coincidem
+                        </p>
+                      )}
+                      {formData.confirmPassword && formData.password === formData.confirmPassword && formData.password.length >= 6 && (
+                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          ✓ Senhas coincidem
+                        </p>
+                      )}
                     </div>
-
-                    {formData.password !== formData.confirmPassword && formData.confirmPassword !== "" && (
-                      <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                        <p className="text-sm text-red-800 dark:text-red-200">As senhas não coincidem</p>
-                  </div>
-                    )}
 
                     <label className="flex items-start gap-3 cursor-pointer p-4 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <input
@@ -719,7 +757,7 @@ function RegisterContent() {
                 </div>
                 )}
 
-                {/* Navigation Buttons */}
+                {}
                 <div className="flex gap-3 mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
                   {currentStep > 1 && (
                     <button

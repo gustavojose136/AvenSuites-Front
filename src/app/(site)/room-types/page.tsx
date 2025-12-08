@@ -41,7 +41,7 @@ function RoomTypesPageContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [selectedHotelId, setSelectedHotelId] = useState<string>(searchParams.get('hotelId') || '');
@@ -65,7 +65,7 @@ function RoomTypesPageContent() {
     try {
       const data = await httpClient.get<Hotel[]>('/Hotels');
       setHotels(data);
-      
+
       if (data.length > 0 && !selectedHotelId) {
         setSelectedHotelId(data[0].id);
       }
@@ -104,11 +104,11 @@ function RoomTypesPageContent() {
   };
 
   const filteredRoomTypes = roomTypes.filter(roomType => {
-    const matchesSearch = 
+    const matchesSearch =
       roomType.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       roomType.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       roomType.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesActive = activeFilter === 'all' || 
+    const matchesActive = activeFilter === 'all' ||
       (activeFilter === 'active' && roomType.active) ||
       (activeFilter === 'inactive' && !roomType.active);
     return matchesSearch && matchesActive;
@@ -143,7 +143,7 @@ function RoomTypesPageContent() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 py-20">
       <div className="container mx-auto px-4">
-        
+
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-2 text-sm text-body-color dark:text-dark-6">
             <Link href="/" className="hover:text-primary">Home</Link>
@@ -154,7 +154,7 @@ function RoomTypesPageContent() {
             <span>/</span>
             <span>Tipos de Quartos</span>
           </div>
-          
+
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
@@ -164,7 +164,7 @@ function RoomTypesPageContent() {
                 Gerencie os tipos de quartos e seus preços por ocupação
               </p>
             </div>
-            
+
             {selectedHotelId && (
               <Link
                 href={`/room-types/new?hotelId=${selectedHotelId}`}
@@ -263,8 +263,8 @@ function RoomTypesPageContent() {
                   Nenhum tipo de quarto encontrado
                 </h3>
                 <p className="mb-6 text-body-color dark:text-dark-6">
-                  {searchTerm || activeFilter !== 'all' 
-                    ? 'Tente ajustar os filtros de busca' 
+                  {searchTerm || activeFilter !== 'all'
+                    ? 'Tente ajustar os filtros de busca'
                     : 'Comece criando o primeiro tipo de quarto deste hotel'}
                 </p>
                 {!searchTerm && activeFilter === 'all' && (
@@ -288,7 +288,7 @@ function RoomTypesPageContent() {
                   >
                     <div className={`relative overflow-hidden p-6 ${roomType.active ? 'bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700' : 'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'}`}>
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
-                      
+
                       <div className="relative flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="text-2xl font-black text-white">

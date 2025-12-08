@@ -1,7 +1,4 @@
-/**
- * Hook: useGuest
- * Custom hook para gerenciar hóspedes
- */
+
 
 'use client';
 

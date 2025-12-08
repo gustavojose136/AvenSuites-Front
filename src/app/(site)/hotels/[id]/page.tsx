@@ -1,6 +1,4 @@
-/**
- * Página: Detalhes do Hotel
- */
+
 
 'use client';
 
@@ -52,10 +50,10 @@ export default function HotelDetailPage({ params }: { params: { id: string } }) 
   return (
     <>
       <Breadcrumb pageName={selectedHotel.name} />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto space-y-8">
-          {/* Informações do Hotel */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-8 dark:border-dark-3 dark:bg-dark-2">
             <div className="mb-6 flex items-start justify-between">
               <div>
@@ -136,7 +134,7 @@ export default function HotelDetailPage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
-          {/* Lista de Quartos */}
+          {}
           <RoomList hotelId={params.id} />
         </div>
       </section>

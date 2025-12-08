@@ -1,7 +1,4 @@
-/**
- * DTO: Guest
- * Data Transfer Object para Hóspedes
- */
+
 
 export interface Guest {
   id: string;

@@ -1,8 +1,4 @@
-/**
- * Hook: useInvoice
- * Custom hook para gerenciar notas fiscais
- * Princípio: Single Responsibility - Responsável apenas por lógica de invoices
- */
+
 
 'use client';
 

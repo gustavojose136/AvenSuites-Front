@@ -1,8 +1,4 @@
-/**
- * Hook: useAuth
- * Custom hook para gerenciar autenticação
- * Princípio: Single Responsibility - Responsável apenas por lógica de autenticação
- */
+
 
 'use client';
 
@@ -22,9 +18,9 @@ export const useAuth = (authService: IAuthService) => {
 
     try {
       const result = await authService.login(credentials);
-      await signIn('credentials', { 
-        ...credentials, 
-        redirect: false 
+      await signIn('credentials', {
+        ...credentials,
+        redirect: false
       });
       return result;
     } catch (err) {

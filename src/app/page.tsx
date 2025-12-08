@@ -111,7 +111,7 @@ export default function Home() {
       <ScrollUp />
       <ThemeToggleButton />
 
-      {/* Hero Section */}
+      {}
       <section
         ref={heroRef}
         className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950"
@@ -207,7 +207,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Features Section */}
+      {}
       <section className="relative overflow-hidden bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 py-20 md:py-32">
         <div className="container mx-auto px-4">
           <motion.div
@@ -250,7 +250,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section - Blue Gradient */}
+      {}
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 py-20 md:py-32">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
@@ -289,7 +289,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {}
       <section className="bg-white dark:bg-slate-900 py-20 md:py-32">
         <div className="container mx-auto px-4">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
@@ -355,7 +355,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Guest Portal Section */}
+      {}
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-slate-900 py-20 md:py-32">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 right-0 w-80 h-80 bg-purple-300/10 rounded-full blur-3xl" />
@@ -370,7 +370,7 @@ export default function Home() {
             className="overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-2xl"
           >
             <div className="grid gap-0 md:grid-cols-2">
-              {/* Left Content */}
+              {}
               <div className="flex flex-col justify-center p-8 lg:p-12">
                 <motion.div
                   whileInView={{ scale: [0.9, 1] }}
@@ -417,7 +417,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right Visual */}
+              {}
               <motion.div
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
@@ -450,7 +450,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Final CTA Section */}
+      {}
       <section className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 py-20 md:py-32">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />

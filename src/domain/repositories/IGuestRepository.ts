@@ -1,7 +1,4 @@
-/**
- * Repository Interface: IGuestRepository
- * Define o contrato para operações de hóspedes
- */
+
 
 import { Guest, GuestCreateRequest, GuestUpdateRequest } from '@/application/dto/Guest.dto';
 

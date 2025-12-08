@@ -1,8 +1,4 @@
-/**
- * Component: BookingStats
- * Exibe estatísticas de reservas
- * SOLID - Single Responsibility: Apenas exibição de estatísticas
- */
+
 
 'use client';
 
@@ -60,14 +56,5 @@ export const BookingStats: React.FC<BookingStatsProps> = ({ bookings }) => {
     </div>
   );
 };
-
-
-
-
-
-
-
-
-
 
 

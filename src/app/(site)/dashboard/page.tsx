@@ -1,11 +1,6 @@
-/**
- * Dashboard Completo - AvenSuites
- * Design moderno e completo para gestão hoteleira
- */
-
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useDashboard, useInvoices } from '@/hooks/useDashboard';
@@ -26,7 +21,6 @@ export default function DashboardPage() {
   const [generatingInvoice, setGeneratingInvoice] = useState<string | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
 
-  // Paginação responsiva para reservas da semana
   const itemsPerPage = useResponsiveItemsPerPage({
     mobile: 1,
     tablet: 2,
@@ -44,13 +38,10 @@ export default function DashboardPage() {
     itemsPerPage,
   });
 
-  // Resetar para primeira página quando os items mudarem ou itemsPerPage mudar
   useEffect(() => {
     setCurrentPage(1);
   }, [weekBookings.length, itemsPerPage, setCurrentPage]);
-  
 
-  // Extrai hotelId do token JWT
   const hotelId = useMemo(() => {
     if (session?.accessToken) {
       return getHotelIdFromToken(session.accessToken as string);
@@ -58,7 +49,6 @@ export default function DashboardPage() {
     return null;
   }, [session]);
 
-  // Função para gerar nota fiscal
   const handleGenerateInvoice = async (bookingId: string) => {
     if (!confirm('Deseja gerar uma nota fiscal para esta reserva?')) {
       return;
@@ -70,21 +60,37 @@ export default function DashboardPage() {
       toast.success('Nota fiscal gerada com sucesso!');
       router.push('/invoices');
     } catch (err) {
-      // Erro já é tratado no hook
+
     } finally {
       setGeneratingInvoice(null);
     }
   };
 
-  // Buscar reservas da semana quando o hotelId estiver disponível
+  const handleLogout = async () => {
+    try {
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('guestToken');
+        localStorage.removeItem('guestUser');
+      }
+
+      await signOut({ redirect: false });
+
+      toast.success('Logout realizado com sucesso!');
+      router.push('/signin');
+    } catch (error) {
+      toast.error('Erro ao fazer logout. Tente novamente.');
+    }
+  };
+
   useEffect(() => {
     if (hotelId && status === 'authenticated') {
       refetchWeekBookings(hotelId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [hotelId, status]);
 
-  // Buscar quartos para o resumo visual
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -152,7 +158,6 @@ export default function DashboardPage() {
     return null;
   }
 
-  // Calcular crescimento (simulado - em produção viria da API)
   const growth = {
     revenue: 12.5,
     bookings: 8.3,
@@ -160,7 +165,6 @@ export default function DashboardPage() {
     guests: 15.7,
   };
 
-  // Função para obter cor do status
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CONFIRMED':
@@ -178,7 +182,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Função para formatar status
   const formatStatus = (status: string) => {
     const statusMap: Record<string, string> = {
       'CONFIRMED': 'Confirmada',
@@ -191,7 +194,6 @@ export default function DashboardPage() {
     return statusMap[status] || status;
   };
 
-  // Função para calcular número de noites
   const calculateNights = (checkIn: string, checkOut: string) => {
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
@@ -203,8 +205,8 @@ export default function DashboardPage() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 py-20">
       <div className="container mx-auto px-4">
-        
-        {/* Header com Saudação */}
+
+        {}
         <div className="mb-8">
           <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -212,15 +214,24 @@ export default function DashboardPage() {
                 Olá, {session?.user?.name?.split(' ')[0] || 'Gestor'}! 👋
               </h1>
               <p className="mt-2 text-lg text-body-color dark:text-dark-6">
-                Aqui está um resumo do seu hotel hoje, {new Date().toLocaleDateString('pt-BR', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                Aqui está um resumo do seu hotel hoje, {new Date().toLocaleDateString('pt-BR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}
               </p>
             </div>
             <div className="flex gap-3">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 rounded-lg bg-red-500 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-red-600 hover:shadow-lg dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sair
+              </button>
               <Link
                 href="/bookings/new"
                 className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl hover:scale-105"
@@ -243,9 +254,9 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* KPIs Principais - Cards Grandes e Atrativos */}
+        {}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {/* Receita Total */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -272,7 +283,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Taxa de Ocupação */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -299,7 +310,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Reservas Ativas */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -326,7 +337,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Hóspedes Ativos */}
+          {}
           <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 p-6 shadow-xl transition hover:shadow-2xl hover:scale-105">
             <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 transform rounded-full bg-white opacity-10"></div>
             <div className="relative">
@@ -354,9 +365,9 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Operações do Dia */}
+        {}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Check-ins Hoje */}
+          {}
           <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
             <div className="mb-4 flex items-center justify-between">
               <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900/20">
@@ -364,7 +375,7 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                 </svg>
               </div>
-              <Link 
+              <Link
                 href="/bookings?filter=checkin-today"
                 className="text-sm font-semibold text-primary hover:underline"
               >
@@ -378,7 +389,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Check-outs Hoje */}
+          {}
           <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
             <div className="mb-4 flex items-center justify-between">
               <div className="rounded-lg bg-purple-100 p-3 dark:bg-purple-900/20">
@@ -386,7 +397,7 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </div>
-              <Link 
+              <Link
                 href="/bookings?filter=checkout-today"
                 className="text-sm font-semibold text-primary hover:underline"
               >
@@ -400,7 +411,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Quartos Disponíveis */}
+          {}
           <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
             <div className="mb-4 flex items-center justify-between">
               <div className="rounded-lg bg-green-100 p-3 dark:bg-green-900/20">
@@ -408,7 +419,7 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <Link 
+              <Link
                 href="/rooms?status=available"
                 className="text-sm font-semibold text-primary hover:underline"
               >
@@ -423,7 +434,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Reservas da Semana */}
+        {}
         <div className="mb-8">
           <div className="mb-6 flex items-center justify-between">
             <div>
@@ -478,14 +489,14 @@ export default function DashboardPage() {
                       isCheckInToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''
                     }`}
                   >
-                    {/* Badge de Check-in Hoje */}
+                    {}
                     {isCheckInToday && (
                       <div className="absolute right-0 top-0 rounded-bl-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-3 py-1 text-xs font-bold text-white">
                         Check-in Hoje!
                       </div>
                     )}
 
-                    {/* Header com Código e Status */}
+                    {}
                     <div className="mb-4 flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-bold text-dark dark:text-white">
@@ -500,9 +511,9 @@ export default function DashboardPage() {
                       </span>
                     </div>
 
-                    {/* Informações da Reserva */}
+                    {}
                     <div className="space-y-3">
-                      {/* Datas */}
+                      {}
                       <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-dark-3">
                         <div className="flex-shrink-0">
                           <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -527,7 +538,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      {/* Hóspedes e Quartos */}
+                      {}
                       <div className="grid grid-cols-2 gap-3">
                         <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/10">
                           <div className="flex items-center gap-2">
@@ -557,7 +568,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      {/* Valor Total */}
+                      {}
                       <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 p-3 dark:from-green-900/10 dark:to-emerald-900/10">
                         <span className="text-sm font-medium text-body-color dark:text-dark-6">Total</span>
                         <span className="text-lg font-bold text-green-600 dark:text-green-400">
@@ -565,7 +576,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
 
-                      {/* Quartos */}
+                      {}
                       {booking.bookingRooms && booking.bookingRooms.length > 0 && (
                         <div className="rounded-lg border border-gray-200 p-3 dark:border-dark-3">
                           <p className="mb-2 text-xs font-semibold text-body-color dark:text-dark-6">Quartos:</p>
@@ -582,7 +593,7 @@ export default function DashboardPage() {
                         </div>
                       )}
 
-                      {/* Ações */}
+                      {}
                       <div className="flex flex-wrap gap-2 pt-2">
                         <Link
                           href={`/bookings/${booking.id}`}
@@ -630,7 +641,7 @@ export default function DashboardPage() {
               })}
               </div>
 
-              {/* Paginação */}
+              {}
               {weekBookings.length > itemsPerPage && (
                 <div className="mt-6">
                   <WeekBookingsPagination
@@ -646,10 +657,10 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Gráficos */}
+        {}
         <div className="mb-8">
-          
-          {/* Status dos Quartos - Gráfico Visual */}
+
+          {}
           <div>
             <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
               <div className="mb-6 flex items-center justify-between">
@@ -658,12 +669,12 @@ export default function DashboardPage() {
                   Gerenciar →
                 </Link>
               </div>
-              
-              {/* Gráfico de Barras Horizontal */}
+
+              {}
               {stats.totalRooms > 0 ? (
                 <>
                   <div className="space-y-4">
-                    {/* Disponíveis */}
+                    {}
                     {stats.roomsByStatus.available > 0 && (
                       <div>
                         <div className="mb-2 flex items-center justify-between">
@@ -676,7 +687,7 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                          <div 
+                          <div
                             className="h-full rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500"
                             style={{ width: `${Math.min((stats.roomsByStatus.available / stats.totalRooms) * 100, 100)}%` }}
                           ></div>
@@ -684,7 +695,7 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {/* Ocupados */}
+                    {}
                     {stats.roomsByStatus.occupied > 0 && (
                       <div>
                         <div className="mb-2 flex items-center justify-between">
@@ -697,7 +708,7 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                          <div 
+                          <div
                             className="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500"
                             style={{ width: `${Math.min((stats.roomsByStatus.occupied / stats.totalRooms) * 100, 100)}%` }}
                           ></div>
@@ -705,7 +716,7 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {/* Em Limpeza */}
+                    {}
                     {stats.roomsByStatus.cleaning > 0 && (
                       <div>
                         <div className="mb-2 flex items-center justify-between">
@@ -718,7 +729,7 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                          <div 
+                          <div
                             className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
                             style={{ width: `${Math.min((stats.roomsByStatus.cleaning / stats.totalRooms) * 100, 100)}%` }}
                           ></div>
@@ -726,7 +737,7 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {/* Em Manutenção */}
+                    {}
                     {stats.roomsByStatus.maintenance > 0 && (
                       <div>
                         <div className="mb-2 flex items-center justify-between">
@@ -739,7 +750,7 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                          <div 
+                          <div
                             className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
                             style={{ width: `${Math.min((stats.roomsByStatus.maintenance / stats.totalRooms) * 100, 100)}%` }}
                           ></div>
@@ -747,7 +758,7 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {/* Inativos */}
+                    {}
                     {stats.roomsByStatus.inactive > 0 && (
                       <div>
                         <div className="mb-2 flex items-center justify-between">
@@ -760,7 +771,7 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-3">
-                          <div 
+                          <div
                             className="h-full rounded-full bg-gradient-to-r from-gray-400 to-gray-600 transition-all duration-500"
                             style={{ width: `${Math.min((stats.roomsByStatus.inactive / stats.totalRooms) * 100, 100)}%` }}
                           ></div>
@@ -769,7 +780,7 @@ export default function DashboardPage() {
                     )}
                   </div>
 
-                  {/* Resumo Visual - Grid Responsivo */}
+                  {}
                   {stats.totalRooms > 0 && rooms.length > 0 && (
                     <div className="mt-6">
                       <p className="mb-3 text-sm font-medium text-body-color dark:text-dark-6">
@@ -780,7 +791,7 @@ export default function DashboardPage() {
                           let color = 'bg-gray-300';
                           let textColor = 'text-gray-800';
                           let tooltip = `Quarto ${room.roomNumber}`;
-                          
+
                           switch (room.status) {
                             case 'ACTIVE':
                               color = 'bg-green-500';
@@ -812,10 +823,10 @@ export default function DashboardPage() {
                               textColor = 'text-gray-800';
                               tooltip = `Quarto ${room.roomNumber}`;
                           }
-                          
+
                           return (
-                            <div 
-                              key={room.id} 
+                            <div
+                              key={room.id}
                               className={`h-12 rounded transition-all hover:scale-110 hover:shadow-lg flex items-center justify-center ${color}`}
                               title={tooltip}
                             >
@@ -843,10 +854,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Relatórios Detalhados */}
+        {}
         <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          
-          {/* Top Hotéis */}
+
+          {}
           <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-dark dark:text-white">Top Hotéis</h3>
@@ -885,7 +896,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Estatísticas Financeiras */}
+          {}
           <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-dark-2">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-dark dark:text-white">Financeiro</h3>
@@ -894,7 +905,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-4">
-              {/* Notas Pagas */}
+              {}
               <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900/50 dark:bg-green-900/10">
                 <div className="flex items-center gap-3">
                   <div className="rounded-full bg-green-500 p-2">
@@ -914,7 +925,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Notas Pendentes */}
+              {}
               <div className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900/50 dark:bg-yellow-900/10">
                 <div className="flex items-center gap-3">
                   <div className="rounded-full bg-yellow-500 p-2">
@@ -934,7 +945,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Notas Vencidas */}
+              {}
               <div className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/10">
                 <div className="flex items-center gap-3">
                   <div className="rounded-full bg-red-500 p-2">
@@ -954,7 +965,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Receita Mensal */}
+              {}
               <div className="rounded-lg border border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:border-dark-3 dark:from-blue-900/10 dark:to-indigo-900/10">
                 <div className="flex items-center justify-between">
                   <div>
@@ -972,11 +983,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-      
-
       </div>
     </section>
   );
 }
-
 

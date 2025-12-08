@@ -1,7 +1,4 @@
-/**
- * Component: RoomForm
- * Formulário completo de quarto com validação
- */
+
 
 'use client';
 
@@ -34,9 +31,9 @@ interface RoomFormProps {
   isEdit?: boolean;
 }
 
-export const RoomForm: React.FC<RoomFormProps> = ({ 
+export const RoomForm: React.FC<RoomFormProps> = ({
   hotelId,
-  onSubmit, 
+  onSubmit,
   initialData,
   loading = false,
   isEdit = false,
@@ -46,12 +43,12 @@ export const RoomForm: React.FC<RoomFormProps> = ({
   const [showRoomTypeInfo, setShowRoomTypeInfo] = useState(false);
   const [loadingRoomTypes, setLoadingRoomTypes] = useState(false);
 
-  const { 
-    register, 
+  const {
+    register,
     handleSubmit,
     reset,
     watch,
-    formState: { errors, isSubmitting } 
+    formState: { errors, isSubmitting }
   } = useForm<RoomFormData>({
     resolver: zodResolver(roomCreateSchema),
     defaultValues: {
@@ -91,7 +88,6 @@ export const RoomForm: React.FC<RoomFormProps> = ({
     }
   }, [roomTypeId, roomTypes]);
 
-  // Atualiza o formulário quando initialData mudar (importante para edição)
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
       reset({
@@ -112,9 +108,9 @@ export const RoomForm: React.FC<RoomFormProps> = ({
         <h2 className="mb-6 text-xl font-bold text-dark dark:text-white">
           Informações do Quarto
         </h2>
-        
+
         <div className="space-y-4">
-          {/* Tipo de Quarto */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
               {isEdit ? 'Tipo de Quarto (opcional - alterar tipo)' : 'Tipo de Quarto *'}
@@ -199,7 +195,7 @@ export const RoomForm: React.FC<RoomFormProps> = ({
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            {/* Número do Quarto */}
+            {}
             <div>
               <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
                 Número do Quarto * (máx. 20 caracteres)
@@ -217,7 +213,7 @@ export const RoomForm: React.FC<RoomFormProps> = ({
               )}
             </div>
 
-            {/* Andar */}
+            {}
             <div>
               <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
                 Andar (máx. 10 caracteres)
@@ -236,7 +232,7 @@ export const RoomForm: React.FC<RoomFormProps> = ({
             </div>
           </div>
 
-          {/* Status */}
+          {}
           <div>
             <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
               Status
@@ -257,7 +253,7 @@ export const RoomForm: React.FC<RoomFormProps> = ({
         </div>
       </div>
 
-      {/* Botões */}
+      {}
       <div className="flex gap-4">
         <button
           type="button"

@@ -1,10 +1,6 @@
-/**
- * Service Interface: IAuthService
- * Define a lógica de negócio de autenticação
- * Princípio: Open/Closed - Aberto para extensão
- */
 
-import { IAuthRepository, LoginRequest, LoginResponse, RegisterRequest } from '../repositories/IAuthRepository';
+
+import { IAuthRepository, LoginRequest, LoginResponse, RegisterRequest, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse } from '../repositories/IAuthRepository';
 import { User } from '../entities/User';
 
 export interface IAuthService {
@@ -12,12 +8,10 @@ export interface IAuthService {
   register(data: RegisterRequest): Promise<User>;
   validatePassword(data: LoginRequest): Promise<boolean>;
   logout(): Promise<void>;
+  forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse>;
+  resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse>;
 }
 
-/**
- * Implementação do serviço de autenticação
- * Princípio: Liskov Substitution - Pode ser substituído por qualquer implementação
- */
 export class AuthService implements IAuthService {
   constructor(private authRepository: IAuthRepository) {}
 
@@ -34,7 +28,15 @@ export class AuthService implements IAuthService {
   }
 
   async logout(): Promise<void> {
-    // Lógica de logout
+
+  }
+
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    return this.authRepository.forgotPassword(data);
+  }
+
+  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    return this.authRepository.resetPassword(data);
   }
 }
 

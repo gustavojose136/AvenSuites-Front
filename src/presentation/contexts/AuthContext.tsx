@@ -1,8 +1,4 @@
-/**
- * Context: AuthContext
- * Contexto global para autenticação
- * Princípio: Single Responsibility - Gerencia apenas estado de autenticação
- */
+
 
 'use client';
 

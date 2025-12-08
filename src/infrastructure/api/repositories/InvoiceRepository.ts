@@ -1,7 +1,4 @@
-/**
- * Repository Implementation: InvoiceRepository
- * Implementação concreta da interface IInvoiceRepository
- */
+
 
 import { IInvoiceRepository } from '@/domain/repositories/IInvoiceRepository';
 import { Invoice, InvoiceCreateRequest, InvoiceUpdateRequest, InvoicePayRequest } from '@/application/dto/Invoice.dto';
@@ -18,7 +15,7 @@ export class InvoiceRepository implements IInvoiceRepository {
     if (params?.startDate) queryParams.append('startDate', params.startDate);
     if (params?.endDate) queryParams.append('endDate', params.endDate);
     if (params?.guestId) queryParams.append('guestId', params.guestId);
-    
+
     const query = queryParams.toString() ? `?${queryParams}` : '';
     return this.httpClient.get<Invoice[]>(`${this.baseUrl}${query}`);
   }

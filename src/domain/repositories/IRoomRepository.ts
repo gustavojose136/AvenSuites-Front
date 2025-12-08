@@ -1,14 +1,11 @@
-/**
- * Repository Interface: IRoomRepository
- * Define o contrato para operações de quartos
- */
 
-import { 
-  Room, 
-  RoomCreateRequest, 
-  RoomUpdateRequest, 
-  RoomAvailabilityRequest, 
-  RoomAvailabilityResponse 
+
+import {
+  Room,
+  RoomCreateRequest,
+  RoomUpdateRequest,
+  RoomAvailabilityRequest,
+  RoomAvailabilityResponse
 } from '@/application/dto/Room.dto';
 
 export interface IRoomRepository {

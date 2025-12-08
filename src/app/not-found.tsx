@@ -27,7 +27,7 @@ export default function NotFoundPage() {
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-dark dark:to-dark-2 flex items-center justify-center py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center">
-          {/* Ícone 404 */}
+          {}
           <div className="mb-8">
             <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-indigo-500/20 mb-6">
               <svg
@@ -46,17 +46,17 @@ export default function NotFoundPage() {
             </div>
           </div>
 
-          {/* Título */}
+          {}
           <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-600 mb-4">
             404
           </h1>
 
-          {/* Subtítulo */}
+          {}
           <h2 className="text-2xl md:text-3xl font-bold text-dark dark:text-white mb-4">
             Página não encontrada
           </h2>
 
-          {/* Mensagem */}
+          {}
           <p className="text-lg text-body-color dark:text-dark-6 mb-8">
             Não foi possível encontrar a página solicitada, e estaremos te redirecionando para a tela inicial do sistema em{' '}
             <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-primary to-indigo-600 text-white font-bold text-xl mx-2">
@@ -65,7 +65,7 @@ export default function NotFoundPage() {
             {countdown === 1 ? ' segundo' : ' segundos'}
           </p>
 
-          {/* Barra de progresso */}
+          {}
           <div className="mb-8">
             <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-dark-3">
               <div
@@ -75,7 +75,7 @@ export default function NotFoundPage() {
             </div>
           </div>
 
-          {/* Botões de ação */}
+          {}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/"

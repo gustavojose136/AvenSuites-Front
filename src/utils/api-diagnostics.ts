@@ -1,7 +1,4 @@
-/**
- * Utilitário de Diagnóstico da API
- * Testa quais endpoints estão disponíveis
- */
+
 
 import { httpClient } from '@/infrastructure/http/HttpClient';
 
@@ -13,13 +10,10 @@ export interface DiagnosticResult {
   error?: string;
 }
 
-/**
- * Testa um endpoint específico
- */
 async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
   try {
     const data = await httpClient.get<any[]>(endpoint);
-    
+
     return {
       endpoint,
       status: 'success',
@@ -28,7 +22,7 @@ async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
     };
   } catch (error: any) {
     const statusCode = error.response?.status || 0;
-    
+
     if (statusCode === 404) {
       return {
         endpoint,
@@ -36,7 +30,7 @@ async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
         statusCode: 404,
       };
     }
-    
+
     return {
       endpoint,
       status: 'error',
@@ -46,43 +40,36 @@ async function testEndpoint(endpoint: string): Promise<DiagnosticResult> {
   }
 }
 
-/**
- * Testa todos os endpoints comuns
- */
 export async function diagnoseAPI(): Promise<DiagnosticResult[]> {
 
   const endpointsToTest = [
-    // Hotéis
+
     '/Hotel',
     '/Hotels',
     '/hotel',
     '/hotels',
-    
-    // Quartos
+
     '/Room',
     '/Rooms',
     '/Quarto',
     '/Quartos',
     '/room',
     '/rooms',
-    
-    // Hóspedes
+
     '/Guest',
     '/Guests',
     '/Hospede',
     '/Hospedes',
     '/guest',
     '/guests',
-    
-    // Reservas
+
     '/Booking',
     '/Bookings',
     '/Reserva',
     '/Reservas',
     '/booking',
     '/bookings',
-    
-    // Notas Fiscais
+
     '/Invoice',
     '/Invoices',
     '/NotaFiscal',
@@ -96,12 +83,10 @@ export async function diagnoseAPI(): Promise<DiagnosticResult[]> {
   for (const endpoint of endpointsToTest) {
     const result = await testEndpoint(endpoint);
     results.push(result);
-    
-    // Pequeno delay para não sobrecarregar a API
+
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  // Resumo
   const successCount = results.filter(r => r.status === 'success').length;
   const notFoundCount = results.filter(r => r.status === 'not_found').length;
   const errorCount = results.filter(r => r.status === 'error').length;
@@ -109,9 +94,6 @@ export async function diagnoseAPI(): Promise<DiagnosticResult[]> {
   return results;
 }
 
-/**
- * Exibe resultado formatado no console
- */
 export function printDiagnosticResults(results: DiagnosticResult[]) {
   console.table(
     results.map(r => ({

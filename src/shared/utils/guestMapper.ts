@@ -1,21 +1,14 @@
-/**
- * Utility: Guest Mapper
- * Mapeia dados do formulário para o formato da API
- */
+
 
 import { GuestFormData } from '../validators/guestSchema';
 import { GuestCreateRequest } from '@/application/dto/Guest.dto';
 
-/**
- * Transforma dados do formulário para o formato esperado pela API
- */
 export function mapFormDataToApiRequest(formData: GuestFormData): GuestCreateRequest {
-  // Concatena firstName e lastName para fullName
+
   const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-  
-  // Remove formatação do documento (mantém apenas dígitos)
+
   const documentPlain = formData.documentNumber.replace(/\D/g, '');
-  
+
   return {
     hotelId: formData.hotelId,
     fullName: fullName,
@@ -34,15 +27,12 @@ export function mapFormDataToApiRequest(formData: GuestFormData): GuestCreateReq
   };
 }
 
-/**
- * Transforma dados da API para o formato do formulário
- */
 export function mapApiResponseToFormData(apiData: any): Partial<GuestFormData> {
-  // Separa fullName em firstName e lastName
+
   const nameParts = (apiData.fullName || '').split(' ');
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
-  
+
   return {
     hotelId: apiData.hotelId,
     firstName: firstName,

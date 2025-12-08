@@ -1,7 +1,4 @@
-/**
- * Component: LoadingSpinner
- * Spinner de carregamento reutilizável
- */
+
 
 import React from 'react';
 
@@ -10,9 +7,9 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
-  className = '' 
+  className = ''
 }) => {
   const sizeClasses = {
     sm: 'h-6 w-6',
@@ -22,7 +19,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   return (
     <div className={`flex justify-center items-center ${className}`}>
-      <div 
+      <div
         className={`animate-spin rounded-full border-b-2 border-primary ${sizeClasses[size]}`}
       />
     </div>

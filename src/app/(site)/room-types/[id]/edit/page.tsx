@@ -45,11 +45,11 @@ interface RoomTypeFormData {
 export default function EditRoomTypePage({ params }: { params: { id: string } }) {
   const { status } = useSession();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [roomType, setRoomType] = useState<RoomType | null>(null);
-  
+
   const [formData, setFormData] = useState<RoomTypeFormData>({
     hotelId: '',
     code: '',
@@ -96,7 +96,7 @@ export default function EditRoomTypePage({ params }: { params: { id: string } })
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
               type === 'number' ? (value === '' ? 0 : parseFloat(value)) :
               value
     }));
@@ -122,7 +122,7 @@ export default function EditRoomTypePage({ params }: { params: { id: string } })
   const handleOccupancyPriceChange = (index: number, field: 'occupancy' | 'pricePerNight', value: number) => {
     setFormData(prev => ({
       ...prev,
-      occupancyPrices: prev.occupancyPrices.map((price, i) => 
+      occupancyPrices: prev.occupancyPrices.map((price, i) =>
         i === index ? { ...price, [field]: value } : price
       )
     }));
@@ -153,7 +153,7 @@ export default function EditRoomTypePage({ params }: { params: { id: string } })
       toast.error('O preço base deve ser maior ou igual a zero');
       return false;
     }
-    
+
     for (const price of formData.occupancyPrices) {
       if (price.occupancy < 1 || price.occupancy > 20) {
         toast.error('A ocupação deve estar entre 1 e 20 pessoas');
@@ -176,7 +176,7 @@ export default function EditRoomTypePage({ params }: { params: { id: string } })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -247,7 +247,7 @@ export default function EditRoomTypePage({ params }: { params: { id: string } })
             <span>/</span>
             <span>Editar</span>
           </div>
-          
+
           <h1 className="text-3xl font-bold text-dark dark:text-white lg:text-4xl">
             Editar Tipo de Quarto
           </h1>
@@ -261,7 +261,7 @@ export default function EditRoomTypePage({ params }: { params: { id: string } })
             <h2 className="mb-6 text-xl font-bold text-dark dark:text-white">
               Informações Básicas
             </h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">

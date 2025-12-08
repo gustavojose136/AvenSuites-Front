@@ -1,6 +1,4 @@
-/**
- * Página: Detalhes do Quarto
- */
+
 
 'use client';
 
@@ -80,14 +78,14 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <>
-      <Breadcrumb 
+      <Breadcrumb
         pageName={`Quarto ${selectedRoom.roomNumber}`}
         pageDescription="Detalhes do quarto"
       />
-      
+
       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px]">
         <div className="container mx-auto max-w-4xl space-y-6">
-          {/* Header com ações */}
+          {}
           <div className="flex items-center justify-between">
             <div>
               <h1 className="mb-2 text-3xl font-bold text-dark dark:text-white">
@@ -108,12 +106,12 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
             </RoleGuard>
           </div>
 
-          {/* Informações do Quarto */}
+          {}
           <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
             <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
               Informações
             </h2>
-            
+
             <div className="grid gap-4 md:grid-cols-2">
               {selectedRoom.floor && (
                 <div>
@@ -155,13 +153,13 @@ export default function RoomDetailPage({ params }: { params: { id: string } }) {
             )}
           </div>
 
-          {/* Ações Rápidas */}
+          {}
           {selectedRoom.status === 'ACTIVE' && (
             <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-dark-2">
               <h2 className="mb-4 text-xl font-semibold text-dark dark:text-white">
                 Ações Rápidas
               </h2>
-              
+
               <div className="flex gap-4">
                 <Link
                   href={`/bookings/new?roomId=${params.id}`}

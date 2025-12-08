@@ -1,7 +1,4 @@
-/**
- * Repository Interface: IBookingRepository
- * Define o contrato para operações de reservas
- */
+
 
 import { Booking, BookingCreateRequest, BookingUpdateRequest } from '@/application/dto/Booking.dto';
 

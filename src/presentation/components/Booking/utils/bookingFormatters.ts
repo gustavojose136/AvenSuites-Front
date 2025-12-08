@@ -1,7 +1,4 @@
-/**
- * Utilitários de formatação para reservas
- * SOLID - Single Responsibility: Apenas formatação
- */
+
 
 export const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -51,14 +48,5 @@ export const getStatusLabel = (status: string): string => {
   };
   return labels[status.toUpperCase()] || status;
 };
-
-
-
-
-
-
-
-
-
 
 

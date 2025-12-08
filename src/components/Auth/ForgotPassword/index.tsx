@@ -23,7 +23,7 @@ const ForgotPassword = () => {
     setLoader(true);
 
     try {
-      const res = await axios.post("/api/forgot-password/reset", {
+      const res = await axios.post("/forgot-password/reset", {
         email: email.toLowerCase(),
       });
 
