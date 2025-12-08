@@ -7,6 +7,8 @@ import { httpClient } from "@/infrastructure/http/HttpClient"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import { passwordSchema } from "@/shared/validators/passwordSchema"
+import { applyDocumentMask, validateDocument, getDocumentMaxLength, getDocumentPlaceholder, type DocumentType } from "@/shared/utils/documentUtils"
+import { applyPhoneMask, validatePhone, formatPhoneForAPI, getPhonePlaceholder } from "@/shared/utils/phoneUtils"
 
 interface RegisterFormData {
   name: string
@@ -47,10 +49,11 @@ const isStepValid = (step: number, formData: RegisterFormData, birthDay?: string
         birthMonth !== "" &&
         birthYear !== "" &&
         formData.documentType !== "" &&
-        formData.document.trim() !== ""
+        formData.document.trim() !== "" &&
+        validateDocument(formData.document, formData.documentType as DocumentType)
       )
     case 2:
-      return formData.email.trim() !== "" && formData.phone.trim() !== ""
+      return formData.email.trim() !== "" && formData.phone.trim() !== "" && validatePhone(formData.phone)
     case 3:
       return (
         formData.addressLine1.trim() !== "" &&
@@ -129,8 +132,7 @@ function RegisterContent() {
       setBirthMonth(month || "")
       setBirthDay(day || "")
     }
-
-  }, [formData.birthDate])
+  }, [formData.birthDate, birthDay, birthMonth, birthYear])
 
   const fetchHotelName = async (id: string) => {
     try {
@@ -147,6 +149,18 @@ function RegisterContent() {
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked
       setFormData((prev) => ({ ...prev, [name]: checked }))
+    } else if (name === "document") {
+      const maskedValue = applyDocumentMask(value, formData.documentType as DocumentType)
+      setFormData((prev) => ({ ...prev, [name]: maskedValue }))
+    } else if (name === "documentType") {
+      setFormData((prev) => {
+        const newType = value as DocumentType
+        const maskedDocument = applyDocumentMask(prev.document.replace(/\D/g, ''), newType)
+        return { ...prev, documentType: newType, document: maskedDocument }
+      })
+    } else if (name === "phone") {
+      const maskedPhone = applyPhoneMask(value)
+      setFormData((prev) => ({ ...prev, [name]: maskedPhone }))
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }))
     }
@@ -186,7 +200,7 @@ function RegisterContent() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        phone: formData.phone,
+        phone: formatPhoneForAPI(formData.phone),
         documentType: formData.documentType,
         document: formData.document,
         birthDate: formData.birthDate,
@@ -506,10 +520,29 @@ function RegisterContent() {
                         value={formData.document}
                         onChange={handleChange}
                         required
-                        maxLength={20}
-                        placeholder="000.000.000-00"
+                        maxLength={getDocumentMaxLength(formData.documentType as DocumentType)}
+                        placeholder={getDocumentPlaceholder(formData.documentType as DocumentType)}
                         className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
+                      {formData.document && (
+                        <div className="mt-1.5">
+                          {validateDocument(formData.document, formData.documentType as DocumentType) ? (
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Documento válido
+                            </p>
+                          ) : (
+                            <p className="text-xs text-red-600 dark:text-red-400">
+                              {formData.documentType === 'CPF' && 'CPF inválido. Verifique os dígitos verificadores.'}
+                              {formData.documentType === 'RG' && 'RG deve ter entre 6 e 9 dígitos.'}
+                              {formData.documentType === 'CNH' && 'CNH deve ter 11 dígitos.'}
+                              {formData.documentType === 'Passport' && 'Passaporte inválido. Use apenas letras e números (6-9 caracteres).'}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -550,9 +583,26 @@ function RegisterContent() {
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        placeholder="+55 11 99999-9999"
+                        maxLength={15}
+                        placeholder={getPhonePlaceholder()}
                         className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white dark:focus:ring-white/10 outline-none transition"
                       />
+                      {formData.phone && (
+                        <div className="mt-1.5">
+                          {validatePhone(formData.phone) ? (
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Telefone válido
+                            </p>
+                          ) : (
+                            <p className="text-xs text-red-600 dark:text-red-400">
+                              Telefone inválido. Use o formato (00) 00000-0000 ou (00) 0000-0000
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
