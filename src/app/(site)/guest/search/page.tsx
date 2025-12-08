@@ -202,7 +202,7 @@ export default function GuestSearchPage() {
                 onChange={(e) => setGuests(Number(e.target.value))}
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                {[1, 2, 3, 4, 5, 6].map((num) => (
+                {[1, 2, 3].map((num) => (
                   <option key={num} value={num}>
                     {num} {num === 1 ? "pessoa" : "pessoas"}
                   </option>

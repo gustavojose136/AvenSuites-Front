@@ -70,7 +70,7 @@ function BookingContent() {
   const hotelId = searchParams.get('hotelId') || '7a326969-3bf6-40d9-96dc-1aecef585000';
   const initialCheckIn = searchParams.get('checkIn') || '';
   const initialCheckOut = searchParams.get('checkOut') || '';
-  const initialGuests = Number(searchParams.get('guests')) || 2;
+  const initialGuests = Math.min(Math.max(Number(searchParams.get('guests')) || 2, 1), 3);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -82,7 +82,7 @@ function BookingContent() {
   const [notes, setNotes] = useState('');
   const [checkIn, setCheckIn] = useState(initialCheckIn);
   const [checkOut, setCheckOut] = useState(initialCheckOut);
-  const [guests, setGuests] = useState(initialGuests);
+  const [guests, setGuests] = useState(Math.min(Math.max(initialGuests, 1), 3));
   const [isEditingDates, setIsEditingDates] = useState(false);
 
   useEffect(() => {
@@ -378,8 +378,8 @@ function BookingContent() {
   };
 
   const handleUpdateGuests = async () => {
-    if (guests < 1 || guests > 10) {
-      toast.error('A quantidade de hóspedes deve ser entre 1 e 10');
+    if (guests < 1 || guests > 3) {
+      toast.error('A quantidade de hóspedes deve ser entre 1 e 3');
       return;
     }
 
@@ -551,11 +551,16 @@ function BookingContent() {
                                 Hóspedes
                               </label>
                               <select
-                                value={guests}
-                                onChange={(e) => setGuests(Number(e.target.value))}
+                                value={Math.min(Math.max(guests, 1), 3)}
+                                onChange={(e) => {
+                                  const value = Number(e.target.value);
+                                  if (value >= 1 && value <= 3) {
+                                    setGuests(value);
+                                  }
+                                }}
                                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                               >
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                                {[1, 2, 3].map((num) => (
                                   <option key={num} value={num}>
                                     {num} {num === 1 ? 'pessoa' : 'pessoas'}
                                   </option>
